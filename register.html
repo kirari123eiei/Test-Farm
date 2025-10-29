@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Register (Supabase Auth)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f4f4f4;
+      margin: 0;
+    }
+    .register-container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      width: 400px;
+      transition: 0.3s;
+    }
+    .register-container:hover { transform: scale(1.02); }
+    .register-container h2 { text-align: center; margin-bottom: 22px; color: #333; }
+    .form-group { margin-bottom: 22px; }
+    .form-group label { display: block; margin-bottom: 4px; color: #555; }
+    .form-group input { width: 95%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+    .form-group button {
+      width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px;
+      cursor: pointer; font-size: 16px; transition: background-color 0.2s, transform 0.1s;
+    }
+    .form-group button:hover { background-color: #0056b3; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="register-container">
+    <h2>Register</h2>
+    <form id="registerForm">
+      <div class="form-group">
+        <label for="email">อีเมล:</label>
+        <input type="email" id="email" required>
+      </div>
+      <div class="form-group">
+        <label for="password">รหัสผ่าน:</label>
+        <input type="password" id="password" required>
+      </div>
+      <div class="form-group">
+        <label for="confirmPassword">ยืนยันรหัสผ่าน:</label>
+        <input type="password" id="confirmPassword" required>
+      </div>
+      <div class="form-group">
+        <button type="submit">Create Account</button>
+      </div>
+    </form>
+    <div class="register-link">
+      <a href="login.html">กลับไปหน้า Login</a>
+    </div>
+  </div>
+
+  <script>
+    const supabase = window.supabase.createClient("https://yiaemxmwfxrfrwtogamw.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw");
+
+    document.getElementById('registerForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+      if (password !== confirmPassword) { alert('รหัสผ่านไม่ตรงกัน'); return; }
+
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) { alert(error.message); return; }
+      alert('สมัครสำเร็จ! ตรวจอีเมลเพื่อยืนยัน (ถ้าตั้งค่าให้ต้องยืนยัน) แล้วเข้าสู่ระบบได้เลย');
+      window.location.href = 'login.html';
+    });
+  </script>
+</body>
+</html>
