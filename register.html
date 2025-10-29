@@ -72,7 +72,7 @@
 
       const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) { alert(error.message); return; }
-      alert('สมัครสำเร็จ! ตรวจอีเมลเพื่อยืนยัน (ถ้าตั้งค่าให้ต้องยืนยัน) แล้วเข้าสู่ระบบได้เลย');
+      alert('สมัครสำเร็จ! เข้าสู่ระบบได้เลย');
       window.location.href = 'login.html';
     });
   </script>
