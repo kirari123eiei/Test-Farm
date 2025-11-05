@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>กล้องถ่ายทอดสด + ตาราง</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 30px;
+    background: #f3f4f6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  h1 {
+    text-align: center;
+    color: #1e40af;
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 40px;
+  }
+
+  iframe {
+    width: 640px;
+    height: 480px;
+    border: 3px solid #000000;
+    border-radius: 12px;
+    margin: 20px 0;
+  }
+
+  .grid-container {
+    position: relative;
+    background: white;
+    border: 1px solid #ccc;
+    margin-top: 20px;
+    margin-left: 20px;
+    max-width: 640px;
+    width: 100%;
+  }
+
+  .vertical-line, .horizontal-line {
+    position: absolute;
+    background: #bbb;
+  }
+  .vertical-line { width: 1px; top: 0; bottom: 0; }
+  .horizontal-line { height: 1px; left: 0; right: 0; }
+
+  .circle {
+    width: 16px;
+    height: 16px;
+    background: #3498db;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    z-index: 5;
+    transition: background 0.5s;
+  }
+  .circle:hover { background: #2c7fb7; }
+
+  .point-container { position: absolute; }
+
+  .tooltip {
+    position: absolute;
+    background: rgba(0,0,0,0.85);
+    color: white;
+    padding: 8px;
+    border-radius: 5px;
+    font-size: 12px;
+    width: 140px;
+    text-align: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 10;
+  }
+
+  .tooltip img {
+    max-width: 120px;
+    margin-top: 6px;
+    display: block;
+  }
+
+  .upload-btn {
+    display: inline-block;
+    background: #2ecc71;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    margin-top: 5px;
+    cursor: pointer;
+  }
+
+  .point-container:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .tooltip input[type="text"] {
+    width: 120px;
+    margin-bottom: 5px;
+    color: black;
+    background: white;
+    border: none;
+    border-radius: 3px;
+    padding: 2px 4px;
+  }
+</style>
+</head>
+<body>
+  <h1>📷 กล้องจาก ESP32-CAM</h1>
+  <div class="content" style="display: flex; flex-wrap: wrap; gap: 30px; align-items: flex-start; justify-content: center;">
+    <iframe src="http://10.254.139.188" allow="camera; microphone;"></iframe>
+    <div class="grid-container" id="grid"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // === ตั้งค่า Supabase ===
+    const supabase = window.supabase.createClient(
+      "https://yiaemxmwfxrfrwtogamw.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw"
+    );
+
+    const grid = document.getElementById("grid");
+    const cols = 4;
+    const rows = 6;
+
+    // === วาด Grid ===
+    const iframe = document.querySelector("iframe");
+    const gridHeight = iframe.clientHeight;
+    const cellSize = gridHeight / (rows + 1);
+    grid.style.width = `${cellSize * (cols + 1)}px`;
+    grid.style.height = `${gridHeight}px`;
+
+    for (let i = 1; i <= cols; i++) {
+      const v = document.createElement("div");
+      v.className = "vertical-line";
+      v.style.left = `${(i / (cols + 1)) * 100}%`;
+      grid.appendChild(v);
+    }
+    for (let j = 1; j <= rows; j++) {
+      const h = document.createElement("div");
+      h.className = "horizontal-line";
+      h.style.top = `${(j / (rows + 1)) * 100}%`;
+      grid.appendChild(h);
+    }
+
+    // === โหลดข้อมูลทั้งหมดจาก Supabase ===
+    (async function loadPoints() {
+      const { data, error } = await supabase.from("grid_points").select("*");
+      if (error) console.error("โหลดข้อมูล grid ล้มเหลว:", error);
+
+      for (let i = 1; i <= cols; i++) {
+        for (let j = 1; j <= rows; j++) {
+          const x = (i / (cols + 1)) * grid.clientWidth;
+          const y = (j / (rows + 1)) * grid.clientHeight;
+
+          const pointData = data?.find(d => d.x === i && d.y === j);
+
+          const pointContainer = document.createElement("div");
+          pointContainer.className = "point-container";
+          pointContainer.style.left = `${x}px`;
+          pointContainer.style.top = `${y}px`;
+
+          const circle = document.createElement("div");
+          circle.className = "circle";
+
+          const tooltip = document.createElement("div");
+          tooltip.className = "tooltip";
+          tooltip.innerHTML = `
+            <div>จุด (${i-1}, ${j-1})</div>
+            <input type="text" id="name-${i}-${j}" placeholder="ตั้งชื่อจุดนี้" value="${pointData?.name || ''}" onchange="setName(this, ${i}, ${j})">
+            <img id="img-${i}-${j}" src="${pointData?.image_url || ''}" style="${pointData?.image_url ? 'display:block;' : 'display:none;'}" alt="Image Preview">
+            <label class="upload-btn">
+              อัปโหลด
+              <input type="file" accept="image/*" style="display:none;" onchange="uploadImage(event, ${i}, ${j})">
+            </label>
+          `;
+
+          pointContainer.appendChild(circle);
+          pointContainer.appendChild(tooltip);
+          grid.appendChild(pointContainer);
+        }
+      }
+    })();
+
+    // === ฟังก์ชันบันทึกชื่อจุด ===
+    async function setName(input, i, j) {
+      const name = input.value;
+      const { error } = await supabase
+        .from("grid_points")
+        .upsert([{ x: i, y: j, name }], { onConflict: "x,y" });
+
+      if (error) alert("บันทึกชื่อไม่สำเร็จ: " + error.message);
+      else console.log(`✅ บันทึกชื่อ (${i},${j}) = ${name}`);
+    }
+
+    // === ฟังก์ชันอัปโหลดรูป ===
+    async function uploadImage(event, i, j) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const fileName = `grid_${i}_${j}_${Date.now()}.jpg`;
+
+      // ✅ อัปโหลดรูปไป Supabase Storage (bucket: grid-images)
+      const { data, error } = await supabase.storage
+        .from("grid-images")
+        .upload(fileName, file, { upsert: true });
+
+      if (error) {
+        alert("อัปโหลดรูปไม่สำเร็จ: " + error.message);
+        return;
+      }
+
+      // ✅ ดึง URL ภาพแบบ public
+      const { data: urlData } = supabase.storage.from("grid-images").getPublicUrl(fileName);
+      const imageUrl = urlData.publicUrl;
+
+      // ✅ แสดงใน tooltip
+      const img = document.getElementById(`img-${i}-${j}`);
+      img.src = imageUrl;
+      img.style.display = "block";
+
+      // ✅ บันทึก URL ลงฐานข้อมูล
+      const { error: dbError } = await supabase
+        .from("grid_points")
+        .upsert([{ x: i, y: j, image_url: imageUrl }], { onConflict: "x,y" });
+
+      if (dbError) alert("บันทึก URL ไม่สำเร็จ: " + dbError.message);
+      else console.log(`✅ บันทึกรูป (${i},${j}) สำเร็จ`);
+    }
+  </script>
+</body>
+</html>
