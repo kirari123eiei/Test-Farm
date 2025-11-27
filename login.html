@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>Register (Supabase Auth)</title>
+  <title>Login</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -10,36 +10,33 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      background-color: #EADCF6; /* เปลี่ยนเป็นม่วงอ่อนเหมือนหน้า login */
+      background-color: #EADCF6; /* เปลี่ยนเป็นม่วงอ่อนกว่าปุ่ม */
       margin: 0;
+      position: relative;
     }
-    .register-container {
+    .login-container {
       background-color: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      width: 400px;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      width: 380px;
       transition: 0.3s;
     }
-    .register-container:hover { transform: scale(1.02); }
-    .register-container h2 { text-align: center; margin-bottom: 22px; color: #333; }
+    .login-container:hover { transform: scale(1.02); }
+    .login-container h2 {
+      text-align: center; margin-bottom: 28px; color: #333; font-size: 26px;
+    }
     .form-group { margin-bottom: 22px; }
-    .form-group label { display: block; margin-bottom: 4px; color: #555; }
-    .form-group input { width: 95%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
-
-    /* เปลี่ยนสีปุ่มให้เหมือนหน้า login */
+    .form-group label { display: block; margin-bottom: 8px; color: #555; font-size: 16px; }
+    .form-group input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
     .form-group button {
-      width: 100%; padding: 10px; background-color: #BA55D3; color: white; border: none; border-radius: 4px;
-      cursor: pointer; font-size: 16px; transition: background-color 0.2s, transform 0.1s;
+      width: 100%; padding: 12px; background-color: #BA55D3; color: white; border: none; border-radius: 6px;
+      cursor: pointer; font-size: 18px; font-weight: bold; transition: background-color 0.2s, transform 0.1s;
     }
     .form-group button:hover { background-color: #9932cc; }
-
-    /* เปลี่ยนสีลิงก์ให้เข้ากับปุ่ม */
-    .register-link { text-align: center; margin-top: 12px; }
+    .register-link { text-align: center; margin-top: 18px; font-size: 16px; }
     .register-link a { color: #BA55D3; text-decoration: none; font-weight: bold; }
     .register-link a:hover { text-decoration: underline; }
-
-    /* เพิ่ม: ขีดเส้นใต้เมื่อเอาเมาส์ไปจ่อ */
     .footer-text {
       position: fixed;
       bottom: 10px;
@@ -59,9 +56,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <div class="register-container">
-    <h2>Register</h2>
-    <form id="registerForm">
+  <div class="login-container">
+    <h2>Login</h2>
+    <form id="loginForm">
       <div class="form-group">
         <label for="email">อีเมล:</label>
         <input type="email" id="email" required>
@@ -71,15 +68,11 @@
         <input type="password" id="password" required>
       </div>
       <div class="form-group">
-        <label for="confirmPassword">ยืนยันรหัสผ่าน:</label>
-        <input type="password" id="confirmPassword" required>
-      </div>
-      <div class="form-group">
-        <button type="submit">Create Account</button>
+        <button type="submit">Log In</button>
       </div>
     </form>
     <div class="register-link">
-      <a href="login.html">กลับไปหน้า Login</a>
+      <a href="register.html">ยังไม่มีบัญชี? สมัครสมาชิก</a>
     </div>
   </div>
 
@@ -90,20 +83,15 @@
   <script>
     const supabase = window.supabase.createClient("https://yiaemxmwfxrfrwtogamw.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw");
 
-    document.getElementById('registerForm').addEventListener('submit', async (event) => {
+    document.getElementById('loginForm').addEventListener('submit', async (event) => {
       event.preventDefault();
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
-      const confirmPassword = document.getElementById('confirmPassword').value.trim();
 
-      if (password !== confirmPassword) { alert('รหัสผ่านไม่ตรงกัน'); return; }
-
-      const { data, error } = await supabase.auth.signUp({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { alert(error.message); return; }
-      alert('สมัครสำเร็จ! เข้าสู่ระบบได้เลย');
-      window.location.href = 'login.html';
+      window.location.href = 'index.html';
     });
   </script>
 </body>
 </html>
-
