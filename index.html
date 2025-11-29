@@ -1,25 +1,277 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>หน้าเลือกการทำงาน</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+<meta charset="UTF-8">
+<title>หน้าเลือกการทำงาน</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<style>
+.footer-text {
+  position: fixed;
+  bottom: 10px;
+  right: 20px;
+  font-size: 12px;
+  color: #999;
+  transition: color 0.15s, text-decoration 0.15s;
+}
+.footer-text:hover {
+  text-decoration: underline;
+  cursor: pointer;
+  color: #777;
+}
+
+/* ===== ปุ่มเข้าสู่เว็บไซต์ (แบบใหม่) ===== */
+.ui-button {
+  position: fixed;
+  overflow: hidden;
+  height: 3rem;
+  padding: 0 2rem;
+  border-radius: 1.5rem;
+  background: #3d3a4e;
+  background-size: 400%;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+}
+.ui-button:hover::before {
+  transform: scaleX(1);
+}
+.ui-button .button-content {
+  position: relative;
+  z-index: 1;
+}
+.ui-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  width: 100%;
+  height: inherit;
+  border-radius: inherit;
+  background: linear-gradient(
+    82.3deg,
+    rgba(150, 93, 233, 1) 10.8%,
+    rgba(99, 88, 238, 1) 94.3%
+  );
+  transition: all 0.475s;
+}
+
+#popup {
+  opacity: 0;
+  pointer-events: none;
+}
+#popup.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ===== ปรับปุ่มปิดเป็น toggle แบบ X ===== */
+.toggle {
+  position: relative;
+  width: 40px;
+  height: calc(4px * 3 + 11px * 2);
+  cursor: pointer;
+  margin: auto;
+  display: block;
+}
+.bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 2px;
+  background: #ffffff;
+  opacity: 1;
+  transition: all 0.35s cubic-bezier(.5,-0.35,.35,1.5);
+}
+.bar--top {
+  bottom: calc(50% + 11px + 2px);
+}
+.bar--middle {
+  top: calc(50% - 2px);
+}
+.bar--bottom {
+  top: calc(50% + 11px + 2px);
+}
+.toggle:hover .bar--top {
+  transform: rotate(-135deg);
+  bottom: calc(50% - 2px);
+}
+.toggle:hover .bar--middle {
+  opacity: 0;
+  transform: rotate(-135deg);
+}
+.toggle:hover .bar--bottom {
+  transform: rotate(-225deg);
+  top: calc(50% - 2px);
+}
+</style>
 </head>
-<body class="bg-blue-50 flex flex-col items-center justify-center h-screen">
-  <h1 class="text-3xl font-bold mb-8 text-blue-800">
-    ระบบบันทึกและแสดงผลข้อมูลแร่ธาตุและความชื้น
-  </h1>
+<body class="bg-gray-200 min-h-screen">
 
-  <div class="flex space-x-6">
-    <a href="graph.html" 
-       class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition duration-200 inline-block text-center">
-      เพิ่มและดูกราฟข้อมูล
-    </a>
+<!-- Popup -->
+<div id="popup" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 opacity-0 pointer-events-none transition-opacity duration-500">
+  <div class="relative text-center">
+    <img src="https://scontent.fkkc3-1.fna.fbcdn.net/v/t39.30808-6/571208406_1148161740791197_8898378085776432225_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeEXwR2DKhmbq4A9Gv3ASZEnHeTCnqr2A8Yd5MKeqvYDxmLpTzFzzJo75ET3uOnB7mKOnqk3kC5mKtjkhHmkc0AT&_nc_ohc=SS_k6Q86aPkQ7kNvwGrs2V2&_nc_oc=Adl6y8BTyEFJfTVSWWa1Icf65RmEgmmhdJG16EA9djkYq_wp2l-BgrK1yefH7PHY9srbo1uJrDDNn7RI2SKTN986&_nc_zt=23&_nc_ht=scontent.fkkc3-1.fna&_nc_gid=5pExpGuW9OE2SBAhdCodGw&oh=00_Afi3s7xhGf_BEYfApCVQZ7naZjwIFJPind59LnYadGrDNQ&oe=692A3DA0" class="max-w-xs md:max-w-md mx-auto rounded-lg shadow-lg">
 
-    <a href="camera.html"
-       class="bg-blue-400 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition duration-200 inline-block text-center">
-      กล้อง
+    <!-- ปุ่มปิดแบบ toggle -->
+    <!-- ปุ่มปิดแบบ toggle (ขนาดเล็กลง) -->
+<div id="closePopup" class="absolute left-1/2 transform -translate-x-1/2 bottom-[-50px]">
+  <div class="toggle">
+    <div class="bar bar--top"></div>
+    <div class="bar bar--middle"></div>
+    <div class="bar bar--bottom"></div>
+  </div>
+</div>
+
+<style>
+#closePopup {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -45px; /* ปรับจาก -50px เป็น -70px เพื่อลงไปต่ำกว่าเดิม */
+}
+
+/* ===== ปุ่ม toggle ขนาดเล็ก ===== */
+#closePopup .toggle {
+  width: 30px; /* ลดจาก 40px */
+  height: calc(3px * 3 + 8px * 2); /* ปรับความสูงรวม */
+  cursor: pointer;
+  margin: auto;
+  display: block;
+  position: relative;
+}
+
+#closePopup .bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px; /* ลดจาก 4px */
+  border-radius: 1.5px;
+  background: #ffffff;
+  opacity: 1;
+  transition: all 0.35s cubic-bezier(.5,-0.35,.35,1.5);
+}
+
+#closePopup .bar--top {
+  bottom: calc(50% + 8px + 1px); /* ปรับ spacing */
+}
+#closePopup .bar--middle {
+  top: calc(50% - 1.5px);
+}
+#closePopup .bar--bottom {
+  top: calc(50% + 8px + 1px);
+}
+
+/* Hover effect */
+#closePopup .toggle:hover .bar--top {
+  transform: rotate(-135deg);
+  bottom: calc(50% - 1.5px);
+}
+#closePopup .toggle:hover .bar--middle {
+  opacity: 0;
+  transform: rotate(-135deg);
+}
+#closePopup .toggle:hover .bar--bottom {
+  transform: rotate(-225deg);
+  top: calc(50% - 1.5px);
+}
+</style>
+
+  </div>
+</div>
+
+<script>
+window.addEventListener("load", () => {
+  document.getElementById("popup").classList.add("active");
+});
+
+document.getElementById("closePopup").addEventListener("click", function() {
+  const popup = document.getElementById("popup");
+  popup.classList.remove("active");
+  setTimeout(() => popup.style.display = "none", 400);
+});
+</script>
+
+<!-- ======================= -->
+<!-- 📌 LAYOUT ใหม่ตามที่ขอ -->
+<!-- ======================= -->
+<div class="flex flex-col gap-[2%] min-h-screen">
+  <div class="w-full text-center pt-6">
+    <h1 class="text-3xl font-bold text-gray-700"> Welcome to Klabot &#127793; </h1>
+  </div>
+  <div class="grow flex justify-center items-center">
+    <div class="container">
+      <div class="slide">
+        <div class="item" style="background: url('https://i.postimg.cc/g0W4qN2y/Switzerland.jpg');">
+          <div class="content">
+            <div class="name">Switzerland</div>
+            <div class="description">Renowned for its breathtaking Alpine scenery and precision in craftsmanship</div>
+            <button>See More</button>
+          </div>
+        </div>
+        <div class="item" style="background: url('https://i.postimg.cc/DZfgR0s8/Finland.jpg');">
+          <div class="content">
+            <div class="name">Finland</div>
+            <div class="description">Known for its saunas, lakes, and a deep connection to nature</div>
+            <button>See More</button>
+          </div>
+        </div>
+        <div class="item" style="background: url('https://i.postimg.cc/kX2jn2HS/Iceland.jpg');">
+          <div class="content">
+            <div class="name">Iceland</div>
+            <div class="description">Famous for its stunning geothermal landscapes, waterfalls, and glaciers</div>
+            <button>See More</button>
+          </div>
+        </div>
+        <div class="item" style="background: url('https://i.postimg.cc/05WWRYVx/Australia.jpg');">
+          <div class="content">
+            <div class="name">Australia</div>
+            <div class="description">Distinguished by its diverse ecosystems, ranging from beaches to bushland</div>
+            <button>See More</button>
+          </div>
+        </div>
+        <div class="item" style="background: url('https://i.postimg.cc/dtg5DqMx/Netherland.jpg');">
+          <div class="content">
+            <div class="name">Netherland</div>
+            <div class="description">Characterized by its iconic canals, tulip fields, and windmills</div>
+            <button>See More</button>
+          </div>
+        </div>
+        <div class="item" style="background: url('https://i.postimg.cc/sDGJktB9/Ireland.jpg');">
+          <div class="content">
+            <div class="name">Ireland</div>
+            <div class="description">Known for its lush green landscapes and rich cultural heritage</div>
+            <button>See More</button>
+          </div>
+        </div>
+      </div>
+      <div class="button">
+        <button class="prev"><i class="fa-solid fa-arrow-left"></i></button>
+        <button class="next"><i class="fa-solid fa-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="w-full text-center">
+    <a href="camera.html" class="ui-button fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40">
+      <span class="button-content">เข้าสู่เว็บไซต์</span>
     </a>
   </div>
+</div>
+
+<div class="footer-text"> © presented by klabot dev team </div>
+<script src="main.js"></script>
 </body>
 </html>
