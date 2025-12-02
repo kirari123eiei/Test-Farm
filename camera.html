@@ -3,238 +3,897 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>กล้องถ่ายทอดสด + ตาราง</title>
+<title>Main Manu</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 30px;
-    background: #f3f4f6;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  h1 {
-    text-align: center;
-    color: #1e40af;
-    font-size: 24px;
-    font-weight: bold;
-    margin-top: 10px;
-    margin-bottom: 40px;
-  }
-
-  iframe {
-    width: 640px;
-    height: 480px;
-    border: 3px solid #000000;
-    border-radius: 12px;
-    margin: 20px 0;
-  }
-
-  .grid-container {
-    position: relative;
-    background: white;
-    border: 1px solid #ccc;
-    margin-top: 20px;
-    margin-left: 20px;
-    max-width: 640px;
-    width: 100%;
-  }
-
-  .vertical-line, .horizontal-line {
-    position: absolute;
-    background: #bbb;
-  }
+  body { font-family: Arial; margin: 0; padding: 30px; background: #f3f4f6; display: flex; flex-direction: column; align-items: center; }
+  h1 { text-align: center; color: #1e40af; font-size: 24px; font-weight: bold; margin-top: 10px; margin-bottom: 40px; }
+  iframe { width: 640px; height: 480px; border: 3px solid #000; border-radius: 12px; margin: 20px 0; }
+  .grid-container { position: relative; background: white; border: 1px solid #ccc; margin-top: 20px; max-width: 640px; width: 100%; }
+  .vertical-line, .horizontal-line { position: absolute; background: #bbb; }
   .vertical-line { width: 1px; top: 0; bottom: 0; }
   .horizontal-line { height: 1px; left: 0; right: 0; }
-
-  .circle {
-    width: 16px;
-    height: 16px;
-    background: #3498db;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    cursor: pointer;
-    z-index: 5;
-    transition: background 0.5s;
-  }
+  .circle { width: 16px; height: 16px; background: #3498db; border-radius: 50%; transform: translate(-50%, -50%); cursor: pointer; z-index: 5; transition: background 0.5s; }
   .circle:hover { background: #2c7fb7; }
-
   .point-container { position: absolute; }
-
-  .tooltip {
+  /* Overlay */
+  .grid-overlay {
     position: absolute;
-    background: rgba(0,0,0,0.85);
-    color: white;
-    padding: 8px;
-    border-radius: 5px;
-    font-size: 12px;
-    width: 140px;
-    text-align: center;
-    visibility: hidden;
-    opacity: 0;
-    transition: opacity 0.3s;
+    top: 130px;
+    right: 85px;
+    width: 350px;
+    background: white;
+    border-radius: 12px;
     z-index: 10;
+    padding: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    display: none;
+  }
+  .grid-back-btn {
+    position:absolute;
+    display:inline-block;
+    top:10px; left:10px;
+    border:none; background:none;
+    font-size:16px; font-weight:bold; color:#1e40af;
+    cursor:pointer;
   }
 
-  .tooltip img {
-    max-width: 120px;
-    margin-top: 6px;
-    display: block;
-  }
+  .grid-back-btn:hover { text-decoration: underline; }
 
+  .rename-btn {
+    width: 100%;
+    background: #6b7280;
+    color: white;
+    padding: 10px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 10px;
+    transition: background 0.25s;
+  }
+  .rename-btn:hover { background: #4b5563; }
+  
   .upload-btn {
     display: inline-block;
-    background: #2ecc71;
+    width: 100%;
+    text-align: center;
+    background: #374151;
     color: white;
-    padding: 4px 8px;
-    border-radius: 3px;
-    font-size: 11px;
-    margin-top: 5px;
+    padding: 10px 0;
+    border-radius: 8px;
     cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 15px;
+    transition: background 0.25s;
+    font-size: 14px;
   }
 
-  .point-container:hover .tooltip {
-    visibility: visible;
-    opacity: 1;
-  }
+  /* ทำเป็นสไตล์แบบ Uiverse */
+.fancy-upload {
+  --width: 100px;
+  --height: 36px;
+  --tooltip-height: 32px;
+  --tooltip-width: 110px;
+  --gap-between-tooltip-to-button: 15px;
+  --button-color: #374151;
+  --tooltip-color: #fff;
 
-  .tooltip input[type="text"] {
-    width: 120px;
-    margin-bottom: 5px;
-    color: black;
+  width: var(--width);
+  height: var(--height);
+  background: var(--button-color);
+  position: relative;
+  text-align: center;
+  border-radius: 0.45em;
+  font-family: "Arial";
+  transition: background 0.3s;
+  color: white;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* Tooltip */
+.fancy-upload::before {
+  position: absolute;
+  content: attr(data-tooltip);
+  width: var(--tooltip-width);
+  height: var(--tooltip-height);
+  background-color: var(--tooltip-color);
+  font-size: 0.8rem;
+  color: #111;
+  border-radius: .25em;
+  line-height: var(--tooltip-height);
+  bottom: calc(var(--height) + var(--gap-between-tooltip-to-button) + 10px);
+  left: calc(50% - var(--tooltip-width) / 2);
+}
+
+.fancy-upload::after {
+  position: absolute;
+  content: '';
+  width: 0;
+  height: 0;
+  border: 8px solid transparent;
+  border-top-color: var(--tooltip-color);
+  left: calc(50% - 8px);
+  bottom: calc(100% + var(--gap-between-tooltip-to-button) - 10px);
+}
+
+.fancy-upload::after,
+.fancy-upload::before {
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s;
+}
+
+.button-wrapper, .text, .icon {
+  overflow: hidden;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+}
+
+.text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  transition: top 0.4s;
+}
+
+.icon {
+  top: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: top 0.4s;
+}
+
+/* Hover effect */
+.fancy-upload:hover {
+  background: #1f2937;
+}
+
+.fancy-upload:hover .text {
+  top: -100%;
+}
+
+.fancy-upload:hover .icon {
+  top: 0;
+}
+
+.fancy-upload:hover::before,
+.fancy-upload:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+.fancy-upload:hover::after {
+  bottom: calc(var(--height) + var(--gap-between-tooltip-to-button) - 16px);
+}
+
+.fancy-upload:hover::before {
+  bottom: calc(var(--height) + var(--gap-between-tooltip-to-button));
+}
+
+/* From Uiverse.io by r7chardgh */ 
+.switch {
+  font-size: 17px;
+  position: relative;
+  display: inline-block;
+  width: 5em;
+  height: 2.5em;
+  user-select: none;
+}
+
+.switch .cb {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle {
+  position: absolute;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  background-color: #373737;
+  border-radius: 0.1em;
+  transition: 0.4s;
+  text-transform: uppercase;
+  font-weight: 700;
+  overflow: hidden;
+  box-shadow: -0.3em 0 0 0 #373737, -0.3em 0.3em 0 0 #373737,
+    0.3em 0 0 0 #373737, 0.3em 0.3em 0 0 #373737, 0 0.3em 0 0 #373737;
+}
+
+.toggle > .left {
+  position: absolute;
+  display: flex;
+  width: 50%;
+  height: 88%;
+  background-color: #f3f3f3;
+  color: #373737;
+  left: 0;
+  bottom: 0;
+  align-items: center;
+  justify-content: center;
+  transform-origin: right;
+  transform: rotateX(10deg);
+  transform-style: preserve-3d;
+  transition: all 150ms;
+}
+
+.left::before {
+  position: absolute;
+  content: "";
+  width: 100%;
+  height: 100%;
+  background-color: rgb(206, 206, 206);
+  transform-origin: center left;
+  transform: rotateY(90deg);
+}
+
+.left::after {
+  position: absolute;
+  content: "";
+  width: 100%;
+  height: 100%;
+  background-color: rgb(112, 112, 112);
+  transform-origin: center bottom;
+  transform: rotateX(90deg);
+}
+
+.toggle > .right {
+  position: absolute;
+  display: flex;
+  width: 50%;
+  height: 88%;
+  background-color: #f3f3f3;
+  color: rgb(206, 206, 206);
+  right: 1px;
+  bottom: 0;
+  align-items: center;
+  justify-content: center;
+  transform-origin: left;
+  transform: rotateX(10deg) rotateY(-45deg);
+  transform-style: preserve-3d;
+  transition: all 150ms;
+}
+
+.right::before {
+  position: absolute;
+  content: "";
+  width: 100%;
+  height: 100%;
+  background-color: rgb(206, 206, 206);
+  transform-origin: center right;
+  transform: rotateY(-90deg);
+}
+
+.right::after {
+  position: absolute;
+  content: "";
+  width: 100%;
+  height: 100%;
+  background-color: rgb(112, 112, 112);
+  transform-origin: center bottom;
+  transform: rotateX(90deg);
+}
+
+.switch input:checked + .toggle > .left {
+  transform: rotateX(10deg) rotateY(45deg);
+  color: rgb(206, 206, 206);
+}
+
+.switch input:checked + .toggle > .right {
+  transform: rotateX(10deg) rotateY(0deg);
+  color: #487bdb;
+}
+  /* เพิ่ม: ขีดเส้นใต้เมื่อเอาเมาส์ไปจ่อ */
+.footer-text {
+  font-size: 12px;
+  color: #999;
+  margin-top: 40px;
+  text-align: right;
+  width: 100%;
+  padding-bottom: 20px;
+  transition: color 0.15s, text-decoration 0.15s;
+}
+
+.footer-text:hover {
+  text-decoration: underline;
+  cursor: pointer;
+  color: #777;
+}
+
+  /* Sidebar */
+  #sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    width: 260px;
+    height: 100%;
     background: white;
-    border: none;
-    border-radius: 3px;
-    padding: 2px 4px;
+    box-shadow: 3px 0 12px rgba(0,0,0,0.15);
+    padding: 20px;
+    z-index: 60;
+    transition: left 0.3s ease;
   }
+
+  #sidebar.active { left: 0; }
+
+  #closeSidebarX {
+      position: absolute;
+      top: 12px;
+      right: 18px;
+      font-size: 36px;
+      cursor: pointer;
+      color: #333;
+      font-weight: bold;
+  }
+
+  #overlayBg {
+      position: fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      background: rgba(0,0,0,0.4);
+      display:none;
+      z-index:55;
+  }
+
+  #sidebar a {
+      position: relative;
+      text-decoration: none;
+  }
+
+  #sidebar a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      width: 0%;
+      height: 2px;
+      background: #1e40af;
+      transition: 0.25s ease;
+  }
+
+  #sidebar a:hover::after {
+      width: 100%;
+  }
+
+  .sidebar-divider {
+      width: 100%;
+      height: 1px;
+      background: #e5e7eb;
+      margin: 20px 0;
+  }
+
+  /* -------------------------
+   Uiverse Switch Style
+------------------------- */
+.switch {
+  font-size: 17px;
+  position: relative;
+  display: inline-block;
+  width: 5em;
+  height: 2.5em;
+  user-select: none;
+}
+
+.switch .cb {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle {
+  position: absolute;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  background-color: #373737;
+  border-radius: 0.1em;
+  transition: 0.4s;
+  text-transform: uppercase;
+  font-weight: 700;
+  overflow: hidden;
+  box-shadow: -0.3em 0 0 0 #373737, -0.3em 0.3em 0 0 #373737,
+    0.3em 0 0 0 #373737, 0.3em 0.3em 0 0 #373737, 0 0.3em 0 0 #373737;
+}
+
+.toggle > .left {
+  position: absolute;
+  display: flex;
+  width: 50%;
+  height: 88%;
+  background-color: #f3f3f3;
+  color: #373737;
+  left: 0;
+  bottom: 0;
+  align-items: center;
+  justify-content: center;
+  transform-origin: right;
+  transform: rotateX(10deg);
+  transform-style: preserve-3d;
+  transition: all 150ms;
+}
+
+.left::before {
+  position: absolute;
+  content: "";
+  width: 100%;
+  height: 100%;
+  background-color: rgb(206, 206, 206);
+  transform-origin: center left;
+  transform: rotateY(90deg);
+}
+
+.left::after {
+  position: absolute;
+  content: "";
+  width: 100%;
+  height: 100%;
+  background-color: rgb(112, 112, 112);
+  transform-origin: center bottom;
+  transform: rotateX(90deg);
+}
+
+.toggle > .right {
+  position: absolute;
+  display: flex;
+  width: 50%;
+  height: 88%;
+  background-color: #f3f3f3;
+  color: rgb(206, 206, 206);
+  right: 1px;
+  bottom: 0;
+  align-items: center;
+  justify-content: center;
+  transform-origin: left;
+  transform: rotateX(10deg) rotateY(-45deg);
+  transform-style: preserve-3d;
+  transition: all 150ms;
+}
+
+.right::before {
+  position: absolute;
+  content: "";
+  width: 100%;
+  height: 100%;
+  background-color: rgb(206, 206, 206);
+  transform-origin: center right;
+  transform: rotateY(-90deg);
+}
+
+.right::after {
+  position: absolute;
+  content: "";
+  width: 100%;
+  height: 100%;
+  background-color: rgb(112, 112, 112);
+  transform-origin: center bottom;
+  transform: rotateX(90deg);
+}
+
+.switch input:checked + .toggle > .left {
+  transform: rotateX(10deg) rotateY(45deg);
+  color: rgb(206, 206, 206);
+}
+
+.switch input:checked + .toggle > .right {
+  transform: rotateX(10deg) rotateY(0deg);
+  color: #487bdb;
+}
+/* -------------------------
+   Uiverse Switch Style
+------------------------- */
+.switch {
+  font-size: 17px;
+  position: relative;
+  display: inline-block;
+  width: 5em;
+  height: 2.5em;
+  user-select: none;
+}
+
+.switch .cb {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle {
+  position: absolute;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  background-color: #373737;
+  border-radius: 0.1em;
+  transition: 0.4s;
+  text-transform: uppercase;
+  font-weight: 700;
+  overflow: hidden;
+  box-shadow: -0.3em 0 0 0 #373737, -0.3em 0.3em 0 0 #373737,
+    0.3em 0 0 0 #373737, 0.3em 0.3em 0 0 #373737, 0 0.3em 0 0 #373737;
+}
+
+.toggle > .left {
+  position: absolute;
+  display: flex;
+  width: 50%;
+  height: 88%;
+  background-color: #f3f3f3;
+  color: #373737;
+  left: 0;
+  bottom: 0;
+  align-items: center;
+  justify-content: center;
+  transform-origin: right;
+  transform: rotateX(10deg);
+  transform-style: preserve-3d;
+  transition: all 150ms;
+}
+
+.left::before {
+  position: absolute;
+  content: "";
+  width: 100%;
+  height: 100%;
+  background-color: rgb(206, 206, 206);
+  transform-origin: center left;
+  transform: rotateY(90deg);
+}
+
+.left::after {
+  position: absolute;
+  content: "";
+  width: 100%;
+  height: 100%;
+  background-color: rgb(112, 112, 112);
+  transform-origin: center bottom;
+  transform: rotateX(90deg);
+}
+
+.toggle > .right {
+  position: absolute;
+  display: flex;
+  width: 50%;
+  height: 88%;
+  background-color: #f3f3f3;
+  color: rgb(206, 206, 206);
+  right: 1px;
+  bottom: 0;
+  align-items: center;
+  justify-content: center;
+  transform-origin: left;
+  transform: rotateX(10deg) rotateY(-45deg);
+  transform-style: preserve-3d;
+  transition: all 150ms;
+}
+
+.right::before {
+  position: absolute;
+  content: "";
+  width: 100%;
+  height: 100%;
+  background-color: rgb(206, 206, 206);
+  transform-origin: center right;
+  transform: rotateY(-90deg);
+}
+
+.right::after {
+  position: absolute;
+  content: "";
+  width: 100%;
+  height: 100%;
+  background-color: rgb(112, 112, 112);
+  transform-origin: center bottom;
+  transform: rotateX(90deg);
+}
+
+.switch input:checked + .toggle > .left {
+  transform: rotateX(10deg) rotateY(45deg);
+  color: rgb(206, 206, 206);
+}
+
+.switch input:checked + .toggle > .right {
+  transform: rotateX(10deg) rotateY(0deg);
+  color: #487bdb;
+}
 </style>
 </head>
 <body>
+  <!-- 🔵 ปุ่มสามขีด -->
+    <button id="menuBtn" class="absolute left-4 top-4 text-2xl cursor-pointer">&#9776;</button>
+
+<!-- 🔵 SIDEBAR -->
+<div id="sidebar">
+
+    <span id="closeSidebarX">&times;</span>
+
+    <h2 class="text-lg font-bold mb-4 mt-6">Menu</h2>
+
+    <ul class="space-y-3 margin-top-4">
+        <li><a href="index.html" class="text-blue-600"> > หน้าแรก</a></li>
+        <div class="sidebar-divider"></div>
+
+        <li><a href="camera.html" class="text-blue-600"> > กล้องและตาราง</a></li>
+        <div class="sidebar-divider"></div>
+
+        <li><a href="capture.html" class="text-blue-600"> > รูปภาพ</a></li>
+        <div class="sidebar-divider"></div>
+    </ul>
+
+    <!-- 🔵 Switch Control -->
+<div style="margin-bottom: 25px;">
+
+    <div id="lightStatus" 
+        style="font-size:16px;color:#2563eb;margin-bottom:10px;margin-top:10px;">
+        > ควบคุมสถานะไฟ : ไฟปิด
+    </div>
+
+    <!-- 🔥 Uiverse Switch -->
+    <label class="switch">
+      <input id="lightSwitch" class="cb" type="checkbox" />
+      <span class="toggle">
+        <span class="left">off</span>
+        <span class="right">on</span>
+      </span>
+    </label>
+
+</div>
+
+
+
+    <!-- ⭐ ผู้ใช้ + Logout ย้ายมาไว้ที่นี่ ⭐ -->
+    <div id="sidebarUserBox" style="
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+    ">
+        <div id="sidebarUsername"
+            class="font-bold text-blue-700 mb-2">
+            ผู้ใช้: -
+        </div>
+
+        <button id="sidebarLogoutBtn"
+            class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-bold transition">
+            ออกจากระบบ
+        </button>
+    </div>
+
+</div>
+
+<div id="overlayBg"></div>
+
+
+<div id="app" style="display:none;">
   <h1>📷 กล้องจาก ESP32-CAM</h1>
-  <div class="content" style="display: flex; flex-wrap: wrap; gap: 30px; align-items: flex-start; justify-content: center;">
-    <iframe src="http://10.254.139.188" allow="camera; microphone;"></iframe>
+  <div class="absolute right-0 top-0 flex space-x-2 mr-4 mt-2">
+    <button id="userBtn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg cursor-default">ผู้ใช้:</button>
+    <button id="logoutBtn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">ออกจากระบบ</button>
+  </div>
+
+  <div class="content" style="display:flex;flex-wrap:wrap;gap:30px;align-items:flex-start;justify-content:center;">
+    <iframe src="http://192.168.1.112" allow="camera; microphone;"></iframe>
     <div class="grid-container" id="grid"></div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // === ตั้งค่า Supabase ===
-    const supabase = window.supabase.createClient(
-      "https://yiaemxmwfxrfrwtogamw.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw"
-    );
+  <!-- Overlay -->
+  <div class="grid-overlay" id="gridOverlay">
+    <button class="grid-back-btn" onclick="closeGridOverlay()">← ย้อนกลับ</button>
+    <div style="font-weight:bold;margin-bottom:10px;margin-top:15px;" id="pointTitle">จุด (1,1)</div>
+    <input type="text" placeholder="ตั้งชื่อจุด" id="pointNameInput" style="width:100%;padding:6px;border:1px solid #ccc;border-radius:6px;margin-bottom:10px;">
+    
+    <!-- 🔵 ปุ่มอยู่ข้างกัน ชิดขวา -->
+<div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 5px; margin-bottom: 10px;">
 
-    const grid = document.getElementById("grid");
-    const cols = 4;
-    const rows = 6;
+    <label class="upload-btn fancy-upload" data-tooltip="สูงสุด 20Mb">
+      <div class="button-wrapper ">
+          <div class="text">อัปโหลดรูป</div>
+          <span class="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 15V3m0 12l-4-4m4 4l4-4M2 17l.621 2.485A2 2 0 0 0 4.561 21h14.878a2 2 0 0 0 1.94-1.515L22 17" />
+            </svg>
+          </span>
+      </div>
+      <input type="file" id="pointFileInput" accept="image/*" style="display:none;">
+    </label>
 
-    // === วาด Grid ===
-    const iframe = document.querySelector("iframe");
-    const gridHeight = iframe.clientHeight;
-    const cellSize = gridHeight / (rows + 1);
-    grid.style.width = `${cellSize * (cols + 1)}px`;
-    grid.style.height = `${gridHeight}px`;
+    <button class="rename-btn"
+        onclick="renameSuccess()"
+        style="padding: 6px 12px; font-size: 14px; margin:0; width: 100px; height: 36px;">
+        เปลี่ยนชื่อ
+    </button>
 
-    for (let i = 1; i <= cols; i++) {
-      const v = document.createElement("div");
-      v.className = "vertical-line";
-      v.style.left = `${(i / (cols + 1)) * 100}%`;
-      grid.appendChild(v);
+</div>
+
+    <img id="pointImage" style="width:100%;display:none;border-radius:6px;margin-bottom:10px;">
+
+    <canvas id="pointChart" width="300" height="150"></canvas>
+  </div>
+
+
+<div class="footer-text">
+    © presented by klabot dev team
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://yiaemxmwfxrfrwtogamw.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+let currentPoint = {x:0,y:0};
+let chart = null;
+
+// เช็ค user
+async function checkUser(){
+  const { data: { session } } = await supabase.auth.getSession();
+  if(!session || !session.user){ window.location.href="login.html"; return; }
+  currentUser = session.user;
+  document.getElementById("userBtn").textContent = `ผู้ใช้: ${currentUser.email}`;
+  document.getElementById("app").style.display="block";
+  initGrid();
+}
+checkUser();
+
+// logout
+document.getElementById("logoutBtn").addEventListener("click", async ()=>{
+  const {error} = await supabase.auth.signOut();
+  if(error) console.error(error.message); else window.location.href="login.html";
+});
+
+// Grid
+function initGrid(){
+  const grid = document.getElementById("grid");
+  const cols = 4;
+  const rows = 6;
+  const iframe = document.querySelector("iframe");
+  const gridHeight = iframe.clientHeight;
+  const cellSize = gridHeight/(rows+1);
+  grid.style.width = `${cellSize*(cols+1)}px`;
+  grid.style.height = `${gridHeight}px`;
+
+  for(let i=1;i<=cols;i++){
+    const v=document.createElement("div");
+    v.className="vertical-line";
+    v.style.left=`${(i/(cols+1))*100}%`;
+    grid.appendChild(v);
+  }
+  for(let j=1;j<=rows;j++){
+    const h=document.createElement("div");
+    h.className="horizontal-line";
+    h.style.top=`${(j/(rows+1))*100}%`;
+    grid.appendChild(h);
+  }
+
+  for(let i=1;i<=cols;i++){
+    for(let j=1;j<=rows;j++){
+      const x=(i/(cols+1))*grid.clientWidth;
+      const y=(j/(rows+1))*grid.clientHeight;
+      const pointContainer=document.createElement("div");
+      pointContainer.className="point-container";
+      pointContainer.style.left=`${x}px`;
+      pointContainer.style.top=`${y}px`;
+      const circle=document.createElement("div");
+      circle.className="circle";
+      circle.addEventListener("click",()=>openGridOverlay(i,j));
+      pointContainer.appendChild(circle);
+      grid.appendChild(pointContainer);
     }
-    for (let j = 1; j <= rows; j++) {
-      const h = document.createElement("div");
-      h.className = "horizontal-line";
-      h.style.top = `${(j / (rows + 1)) * 100}%`;
-      grid.appendChild(h);
+  }
+
+  lightSwitch.addEventListener("change",(e)=>{
+    lightStatus.textContent = e.target.checked ? "> ควบคุมสถานะไฟ : ไฟเปิด" : "> ควบคุมสถานะไฟ : ไฟปิด";
+});
+
+}
+
+// Overlay functions
+async function openGridOverlay(x, y) {
+  currentPoint = { x, y };
+  const overlay = document.getElementById("gridOverlay");
+  overlay.style.display = "block";
+  document.getElementById("pointTitle").textContent = `จุด (${x},${y})`;
+
+  // โหลดชื่อและรูป
+  const { data, error } = await supabase.from("points").select("*").eq("user_id", currentUser.id).eq("x", x).eq("y", y).single();
+  const input = document.getElementById("pointNameInput");
+  input.value = data?.name || "";
+  const img = document.getElementById("pointImage");
+  if (data?.image_url) { img.src = data.image_url; img.style.display = "block"; } else img.style.display = "none";
+
+  // โหลดค่าความชื้นจาก paintable
+  const { data: vals } = await supabase
+    .from("paintable")
+    .select("soil_moisture, inserted_at")
+    .eq("user_id", currentUser.id)
+    .eq("point_x", x)
+    .eq("point_y", y)
+    .order("inserted_at", { ascending: true });
+
+  const labels = vals?.map(d => new Date(d.inserted_at).toLocaleTimeString()) || [];
+  const values = vals?.map(d => d.soil_moisture) || [];
+
+  // กำหนด chart overlay pointChart
+  const ctx = document.getElementById("pointChart").getContext("2d");
+  if (chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'ความชื้น',
+        data: values,
+        borderColor: 'rgb(54,162,235)',
+        backgroundColor: 'rgba(54,162,235,0.2)',
+        tension: 0.3,
+        pointRadius: 2
+      }]
+    },
+    options: {
+      responsive: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { display: true }, y: { display: true, min: 0, max: 100 } }
     }
+  });
+}
 
-    // === โหลดข้อมูลทั้งหมดจาก Supabase ===
-    (async function loadPoints() {
-      const { data, error } = await supabase.from("grid_points").select("*");
-      if (error) console.error("โหลดข้อมูล grid ล้มเหลว:", error);
+function closeGridOverlay(){ document.getElementById("gridOverlay").style.display="none"; }
 
-      for (let i = 1; i <= cols; i++) {
-        for (let j = 1; j <= rows; j++) {
-          const x = (i / (cols + 1)) * grid.clientWidth;
-          const y = (j / (rows + 1)) * grid.clientHeight;
+async function renameSuccess(){
+  const input=document.getElementById("pointNameInput");
+  const name=input.value.trim();
+  if(!name) return;
+  const {error}=await supabase.from("points").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,name},{onConflict:['user_id','x','y']});
+  if(error) console.error(error.message);
+}
 
-          const pointData = data?.find(d => d.x === i && d.y === j);
+// Upload image
+document.getElementById("pointFileInput").addEventListener("change", async(event)=>{
+  const file=event.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=document.getElementById("pointImage"); img.src=e.target.result; img.style.display="block";
+  };
+  reader.readAsDataURL(file);
+  const fileName=`${currentUser.id}/point-${currentPoint.x}-${currentPoint.y}-${Date.now()}.${file.name.split('.').pop()}`;
+  try{
+    const {data,error}=await supabase.storage.from("grid-images").upload(fileName,file,{cacheControl:"3600",upsert:true});
+    if(error) throw error;
+    const {data:publicData}=supabase.storage.from("grid-images").getPublicUrl(fileName);
+    const imageUrl=publicData.publicUrl;
+    const img=document.getElementById("pointImage"); img.src=imageUrl; img.style.display="block";
+    await supabase.from("points").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,image_url:imageUrl},{onConflict:['user_id','x','y']});
+  }catch(err){ console.error(err); alert("อัปโหลดรูปไม่สำเร็จ"); }
+});
 
-          const pointContainer = document.createElement("div");
-          pointContainer.className = "point-container";
-          pointContainer.style.left = `${x}px`;
-          pointContainer.style.top = `${y}px`;
 
-          const circle = document.createElement("div");
-          circle.className = "circle";
+  /* ===== Sidebar Control ===== */
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlayBg");
 
-          const tooltip = document.createElement("div");
-          tooltip.className = "tooltip";
-          tooltip.innerHTML = `
-            <div>จุด (${i-1}, ${j-1})</div>
-            <input type="text" id="name-${i}-${j}" placeholder="ตั้งชื่อจุดนี้" value="${pointData?.name || ''}" onchange="setName(this, ${i}, ${j})">
-            <img id="img-${i}-${j}" src="${pointData?.image_url || ''}" style="${pointData?.image_url ? 'display:block;' : 'display:none;'}" alt="Image Preview">
-            <label class="upload-btn">
-              อัปโหลด
-              <input type="file" accept="image/*" style="display:none;" onchange="uploadImage(event, ${i}, ${j})">
-            </label>
-          `;
+    document.getElementById("menuBtn").addEventListener("click", () => {
+        sidebar.classList.add("active");
+        overlay.style.display = "block";
+    });
 
-          pointContainer.appendChild(circle);
-          pointContainer.appendChild(tooltip);
-          grid.appendChild(pointContainer);
-        }
-      }
-    })();
+    // ปุ่มกากบาท
+    document.getElementById("closeSidebarX").addEventListener("click", () => {
+        sidebar.classList.remove("active");
+        overlay.style.display = "none";
+    });
 
-    // === ฟังก์ชันบันทึกชื่อจุด ===
-    async function setName(input, i, j) {
-      const name = input.value;
-      const { error } = await supabase
-        .from("grid_points")
-        .upsert([{ x: i, y: j, name }], { onConflict: "x,y" });
-
-      if (error) alert("บันทึกชื่อไม่สำเร็จ: " + error.message);
-      else console.log(`✅ บันทึกชื่อ (${i},${j}) = ${name}`);
-    }
-
-    // === ฟังก์ชันอัปโหลดรูป ===
-    async function uploadImage(event, i, j) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const fileName = `grid_${i}_${j}_${Date.now()}.jpg`;
-
-      // ✅ อัปโหลดรูปไป Supabase Storage (bucket: grid-images)
-      const { data, error } = await supabase.storage
-        .from("grid-images")
-        .upload(fileName, file, { upsert: true });
-
-      if (error) {
-        alert("อัปโหลดรูปไม่สำเร็จ: " + error.message);
-        return;
-      }
-
-      // ✅ ดึง URL ภาพแบบ public
-      const { data: urlData } = supabase.storage.from("grid-images").getPublicUrl(fileName);
-      const imageUrl = urlData.publicUrl;
-
-      // ✅ แสดงใน tooltip
-      const img = document.getElementById(`img-${i}-${j}`);
-      img.src = imageUrl;
-      img.style.display = "block";
-
-      // ✅ บันทึก URL ลงฐานข้อมูล
-      const { error: dbError } = await supabase
-        .from("grid_points")
-        .upsert([{ x: i, y: j, image_url: imageUrl }], { onConflict: "x,y" });
-
-      if (dbError) alert("บันทึก URL ไม่สำเร็จ: " + dbError.message);
-      else console.log(`✅ บันทึกรูป (${i},${j}) สำเร็จ`);
-    }
-  </script>
+    // กดพื้นหลังปิดเมนู
+    overlay.addEventListener("click", () => {
+        sidebar.classList.remove("active");
+        overlay.style.display = "none";
+    });
+</script>
 </body>
 </html>

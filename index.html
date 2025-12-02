@@ -116,6 +116,8 @@
   transform: rotate(-225deg);
   top: calc(50% - 2px);
 }
+
+
 </style>
 </head>
 <body class="bg-gray-200 min-h-screen">
@@ -123,7 +125,7 @@
 <!-- Popup -->
 <div id="popup" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 opacity-0 pointer-events-none transition-opacity duration-500">
   <div class="relative text-center">
-    <img src="https://scontent.fkkc3-1.fna.fbcdn.net/v/t39.30808-6/571208406_1148161740791197_8898378085776432225_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeEXwR2DKhmbq4A9Gv3ASZEnHeTCnqr2A8Yd5MKeqvYDxmLpTzFzzJo75ET3uOnB7mKOnqk3kC5mKtjkhHmkc0AT&_nc_ohc=SS_k6Q86aPkQ7kNvwGrs2V2&_nc_oc=Adl6y8BTyEFJfTVSWWa1Icf65RmEgmmhdJG16EA9djkYq_wp2l-BgrK1yefH7PHY9srbo1uJrDDNn7RI2SKTN986&_nc_zt=23&_nc_ht=scontent.fkkc3-1.fna&_nc_gid=5pExpGuW9OE2SBAhdCodGw&oh=00_Afi3s7xhGf_BEYfApCVQZ7naZjwIFJPind59LnYadGrDNQ&oe=692A3DA0" class="max-w-xs md:max-w-md mx-auto rounded-lg shadow-lg">
+    <img src="public/frame.jpg" class="max-w-xs md:max-w-md mx-auto rounded-lg shadow-lg">
 
     <!-- ปุ่มปิดแบบ toggle -->
     <!-- ปุ่มปิดแบบ toggle (ขนาดเล็กลง) -->
@@ -187,6 +189,8 @@
   transform: rotate(-225deg);
   top: calc(50% - 1.5px);
 }
+
+
 </style>
 
   </div>
@@ -202,6 +206,19 @@ document.getElementById("closePopup").addEventListener("click", function() {
   popup.classList.remove("active");
   setTimeout(() => popup.style.display = "none", 400);
 });
+
+
+    // ปุ่มกากบาท
+    document.getElementById("closeSidebarX").addEventListener("click", () => {
+        sidebar.classList.remove("active");
+        overlay.style.display = "none";
+    });
+
+    // กดพื้นหลังปิดเมนู
+    overlay.addEventListener("click", () => {
+        sidebar.classList.remove("active");
+        overlay.style.display = "none";
+    });
 </script>
 
 <!-- ======================= -->
