@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบควบคุมอัตโนมัติ</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    body { font-family: Arial; margin: 0; padding: 30px; background: #f3f4f6; display: flex; flex-direction: column; align-items: center; }
+    h1 { font-size:24px; font-weight:700; color:#1e40af; text-align:left;}
+    p { font-size: 15px; color:#adb5bd;}
+.divide {
+    width: 95%;
+    height: 1px;
+    background: #e5e7eb;
+    margin: 20px 0;
+  }
+  /* Sidebar */
+  #sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    width: 260px;
+    height: 100%;
+    background: white;
+    box-shadow: 3px 0 12px rgba(0,0,0,0.15);
+    padding: 20px;
+    z-index: 60;
+    transition: left 0.3s ease;
+  }
+
+  .sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 10px;
+}
+
+.sidebar-header h2 {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.hamburger-btn {
+  position: absolute;
+  left: 1.25rem; /* left-5 */
+  top: 1.25rem;  /* top-5 */
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.hamburger-btn svg {
+  width: 3em;
+  height: 3em;
+}
+
+.hamburger-btn path {
+  fill: none;
+  stroke: rgb(0, 0, 0);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke 0.2s ease;
+}
+
+/* hamburger */
+.hamburger {
+  cursor: pointer;
+}
+
+.hamburger input {
+  display: none;
+}
+
+.hamburger svg {
+  height: 2.5em;
+  transition: transform 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* hover แล้วสีจางลง */
+.hamburger-btn:hover path {
+  stroke: #1e40af;
+}
+
+.line {
+  fill: none;
+  stroke: #333;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+  transition: stroke-dasharray 600ms cubic-bezier(0.4, 0, 0.2, 1),
+              stroke-dashoffset 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.line-top-bottom {
+  stroke-dasharray: 12 63;
+}
+
+.hamburger input:hover + svg {
+  transform: rotate(-45deg);
+}
+
+.hamburger input:hover+ svg .line-top-bottom {
+  stroke-dasharray: 20 300;
+  stroke-dashoffset: -32.42;
+}
+
+#closeSidebarX {
+  font-size: 32px;
+  cursor: pointer;
+  color: #333;
+  font-weight: bold;
+}
+
+#sidebar.active { left: 0; }
+
+
+#overlayBg {
+      position: fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      background: rgba(0,0,0,0.4);
+      display:none;
+      z-index:55;
+  }
+
+/* ลิงก์ใน Sidebar */
+#sidebar a {
+    display: block;
+    padding: 12px 16px;
+    border-radius: 999px;
+    text-decoration: none;
+    width: 100%;
+    color: #1e40af;
+
+    /* เอฟเฟกต์ */
+    transition: 
+        background 0.3s ease,
+        color 0.3s ease,
+        box-shadow 0.3s ease,
+        transform 0.3s ease;
+}
+
+/* effect กลาง ใช้ร่วมกัน */
+#sidebar a.menu {
+    display: block;
+    padding: 10px 14px;
+    border-radius: 999px;
+    transition: all 0.3s ease;
+}
+
+/* หน้าแรก */
+#sidebar a.home:hover {
+    background: #487bdb;
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    transform: translateY(-5px);
+}
+
+/* กล้อง */
+#sidebar a.camera:hover {
+    background: #10b981; /* เขียว */
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    transform: translateY(-5px);
+}
+
+/* กล้อง2 */
+#sidebar a.camera2:hover {
+    background: #e6d308; /* เขียว */
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    transform: translateY(-5px);
+}
+
+/* อัตโนมัติ */
+#sidebar a.auto:hover {
+    background: #eb9e05; /* เขียว */
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    transform: translateY(-5px);
+}
+
+/* รูปภาพ */
+#sidebar a.image:hover {
+    background: #f50b0b; /* ส้ม */
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    transform: translateY(-5px);
+}
+
+/* FAQ */
+#sidebar a.faq:hover {
+    background: #ef348e; /* แดง */
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    transform: translateY(-5px);
+}
+
+
+  .sidebar-divider {
+      width: 90%;
+      height: 1px;
+      background: #e5e7eb;
+      margin: 100px 0;
+  }
+
+    /* The switch - the box around the slider */
+.switch {
+  font-size: 17px;
+  position: relative;
+  display: inline-block;
+  width: 3.5em;
+  height: 2em;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #fff;
+  border: 1px solid #adb5bd;
+  transition: .4s;
+  border-radius: 30px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 1.4em;
+  width: 1.4em;
+  border-radius: 20px;
+  left: 0.27em;
+  bottom: 0.25em;
+  background-color: #adb5bd;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #007bff;
+  border: 1px solid #007bff;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #007bff;
+}
+
+input:checked + .slider:before {
+  transform: translateX(1.4em);
+  background-color: #fff;
+}
+
+.auto-row {
+  display: flex;
+  align-items: center;      /* กลางแนวตั้ง */
+  justify-content: center;  /* กลางแนวนอน */
+  gap: 30px;                /* ระยะห่างข้อความกับสวิตช์ */
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+/* กล่องฟังก์ชัน */
+#autoFunctions {
+  color:#1e40af;
+  width: 100%;
+  margin-top: 30px;
+  margin-left: 30px;
+  margin-right: 30px;
+  display: flex;
+  gap: 50px;
+  flex-wrap: wrap;   /* ⭐ สำคัญ */
+  transition: opacity 0.3s;
+}
+
+
+#autoFunctions h2 {
+    text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 25px;
+}
+
+/* สถานะปิด (จาง + กดไม่ได้) */
+#autoFunctions.disabled {
+  opacity: 0.4;
+  pointer-events: none; /* ห้ามคลิก */
+  transition: opacity 0.3s;
+}
+
+.auto-item {
+  display: flex;
+  align-items: center;      /* จัดให้อยู่กึ่งกลางแนวตั้ง */
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.auto-item p {
+  color: black;
+  margin: 0;
+  font-size: 18px;
+}
+
+
+
+.yes, .no, .middle {
+  flex: 1 1 400px;   /* ⭐ จอเล็กจะไหลลง */
+  max-width: 100%;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+  border-radius: 10px;
+  background-color: white;
+  padding: 30px;
+}
+
+
+.yes {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    border-radius: 10px;
+    background-color: white;
+}
+
+.no {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    border-radius: 10px;
+    background-color: white;
+}
+
+.middle {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    border-radius: 10px;
+    background-color: white;
+}
+
+.save {
+  display: inline-block;
+  transition: all 0.2s ease-in;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  color: #ffffff;
+  padding: 10px 20px;
+  margin-top: 50px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 0.5em;
+  background: #007bff;
+  border: 1px solid #007bff;
+  box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+}
+
+.save:active {
+  color: #666;
+  box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
+}
+
+.save:before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) scaleY(1) scaleX(1.25);
+  top: 100%;
+  width: 140%;
+  height: 180%;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 50%;
+  display: block;
+  transition: all 0.5s 0.1s cubic-bezier(0.55, 0, 0.1, 1);
+  z-index: -1;
+}
+
+.save:after {
+  content: "";
+  position: absolute;
+  left: 55%;
+  transform: translateX(-50%) scaleY(1) scaleX(1.45);
+  top: 180%;
+  width: 160%;
+  height: 190%;
+  background-color: #007bff;
+  border-radius: 50%;
+  display: block;
+  transition: all 0.5s 0.1s cubic-bezier(0.55, 0, 0.1, 1);
+  z-index: -1;
+}
+
+.save:hover {
+  color: #ffffff;
+  border: 1px solid #007bff;
+}
+
+.save:hover:before {
+  top: -35%;
+  background-color: black;
+  transform: translateX(-50%) scaleY(1.3) scaleX(0.8);
+}
+
+.save:hover:after {
+  top: -45%;
+  background-color: black;
+  transform: translateX(-50%) scaleY(1.3) scaleX(0.8);
+}
+
+.save.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ❌ ปิดเอฟเฟค hover เมื่อ disabled */
+.save.disabled:hover {
+  color: #ffffff;
+  border: 1px solid #007bff;
+}
+
+/* ❌ ปิดเอฟเฟคคลื่น */
+.save.disabled::before,
+.save.disabled::after {
+  display: none;
+}
+
+/* ช่องเวลา */
+.time-input {
+  padding: 8px 12px;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+  transition: 0.2s;
+}
+
+/* ตอนโฟกัส */
+.time-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+}
+
+</style>
+</head>
+<body>
+
+  <!-- 🔵 ปุ่มสามขีด -->
+    <button id="menuBtn" class="hamburger-btn">
+    <svg viewBox="0 0 32 32">
+        <path d="M7 10 27 10"></path>
+        <path d="M7 16 27 16"></path>
+        <path d="M7 22 27 22"></path>
+    </svg>
+    </button>
+
+<!-- 🔵 SIDEBAR -->
+<div id="sidebar">
+
+    <div class="sidebar-header">
+      <h2>Menu</h2>
+      <label class="hamburger" id="closeSidebarBtn">
+      <input type="checkbox" id="sidebarToggle">
+      <svg viewBox="0 0 32 32">
+        <path class="line line-top-bottom"
+          d="M27 10 13 10C10.8 10 9 8.2 9 6
+            9 3.5 10.8 2 13 2
+            15.2 2 17 3.8 17 6
+            L17 26C17 28.2 18.8 30
+            21 30 23.2 30 25 28.2
+            25 26 25 23.8 23.2 22
+            21 22L7 22"></path>
+        <path class="line" d="M7 16 27 16"></path>
+      </svg>
+    </label>
+    </div>
+
+    <ul class="space-y-3 margin-top-4">
+        <li><a href="index.html" class="menu home text-blue-600">หน้าแรก</a></li>
+        <div class="sidebar-divider"></div>
+
+        <li><a href="camera.html" class="menu camera text-blue-600">แขนกลฝั่งติดราง</a></li>
+        <div class="sidebar-divider"></div>
+
+        <li><a href="camera2.html" class="menu camera2 text-blue-600">แขนกลฝั่งยังไม่ติดราง</a></li>
+        <div class="sidebar-divider"></div>
+
+        <li><a href="auto.html" class="menu auto text-blue-600">ระบบอัตโนมัติ</a></li>
+        <div class="sidebar-divider"></div>
+
+        <li><a href="capture.html" class="menu image text-blue-600">รูปภาพ</a></li>
+        <div class="sidebar-divider"></div>
+
+        <li><a href="FAQ.html" class="menu faq text-blue-600">FAQ</a></li>
+        <div class="sidebar-divider"></div>
+    </ul>
+
+    <!-- ⭐ ผู้ใช้ + Logout ย้ายมาไว้ที่นี่ ⭐ -->
+    <div id="sidebarUserBox" style="
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+    ">
+        <div id="sidebarUsername"
+            class="font-bold text-blue-700 mb-2">
+            ผู้ใช้: -
+        </div>
+
+        <button id="sidebarLogoutBtn"
+            class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-bold transition">
+            ออกจากระบบ
+        </button>
+    </div>
+
+</div>
+
+<div id="overlayBg"></div>
+
+
+<div class="auto-row">
+  <h1>ระบบควบคุมอัตโนมัติ</h1>
+
+  <label class="switch">
+    <input type="checkbox" id="autoSwitch">
+    <span class="slider"></span>
+  </label>
+</div>
+
+<p>เปิดเพื่อเลือกฟังก์ชันการทำงาน</p>
+
+<div class="divide"></div>
+
+<!-- ฟังก์ชันข้างล่าง -->
+<div id="autoFunctions" class="disabled">
+  <div class="yes">
+    <h2>แขนกลฝั่งติดราง</h2>
+
+    <div>
+        <div class="auto-item">
+            <p>วัดความชื้น</p>
+            <label class="switch">
+                <input type="checkbox">
+                <span class="slider"></span>
+            </label>
+            </div>
+
+            <div class="auto-item">
+            <p>รดน้ำต้นกล้า</p>
+            <label class="switch">
+                <input type="checkbox">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+  </div>
+
+  <div class="no">
+    <h2>แขนกลฝั่งไม่ติดราง</h2>
+
+      <div>
+        <div class="auto-item">
+            <p>วัดความชื้น</p>
+            <label class="switch">
+                <input type="checkbox">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="auto-item">
+            <p>รดน้ำต้นกล้า</p>
+            <label class="switch">
+                <input type="checkbox">
+                <span class="slider"></span>
+            </label>
+        </div>
+      </div>
+  </div>
+
+  <div class="middle">
+    <h2>ฟังก์ชันอื่นๆ</h2>
+
+    <div class="auto-item">
+      <p>ควบคุมสถานะไฟ</p>
+      <label class="switch">
+        <input type="checkbox">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="auto-item">
+      <p>ควบคุมโซลาร์เซลล์</p>
+      <label class="switch">
+        <input type="checkbox">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="auto-item">
+      <p>ถ่ายรูปต้นกล้า</p>
+      <label class="switch">
+        <input type="checkbox">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="auto-item">
+      <p>ตั้งเวลา</p>
+      <input type="time" class="time-input">
+    </div>
+  </div>
+</div>
+
+<button id="saveBtn" class="disabled save">Save</button>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://yiaemxmwfxrfrwtogamw.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+let currentPoint = {x:0,y:0};
+let chart = null;
+
+// เช็ค user
+async function checkUser(){
+  const { data: { session } } = await supabase.auth.getSession();
+  if(!session || !session.user){ window.location.href="login.html"; return; }
+  currentUser = session.user;
+  document.getElementById("sidebarUsername").textContent = `ผู้ใช้: ${currentUser.email}`;
+  document.getElementById("app").style.display="block";
+  initGrid();
+}
+checkUser();
+
+// logout
+document.getElementById("sidebarLogoutBtn").addEventListener("click", async ()=>{
+  const {error} = await supabase.auth.signOut();
+  if(error) console.error(error.message); else window.location.href="login.html";
+});
+
+  /* ===== Sidebar Control ===== */
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlayBg");
+const toggle = document.getElementById("sidebarToggle");
+
+// ปุ่มเปิดเมนู
+document.getElementById("menuBtn").addEventListener("click", () => {
+    sidebar.classList.add("active");
+    overlay.style.display = "block";
+    toggle.checked = true; // เล่น animation hamburger → X
+});
+
+// กดปุ่ม hamburger เพื่อปิด
+toggle.addEventListener("change", () => {
+    if (!toggle.checked) {
+        sidebar.classList.remove("active");
+        overlay.style.display = "none";
+    }
+});
+
+// กดพื้นหลังปิดเมนู
+overlay.addEventListener("click", () => {
+    sidebar.classList.remove("active");
+    overlay.style.display = "none";
+    toggle.checked = false;
+});
+
+const autoSwitch = document.getElementById("autoSwitch");
+const autoFunctions = document.getElementById("autoFunctions");
+const saveBtn = document.getElementById("saveBtn");
+
+autoSwitch.addEventListener("change", () => {
+  if (autoSwitch.checked) {
+    autoFunctions.classList.remove("disabled");
+    saveBtn.classList.remove("disabled");
+  } else {
+    autoFunctions.classList.add("disabled");
+    saveBtn.classList.add("disabled");
+  }
+});
+
+
+</script>
+</body>
+</html>

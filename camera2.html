@@ -678,7 +678,6 @@ function initGrid(){
       grid.appendChild(pointContainer);
     }*/
   }
-  
 
   lightSwitch.addEventListener("change",(e)=>{
     lightStatus.textContent = e.target.checked ? "> ควบคุมสถานะไฟ : ไฟเปิด" : "> ควบคุมสถานะไฟ : ไฟปิด";
@@ -694,7 +693,7 @@ async function openGridOverlay(x, y) {
   document.getElementById("pointTitle").textContent = `จุด (${x},${y})`;
 
   // โหลดชื่อและรูป
-  const { data, error } = await supabase.from("points").select("*").eq("user_id", currentUser.id).eq("x", x).eq("y", y).single();
+  const { data, error } = await supabase.from("points1").select("*").eq("user_id", currentUser.id).eq("x", x).eq("y", y).single();
   const input = document.getElementById("pointNameInput");
   input.value = data?.name || "";
   const img = document.getElementById("pointImage");
@@ -702,7 +701,7 @@ async function openGridOverlay(x, y) {
 
   // โหลดค่าความชื้นจาก paintable
   const { data: vals } = await supabase
-    .from("paintable")
+    .from("maintable")
     .select("soil_moisture, inserted_at")
     .eq("user_id", currentUser.id)
     .eq("point_x", x)
@@ -803,7 +802,7 @@ async function renameSuccess(){
   const input=document.getElementById("pointNameInput");
   const name=input.value.trim();
   if(!name) return;
-  const {error}=await supabase.from("points").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,name},{onConflict:['user_id','x','y']});
+  const {error}=await supabase.from("points1").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,name},{onConflict:['user_id','x','y']});
   if(error) console.error(error.message);
 }
 
@@ -822,7 +821,7 @@ document.getElementById("pointFileInput").addEventListener("change", async(event
     const {data:publicData}=supabase.storage.from("grid-images").getPublicUrl(fileName);
     const imageUrl=publicData.publicUrl;
     const img=document.getElementById("pointImage"); img.src=imageUrl; img.style.display="block";
-    await supabase.from("points").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,image_url:imageUrl},{onConflict:['user_id','x','y']});
+    await supabase.from("").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,image_url:imageUrl},{onConflict:['user_id','x','y']});
   }catch(err){ console.error(err); alert("อัปโหลดรูปไม่สำเร็จ"); }
 });
 
@@ -863,7 +862,7 @@ function sendAction(action) {
   btn.disabled = true;
   btn.style.cursor = "not-allowed";
 
-  fetch("https://yiaemxmwfxrfrwtogamw.supabase.co/rest/v1/robot_commands", {
+  fetch("https://yiaemxmwfxrfrwtogamw.supabase.co/rest/v1/robot_commands1", {
     method: "POST",
     headers: {
       apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw",
