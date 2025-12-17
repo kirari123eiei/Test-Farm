@@ -206,6 +206,105 @@
 .add:active {
   background-color: #08b952;
 }
+
+.add:hover {
+  background-color: #03b24c;
+}
+
+.add:hover svg {
+  transform: translateX(4px);
+}
+
+.weatherbtn {
+  background: #419aff; /* สีพื้นคล้าย Add Line */
+  color: white;
+  font-weight: 600;
+  border-radius: 0.75rem; /* โค้งมนแบบ Add Line */
+  padding: 0.6rem 1.5rem; /* ขนาดปุ่ม */
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem; /* ช่องว่างระหว่างข้อความกับ icon */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.weatherbtn:hover {
+  background: #1288ff; /* สีเข้มขึ้นเล็กน้อย */
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* เพิ่มความ smooth เวลาซ่อน */
+.weatherbtn.hide {
+  opacity: 0;
+  height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin: 0;
+}
+
+/* Icon เลื่อนเมื่อ hover */
+.weatherbtn svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  transition: transform 0.2s ease;
+}
+
+.weatherbtn:hover svg {
+  transform: translateX(4px);
+}
+
+
+/* Weather Card ปรับสไตล์คล้าย Klabot */
+.weather {
+    background: #419aff; /* สีพื้นเรียบ */
+    border-radius: 1rem; /* โค้งมน */
+    padding: 0; /* ลบ padding ด้านนอก เพื่อให้ shadow ครอบคลุม */
+    transition: all 0.3s ease;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    position: relative;
+}
+
+.weather .inner-card {
+    padding: 2rem;
+    background: inherit;
+    transition: all 0.3s ease;
+}
+
+.weather:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Weather Details Grid */
+.weather .grid {
+    background: rgba(255, 255, 255, 0.263);
+    backdrop-filter: blur(5px);
+    border-radius: 1rem;
+    padding: 1rem;
+    transition: all 0.3s ease;
+}
+
+/* Typography */
+.weather h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.weather span {
+    font-weight: 500;
+}
+
+.weather .grid span.text-sm {
+    font-weight: 400;
+    color: rgba(255,255,255,0.8);
+}
+
 </style>
 </head>
 <body>
@@ -283,68 +382,94 @@
 
 <h1>ฟังก์ชันอื่นๆ</h1>
 
-<div
-  class="relative flex w-80 flex-col rounded-xl bg-gradient-to-br from-white to-gray-50 bg-clip-border text-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
->
-  <div
-    class="relative mx-4 -mt-6 h-40 overflow-hidden rounded-xl bg-clip-border shadow-lg group"
-  >
-    <!-- แทนที่ gradient ด้วยรูปภาพ -->
-    <img 
-      src="https://github.com/kirari123eiei/Test-Farm/blob/main/public/Klabot.jpg?raw=true" 
-      alt="Klabot Banner" 
-      class="absolute inset-0 w-full h-full object-cover"
-    />
-    
-    <!-- overlay pattern เหมือนเดิม -->
-    <div
-      class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:20px_20px] animate-pulse"
-    ></div>
+<div class="flex justify-between items-start w-full mt-8 px-4 gap-4">
+  <!-- ซ้าย: Weather (การ์ด + ปุ่ม) -->
+<div class="flex flex-col gap-4">
+  <!-- Weather Card -->
+  <div id="weatherCard" class="weather hidden group relative w-80 p-6">
+    <!-- inner-card สำหรับ style คล้าย Klabot -->
+    <div class="inner-card relative overflow-hidden rounded-2xl shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 id="city" class="text-lg font-semibold text-white">-</h3>
+          <p class="text-sm text-white/80">Thailand</p>
+        </div>
+      </div>
 
-    <div class="absolute inset-0 flex items-center justify-center">
-        <path
-          d="M12 2L1 21h22L12 2zm0 3.83L19.17 19H4.83L12 5.83zM11 16h2v2h-2zm0-6h2v4h-2z"
-        ></path>
-      </svg>
+      <!-- Temp -->
+      <div class="mt-8 flex items-center justify-between">
+        <div class="flex items-start">
+          <span id="temp" class="text-6xl font-bold text-white">--</span>
+          <span class="mt-1 text-2xl text-white/80">°C</span>
+        </div>
+      </div>
+
+      <!-- Details -->
+      <div class="mt-8 grid grid-cols-3 gap-4 rounded-xl bg-white/20 p-4 backdrop-blur-sm">
+        <div class="flex flex-col items-center gap-1">
+          <span class="text-sm font-medium text-white">Humidity</span>
+          <span id="humidity" class="text-lg font-semibold text-white">--%</span>
+        </div>
+        <div class="flex flex-col items-center gap-1">
+          <span class="text-sm font-medium text-white">Wind</span>
+          <span id="wind" class="text-lg font-semibold text-white">-- m/s</span>
+        </div>
+        <div class="flex flex-col items-center gap-1">
+          <span class="text-sm font-medium text-white">Weather</span>
+          <span id="desc" class="text-sm font-semibold text-white text-center">--</span>
+        </div>
+      </div>
+
     </div>
   </div>
-  <div class="p-6">
-    <h5
-      class="mb-2 block font-sans text-xl font-semibold leading-snug tracking-normal text-gray-900 antialiased group-hover:text-blue-600 transition-colors duration-300"
-    >
-      Klabot
-    </h5>
-    <p
-      class="block font-sans text-base font-light leading-relaxed text-gray-700 antialiased"
-    >
-      หากต้องการให้ส่งแจ้งเตือนการทำงานผ่านทางไลน์ของ Klabot
-    </p>
-  </div>
-  <div class="p-6 pt-0">
-    <a
-      href="https://lin.ee/0LnQrNy"
-      target="_blank"
-      class="add group relative w-full inline-flex items-center justify-center px-6 py-3 font-bold text-white rounded-lg hover:-translate-y-0.5"
-    >
-      <span class="relative flex items-center gap-2">
-        Add Line
-        <svg
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          fill="none"
-          class="w-5 h-5 transform transition-transform group-hover:translate-x-1"
-        >
-          <path
-            d="M17 8l4 4m0 0l-4 4m4-4H3"
-            stroke-width="2"
-            stroke-linejoin="round"
-            stroke-linecap="round"
-          ></path>
-        </svg>
-      </span>
-    </a>
+
+  <button id="weatherBtn" onclick="getWeather()" class="weatherbtn">
+    <span class="flex items-center gap-2">
+      ดูสภาพอากาศ
+      <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" class="w-5 h-5">
+        <path d="M17 8l4 4m0 0l-4 4m4-4H3" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path>
+      </svg>
+    </span>
+  </button>
+
+</div>
+
+
+  <!-- ขวา: Klabot Card -->
+  <div class="relative flex w-80 flex-col rounded-xl bg-gradient-to-br from-white to-gray-50 bg-clip-border text-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+    <div class="relative mx-4 -mt-6 h-40 overflow-hidden rounded-xl bg-clip-border shadow-lg group">
+      <img 
+        src="https://github.com/kirari123eiei/Test-Farm/blob/main/public/Klabot.jpg?raw=true" 
+        alt="Klabot Banner" 
+        class="absolute inset-0 w-full h-full object-cover"
+      />
+      <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:20px_20px] animate-pulse"></div>
+    </div>
+    <div class="p-6">
+      <h5 class="mb-2 block font-sans text-xl font-semibold leading-snug tracking-normal text-gray-900 antialiased group-hover:text-blue-600 transition-colors duration-300">
+        Klabot
+      </h5>
+      <p class="block font-sans text-base font-light leading-relaxed text-gray-700 antialiased">
+        หากต้องการให้ส่งแจ้งเตือนการทำงานผ่านทางไลน์ของ Klabot
+      </p>
+    </div>
+    <div class="p-6 pt-0">
+      <a href="https://lin.ee/0LnQrNy" target="_blank" class="add group relative w-full inline-flex items-center justify-center px-6 py-3 font-bold text-white rounded-lg hover:-translate-y-0.5">
+        <span class="relative flex items-center gap-2">
+          Add Line
+          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" class="w-5 h-5 transform transition-transform group-hover:translate-x-1">
+            <path d="M17 8l4 4m0 0l-4 4m4-4H3" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path>
+          </svg>
+        </span>
+      </a>
+    </div>
   </div>
 </div>
+
+
+
 
 
 
@@ -402,6 +527,35 @@ overlay.addEventListener("click", () => {
     overlay.style.display = "none";
     toggle.checked = false;
 });
+
+function getWeather() {
+  fetch(
+    "https://api.openweathermap.org/data/2.5/weather?q=Khonkaen&units=metric&lang=th&appid=c7d23cedbff3df0a737c2714bc16c722"
+  )
+    .then(res => res.json())
+    .then(data => {
+      // แสดง Weather Card
+      document.getElementById("weatherCard").classList.remove("hidden");
+
+      // ซ่อนปุ่มแบบสมูท
+      const btn = document.getElementById("weatherBtn");
+      if (btn) btn.classList.add("hide");
+
+      // กำหนดค่า Weather
+      document.getElementById("city").textContent = data.name;
+      document.getElementById("temp").textContent = Math.round(data.main.temp);
+      document.getElementById("humidity").textContent =
+        data.main.humidity + "%";
+      document.getElementById("wind").textContent =
+        data.wind.speed + " m/s";
+      document.getElementById("desc").textContent =
+        data.weather[0].description;
+    })
+    .catch(err => {
+      alert("โหลดข้อมูลไม่สำเร็จ");
+      console.error(err);
+    });
+}
 </script>
 </body>
 </html>

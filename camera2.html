@@ -410,14 +410,14 @@
 }
 
 .one {
-  background-color: #487bdb;
+  background-color: #36b98b;
   color: white;
   margin-bottom: 5px;
   margin-top: 10px;
 }
 
 .two {
-  background-color: #10b981;
+  background-color: #487bdb;
   color: white;
   margin-top: 5px;
 }
@@ -441,6 +441,11 @@
   transform: translate(-50%, -50%) scale(1.3);
   transition: all 0.15s;
 }
+
+.hand.water {
+  background-color: #487bdb;
+}
+
 </style>
 </head>
 <body>
@@ -476,7 +481,7 @@
 
     <ul class="space-y-3 margin-top-4">
         <li><a href="index.html" class="menu home text-blue-600">หน้าแรก</a></li>
-        <div class="sidebar-divider"></div>
+        <div class="sidebar-divider"></div> 
 
         <li><a href="camera.html" class="menu camera text-blue-600">แขนกลฝั่งติดราง</a></li>
         <div class="sidebar-divider"></div>
@@ -678,6 +683,7 @@ function initGrid(){
       grid.appendChild(pointContainer);
     }*/
   }
+  
 
   lightSwitch.addEventListener("change",(e)=>{
     lightStatus.textContent = e.target.checked ? "> ควบคุมสถานะไฟ : ไฟเปิด" : "> ควบคุมสถานะไฟ : ไฟปิด";
@@ -699,7 +705,7 @@ async function openGridOverlay(x, y) {
   const img = document.getElementById("pointImage");
   if (data?.image_url) { img.src = data.image_url; img.style.display = "block"; } else img.style.display = "none";
 
-  // โหลดค่าความชื้นจาก paintable
+  // โหลดค่าความชื้นจาก maintable
   const { data: vals } = await supabase
     .from("maintable")
     .select("soil_moisture, inserted_at")
@@ -766,28 +772,70 @@ const pointActionMap = {
 };
 
 
-//overlay แขนกล
+/* ===============================
+   MAP จุด → ACTION รดน้ำ
+================================ */
+const pointWaterMap = {
+  "1,1": "waterA",
+  "1,2": "waterB",
+  "1,3": "waterC",
+  "1,4": "waterD",
+  "1,5": "waterE",
+  "1,6": "waterF",
+  "2,1": "waterG",
+  "2,2": "waterH",
+  "2,3": "waterI",
+  "2,4": "waterJ",
+  "2,5": "waterK",
+  "2,6": "waterL",
+  "3,1": "waterM",
+  "3,2": "waterN",
+  "3,3": "waterO",
+  "3,4": "waterP",
+  "3,5": "waterQ",
+  "3,6": "waterR",
+  "4,1": "waterS",
+  "4,2": "waterT",
+  "4,3": "waterU",
+  "4,4": "waterV",
+  "4,5": "waterW",
+  "4,6": "waterX"
+};
+
+
 function openHandOverlay() {
   document.getElementById("pointOverlayContent").style.display = "none";
   document.getElementById("handOverlay").style.display = "block";
 
   const key = `${currentPoint.x},${currentPoint.y}`;
   const action = pointActionMap[key];
+  const waterAction = pointWaterMap[key];
 
   const area = document.getElementById("handButtonArea");
   area.innerHTML = "";
 
-  if (!action) {
-    area.innerHTML = "<p style='text-align:center;'>จุดนี้ไม่มีฟังก์ชันแขนกล</p>";
+  if (!action && !waterAction) {
+    area.innerHTML = "<p style='text-align:center;'>จุดนี้ไม่มีฟังก์ชัน</p>";
     return;
   }
 
-  const btn = document.createElement("button");
-  btn.className = "hand one";
-  btn.innerText = `ส่งค่า ${action} ไปยังแขนกล`;
-  btn.onclick = () => sendAction(action);
+  /* ===== ปุ่มแขนกล ===== */
+  if (action) {
+    const armBtn = document.createElement("button");
+    armBtn.className = "hand one";
+    armBtn.innerText = `ส่งค่า ${action} ไปยังแขนกล`;
+    armBtn.onclick = () => sendAction(action);
+    area.appendChild(armBtn);
+  }
 
-  area.appendChild(btn);
+  /* ===== ปุ่มรดน้ำ ===== */
+  if (waterAction) {
+    const waterBtn = document.createElement("button");
+    waterBtn.className = "hand one water"; // เพิ่ม class เฉพาะรดน้ำ
+    waterBtn.innerText = `รดน้ำ (${waterAction})`;
+    waterBtn.onclick = () => sendAction(waterAction);
+    area.appendChild(waterBtn);
+  }
 }
 
 
@@ -821,7 +869,7 @@ document.getElementById("pointFileInput").addEventListener("change", async(event
     const {data:publicData}=supabase.storage.from("grid-images").getPublicUrl(fileName);
     const imageUrl=publicData.publicUrl;
     const img=document.getElementById("pointImage"); img.src=imageUrl; img.style.display="block";
-    await supabase.from("").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,image_url:imageUrl},{onConflict:['user_id','x','y']});
+    await supabase.from("points1").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,image_url:imageUrl},{onConflict:['user_id','x','y']});
   }catch(err){ console.error(err); alert("อัปโหลดรูปไม่สำเร็จ"); }
 });
 
