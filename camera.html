@@ -446,6 +446,10 @@
   background-color: #487bdb;
 }
 
+.hand.moisture {
+  background-color: #9020d1;
+}
+
 </style>
 </head>
 <body>
@@ -751,18 +755,21 @@ const pointActionMap = {
   "1,4": "D",
   "1,5": "E",
   "1,6": "F",
+
   "2,1": "G",
   "2,2": "H",
   "2,3": "I",
   "2,4": "J",
   "2,5": "K",
   "2,6": "L",
+
   "3,1": "M",
   "3,2": "N",
   "3,3": "O",
   "3,4": "P",
   "3,5": "Q",
   "3,6": "R",
+
   "4,1": "S",
   "4,2": "T",
   "4,3": "U",
@@ -776,31 +783,70 @@ const pointActionMap = {
    MAP จุด → ACTION รดน้ำ
 ================================ */
 const pointWaterMap = {
-  "1,1": "waterA",
-  "1,2": "waterB",
-  "1,3": "waterC",
-  "1,4": "waterD",
-  "1,5": "waterE",
-  "1,6": "waterF",
-  "2,1": "waterG",
-  "2,2": "waterH",
-  "2,3": "waterI",
-  "2,4": "waterJ",
-  "2,5": "waterK",
-  "2,6": "waterL",
-  "3,1": "waterM",
-  "3,2": "waterN",
-  "3,3": "waterO",
-  "3,4": "waterP",
-  "3,5": "waterQ",
-  "3,6": "waterR",
-  "4,1": "waterS",
-  "4,2": "waterT",
-  "4,3": "waterU",
-  "4,4": "waterV",
-  "4,5": "waterW",
-  "4,6": "waterX"
+  "1,1": "water11",
+  "1,2": "water21",
+  "1,3": "water31",
+  "1,4": "water41",
+  "1,5": "water51",
+  "1,6": "water61",
+
+  "2,1": "water12",
+  "2,2": "water22",
+  "2,3": "water32",
+  "2,4": "water42",
+  "2,5": "water25",
+  "2,6": "water62",
+
+  "3,1": "water13",
+  "3,2": "water23",
+  "3,3": "water33",
+  "3,4": "water43",
+  "3,5": "water53",
+  "3,6": "water63",
+
+  "4,1": "water14",
+  "4,2": "water24",
+  "4,3": "water34",
+  "4,4": "water44",
+  "4,5": "water54",
+  "4,6": "water64"
 };
+
+
+/* ===============================
+   MAP จุด → ACTION วัดความชื้น
+================================ */
+const pointMoistureMap = {
+  "1,1": "moisture11",
+  "1,2": "moisture21",
+  "1,3": "moisture31",
+  "1,4": "moisture41",
+  "1,5": "moisture51",
+  "1,6": "moisture61",
+
+  "2,1": "moisture12",
+  "2,2": "moisture22",
+  "2,3": "moisture32",
+  "2,4": "moisture42",
+  "2,5": "moisture52",
+  "2,6": "moisture62",
+
+  "3,1": "moisture13",
+  "3,2": "moisture23",
+  "3,3": "moisture33",
+  "3,4": "moisture43",
+  "3,5": "moisture53",
+  "3,6": "moisture63",
+
+  "4,1": "moisture14",
+  "4,2": "moisture24",
+  "4,3": "moisture34",
+  "4,4": "moisture44",
+  "4,5": "moisture54",
+  "4,6": "moisture64"
+};
+
+
 
 
 function openHandOverlay() {
@@ -810,33 +856,44 @@ function openHandOverlay() {
   const key = `${currentPoint.x},${currentPoint.y}`;
   const action = pointActionMap[key];
   const waterAction = pointWaterMap[key];
+  const moistureAction = pointMoistureMap[key];
 
   const area = document.getElementById("handButtonArea");
   area.innerHTML = "";
 
-  if (!action && !waterAction) {
+  if (!action && !waterAction && !moistureAction) {
     area.innerHTML = "<p style='text-align:center;'>จุดนี้ไม่มีฟังก์ชัน</p>";
     return;
   }
 
-  /* ===== ปุ่มแขนกล ===== */
+  /* แขนกล */
   if (action) {
     const armBtn = document.createElement("button");
     armBtn.className = "hand one";
-    armBtn.innerText = `ส่งค่า ${action} ไปยังแขนกล`;
+    armBtn.innerText = `ส่งค่า ${action} และคีบ`;
     armBtn.onclick = () => sendAction(action);
     area.appendChild(armBtn);
   }
 
-  /* ===== ปุ่มรดน้ำ ===== */
+  /* รดน้ำ */
   if (waterAction) {
     const waterBtn = document.createElement("button");
-    waterBtn.className = "hand one water"; // เพิ่ม class เฉพาะรดน้ำ
-    waterBtn.innerText = `รดน้ำ (${waterAction})`;
+    waterBtn.className = "hand one water";
+    waterBtn.innerText = `รดน้ำ ${waterAction}`;
     waterBtn.onclick = () => sendAction(waterAction);
     area.appendChild(waterBtn);
   }
+
+  /* วัดความชื้น */
+  if (moistureAction) {
+    const moistureBtn = document.createElement("button");
+    moistureBtn.className = "hand one moisture";
+    moistureBtn.innerText = `วัดความชื้น ${moistureAction}`;
+    moistureBtn.onclick = () => sendAction(moistureAction);
+    area.appendChild(moistureBtn);
+  }
 }
+
 
 
 function backToPointOverlay() {
