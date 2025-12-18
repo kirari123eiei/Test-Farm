@@ -274,7 +274,7 @@
         <li><a href="capture.html" class="menu image text-blue-600">รูปภาพ</a></li>
         <div class="sidebar-divider"></div>
 
-        <li><a href="FAQ.html" class="menu faq text-blue-600">ฟังก์ชันอื่นๆ</a></li>
+        <li><a href="FAQ.html" class="menu faq text-blue-600">FAQ</a></li>
         <div class="sidebar-divider"></div>
     </ul>
 
@@ -322,158 +322,115 @@
     </div>
 
     <!-- Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
     const SUPABASE_URL = "https://yiaemxmwfxrfrwtogamw.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw";
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    const BUCKET_NAME = 'esp32-images';
+    
+    const supabaseClient = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
+    
+    const BUCKET_NAME = "esp32-images";
     let currentUser = null;
-
-    // ================= ตรวจสอบผู้ใช้ =================
+    
+    /* ===== Auth ===== */
     async function checkUser() {
-        const { data: { session } } = await supabase.auth.getSession();
-
-        if (!session || !session.user) {
-            window.location.href = "login.html";
-            return;
-        }
-
-        currentUser = session.user;
-
-        // ✅ แสดงชื่อผู้ใช้ใน Sidebar
-        document.getElementById("sidebarUsername").textContent =
-            `ผู้ใช้: ${currentUser.email}`;
-
-        loadImages();
+      const { data: { session }, error } =
+        await supabaseClient.auth.getSession();
+    
+      if (error || !session) {
+        console.warn("No session");
+        return;
+      }
+    
+      currentUser = session.user;
+      document.getElementById("sidebarUsername").textContent =
+        "ผู้ใช้: " + currentUser.email;
+    
+      loadImages();
     }
-    checkUser();
-
-    // ================= Logout (Sidebar) =================
-    document.getElementById("sidebarLogoutBtn").addEventListener("click", async () => {
-        const { error } = await supabase.auth.signOut();
-        if (!error) window.location.href = "login.html";
-    });
-
-    // ================= โหลดรูป =================
+    
+    /* ===== Load Images ===== */
     async function loadImages() {
-        const empty = document.getElementById("empty");
-        const grid = document.getElementById("grid");
-
-        if (!currentUser) return;
-
-        const { data: images, error } = await supabase
-            .from("user_images")
-            .select("user_id, image_url, ip_address, created_at")
-            .eq("user_id", currentUser.id)
-            .order("created_at", { ascending: false });
-
+      const empty = document.getElementById("empty");
+      const grid = document.getElementById("grid");
+    
+      const { data: images, error } = await supabaseClient
+        .from("user_images")
+        .select("image_url, created_at")
+        .order("created_at", { ascending: false });
+    
         if (error) {
-            console.error(error);
-            grid.innerHTML = "";
+            console.error("SUPABASE ERROR:", error);
             empty.style.display = "block";
-            empty.textContent = "เกิดข้อผิดพลาดขณะโหลดข้อมูล";
+            empty.textContent = error.message;
             return;
         }
 
-        if (!images || images.length === 0) {
-            grid.innerHTML = "";
-            empty.style.display = "block";
-            empty.textContent = "ยังไม่มีภาพในระบบ";
-            return;
+    
+      if (!images || images.length === 0) {
+        empty.style.display = "block";
+        empty.textContent = "ยังไม่มีรูป";
+        return;
+      }
+    
+      empty.style.display = "none";
+      grid.innerHTML = "";
+    
+      images.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "card";
+    
+        const img = document.createElement("img");
+        img.className = "thumb";
+    
+        let imageUrl = "";
+    
+        if (item.image_url.startsWith("http")) {
+          imageUrl = item.image_url;
+        } else {
+          const { data } = supabaseClient
+            .storage
+            .from(BUCKET_NAME)
+            .getPublicUrl(item.image_url);
+          imageUrl = data.publicUrl;
         }
-
-        empty.style.display = "none";
-        grid.innerHTML = "";
-
-        images.forEach(item => {
-            const card = document.createElement("div");
-            card.className = "card";
-
-            const img = document.createElement("img");
-            img.className = "thumb";
-
-            let imageUrl = "";
-            if (item.image_url) {
-                if (typeof item.image_url === "object" && item.image_url.path) {
-                    const { data: urlData } = supabase
-                        .storage
-                        .from(BUCKET_NAME)
-                        .getPublicUrl(item.image_url.path);
-                    imageUrl = urlData.publicUrl;
-                } else if (typeof item.image_url === "string") {
-                    imageUrl = item.image_url;
-                }
-            }
-            img.src = imageUrl;
-
-            card.addEventListener("click", () => {
-                document.getElementById("previewImage").src = imageUrl;
-                document.getElementById("previewOverlay").style.display = "flex";
-            });
-
-            const meta = document.createElement("div");
-            meta.className = "meta";
-
-            const title = document.createElement("div");
-            title.className = "title";
-            title.textContent = "Captured by ESP32-CAM";
-
-            const stats = document.createElement("div");
-            stats.className = "stats";
-            stats.textContent =
-                `IP: ${item.ip_address || "ไม่ทราบ"} • ${new Date(item.created_at).toLocaleString()}`;
-
-            meta.appendChild(title);
-            meta.appendChild(stats);
-            card.appendChild(img);
-            card.appendChild(meta);
-            grid.appendChild(card);
-        });
+    
+        img.src = imageUrl;
+    
+        card.appendChild(img);
+        grid.appendChild(card);
+      });
     }
-
-    document.getElementById("reloadBtn").addEventListener("click", loadImages);
-
-    document.getElementById("closePreview").addEventListener("click", () => {
-        document.getElementById("previewOverlay").style.display = "none";
-    });
-
-    document.getElementById("previewOverlay").addEventListener("click", e => {
-        if (e.target.id === "previewOverlay") {
-            document.getElementById("previewOverlay").style.display = "none";
-        }
-    });
-
-      /* ===== Sidebar Control ===== */
+    
+    /* ===== Sidebar ===== */
     const sidebar = document.getElementById("sidebar");
     const overlay = document.getElementById("overlayBg");
     const toggle = document.getElementById("sidebarToggle");
+    const closeBtn = document.getElementById("closeSidebarBtn");
 
-    // ปุ่มเปิดเมนู
-    document.getElementById("menuBtn").addEventListener("click", () => {
+    /* เปิด sidebar */
+    document.getElementById("menuBtn").onclick = () => {
         sidebar.classList.add("active");
         overlay.style.display = "block";
-        toggle.checked = true; // เล่น animation hamburger → X
-    });
+        toggle.checked = true;
+    };
 
-    // กดปุ่ม hamburger เพื่อปิด
-    toggle.addEventListener("change", () => {
-        if (!toggle.checked) {
-            sidebar.classList.remove("active");
-            overlay.style.display = "none";
-        }
-    });
+    /* ปิด sidebar (คลิกพื้นหลัง) */
+    overlay.onclick = closeSidebar;
 
-    // กดพื้นหลังปิดเมนู
-    overlay.addEventListener("click", () => {
-        sidebar.classList.remove("active");
-        overlay.style.display = "none";
-        toggle.checked = false;
-    });
+    /* ปิด sidebar (คลิกปุ่ม X) */
+    closeBtn.onclick = closeSidebar;
 
-</script>
+    function closeSidebar() {
+    sidebar.classList.remove("active");
+    overlay.style.display = "none";
+    toggle.checked = false;
+    }
+    checkUser();
+    </script>    
 
 </body>
 </html>
