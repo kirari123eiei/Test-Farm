@@ -209,7 +209,36 @@ body {
 
 <div class="footer-text">© presented by klabot dev team</div>
 
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL = "https://yiaemxmwfxrfrwtogamw.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+let currentPoint = {x:0,y:0};
+let chart = null;
+
+// เช็ค user
+async function checkUser() {
+  console.log("checkUser called");
+
+  const { data, error } = await supabase.auth.getSession();
+  console.log("session:", data?.session);
+
+  if (error || !data.session) {
+    console.log("NO SESSION → redirect");
+    window.location.href = "login.html";
+    return;
+  }
+
+  currentUser = data.session.user;
+}
+
+document.addEventListener("DOMContentLoaded", checkUser);
+  
+
 window.addEventListener("load", () => {
   document.getElementById("popup").classList.add("active");
 });
