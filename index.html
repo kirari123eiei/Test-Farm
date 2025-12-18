@@ -5,7 +5,9 @@
 <title>หน้าเลือกการทำงาน</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
 <style>
+/* ===== footer ===== */
 .footer-text {
   position: fixed;
   bottom: 10px;
@@ -20,7 +22,7 @@
   color: #777;
 }
 
-/* ===== ปุ่มเข้าสู่เว็บไซต์ (แบบใหม่) ===== */
+/* ===== ปุ่ม ===== */
 .ui-button {
   position: fixed;
   overflow: hidden;
@@ -28,45 +30,52 @@
   padding: 0 2rem;
   border-radius: 1.5rem;
   background: #3d3a4e;
-  background-size: 400%;
   color: #fff;
   box-shadow: 0 10px 20px rgba(0,0,0,0.15);
   border: none;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
+
+  /* 🔥 สำคัญ */
+  display: flex;
+  align-items: center;      /* กลางแนวตั้ง */
+  justify-content: center;  /* กลางแนวนอน */
+
   bottom: 1rem;
   left: 50%;
   transform: translateX(-50%);
   z-index: 40;
+  text-decoration: none;
+}
+
+.ui-button .button-content {
+  position: relative;
+  z-index: 1;
+  line-height: 1;   /* ป้องกันตัวหนังสือลอย */
+}
+
+
+.ui-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: linear-gradient(
+    82.3deg,
+    rgba(150,93,233,1) 10.8%,
+    rgba(99,88,238,1) 94.3%
+  );
+  transition: 0.4s;
 }
 .ui-button:hover::before {
   transform: scaleX(1);
 }
-.ui-button .button-content {
+.ui-button span {
   position: relative;
   z-index: 1;
 }
-.ui-button::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: scaleX(0);
-  transform-origin: 0 50%;
-  width: 100%;
-  height: inherit;
-  border-radius: inherit;
-  background: linear-gradient(
-    82.3deg,
-    rgba(150, 93, 233, 1) 10.8%,
-    rgba(99, 88, 238, 1) 94.3%
-  );
-  transition: all 0.475s;
-}
 
+/* ===== popup ===== */
 #popup {
   opacity: 0;
   pointer-events: none;
@@ -76,231 +85,161 @@
   pointer-events: auto;
 }
 
-/* ===== ปรับปุ่มปิดเป็น toggle แบบ X ===== */
+/* ===== toggle ===== */
 .toggle {
+  width: 30px;
+  height: 24px;
   position: relative;
-  width: 40px;
-  height: calc(4px * 3 + 11px * 2);
   cursor: pointer;
-  margin: auto;
-  display: block;
 }
 .bar {
   position: absolute;
   left: 0;
   right: 0;
-  height: 4px;
+  height: 3px;
+  background: #fff;
   border-radius: 2px;
-  background: #ffffff;
-  opacity: 1;
-  transition: all 0.35s cubic-bezier(.5,-0.35,.35,1.5);
+  transition: 0.35s;
 }
-.bar--top {
-  bottom: calc(50% + 11px + 2px);
-}
-.bar--middle {
-  top: calc(50% - 2px);
-}
-.bar--bottom {
-  top: calc(50% + 11px + 2px);
-}
+.bar--top { top: 0; }
+.bar--middle { top: 10px; }
+.bar--bottom { bottom: 0; }
 .toggle:hover .bar--top {
-  transform: rotate(-135deg);
-  bottom: calc(50% - 2px);
+  transform: rotate(-45deg);
+  top: 10px;
 }
 .toggle:hover .bar--middle {
   opacity: 0;
-  transform: rotate(-135deg);
 }
 .toggle:hover .bar--bottom {
-  transform: rotate(-225deg);
-  top: calc(50% - 2px);
+  transform: rotate(45deg);
+  bottom: 10px;
 }
 
+/* ===== layout ===== */
 body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh; /* ให้ container อยู่ตรงกลางหน้าแนวตั้ง */
+  height: 100vh;
   margin: 0;
 }
-
 .container {
   margin: 40px;
   display: flex;
   gap: 40px;
-  align-items: stretch; /* ให้ item2 ยืดเต็มความสูงของ container */
+  align-items: stretch;
 }
-
 .item {
   display: flex;
-  flex-direction: column; /* วางรูปและข้อความในแนวตั้ง */
-  align-items: center; /* จัดกลางแนวนอน */
+  flex-direction: column;
+  align-items: center;
 }
-
-.item1 {
-  width: 300px; /* กำหนดความกว้างรูป */
-  height: auto;
+.item1, .item2 {
+  width: 300px;
 }
-
 .item2 {
-  width: 300px; /* กำหนดความกว้างรูป */
-  height: 100%; /* ให้เต็มความสูงของ container */
-  object-fit: cover; /* ให้รูปเต็มกล่องโดยไม่บิด */
+  height: 100%;
+  object-fit: cover;
 }
-
 .content, .text {
-  width: 300px; /* กว้างเท่ารูปด้านบน */
+  width: 300px;
   text-align: center;
 }
-
 .content {
   font-weight: bold;
   margin-top: 10px;
 }
-
 .text {
   font-size: 14px;
   color: #555;
 }
-
 .container img {
   border-radius: 20px;
   box-shadow: 0 10px 20px rgba(0,0,0,0.15);
 }
-
-
 </style>
 </head>
+
 <body class="bg-gray-200 min-h-screen">
 
 <!-- Popup -->
-<div id="popup" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 opacity-0 pointer-events-none transition-opacity duration-500">
+<div id="popup" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 transition-opacity duration-500">
   <div class="relative text-center">
-    <img src="https://github.com/kirari123eiei/Test-Farm/blob/main/public/frame.jpg?raw=true" class="max-w-xs md:max-w-md mx-auto rounded-lg shadow-lg">
+    <img src="https://github.com/kirari123eiei/Test-Farm/blob/main/public/frame.jpg?raw=true"
+         class="max-w-xs md:max-w-md mx-auto rounded-lg shadow-lg">
 
-    <!-- ปุ่มปิดแบบ toggle (ขนาดเล็กลง) -->
-<div id="closePopup" class="absolute left-1/2 transform -translate-x-1/2 bottom-[-50px]">
-  <div class="toggle">
-    <div class="bar bar--top"></div>
-    <div class="bar bar--middle"></div>
-    <div class="bar bar--bottom"></div>
+    <div id="closePopup" class="absolute left-1/2 -translate-x-1/2 -bottom-12">
+      <div class="toggle">
+        <div class="bar bar--top"></div>
+        <div class="bar bar--middle"></div>
+        <div class="bar bar--bottom"></div>
+      </div>
+    </div>
   </div>
 </div>
 
-<style>
-#closePopup {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: -45px; /* ปรับจาก -50px เป็น -70px เพื่อลงไปต่ำกว่าเดิม */
-}
+<!-- ===== content ===== -->
+<div class="flex flex-col gap-[2%] min-h-screen">
+  <div class="w-full text-center pt-6">
+    <h1 class="text-3xl font-bold text-gray-700">Welcome to Klabot</h1>
+  </div>
 
-/* ===== ปุ่ม toggle ขนาดเล็ก ===== */
-#closePopup .toggle {
-  width: 30px; /* ลดจาก 40px */
-  height: calc(3px * 3 + 8px * 2); /* ปรับความสูงรวม */
-  cursor: pointer;
-  margin: auto;
-  display: block;
-  position: relative;
-}
+  <div class="container">
+    <div class="item">
+      <img src="https://github.com/kirari123eiei/Test-Farm/blob/main/public/Klabot.jpg?raw=true" class="item1">
+      <div class="content">Klabot</div>
+      <div class="text">
+        โครงงานสิ่งประดิษฐ์ด้านการเกษตร<br>
+        โรงเรียนสาธิตมหาวิทยาลัยขอนแก่น (มอดินแดง)
+      </div>
+    </div>
 
-#closePopup .bar {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 3px; /* ลดจาก 4px */
-  border-radius: 1.5px;
-  background: #ffffff;
-  opacity: 1;
-  transition: all 0.35s cubic-bezier(.5,-0.35,.35,1.5);
-}
+    <div class="item">
+      <img src="https://github.com/kirari123eiei/Test-Farm/blob/main/public/Klabot.jpg?raw=true" class="item2">
+    </div>
+  </div>
 
-#closePopup .bar--top {
-  bottom: calc(50% + 8px + 1px); /* ปรับ spacing */
-}
-#closePopup .bar--middle {
-  top: calc(50% - 1.5px);
-}
-#closePopup .bar--bottom {
-  top: calc(50% + 8px + 1px);
-}
-
-/* Hover effect */
-#closePopup .toggle:hover .bar--top {
-  transform: rotate(-135deg);
-  bottom: calc(50% - 1.5px);
-}
-#closePopup .toggle:hover .bar--middle {
-  opacity: 0;
-  transform: rotate(-135deg);
-}
-#closePopup .toggle:hover .bar--bottom {
-  transform: rotate(-225deg);
-  top: calc(50% - 1.5px);
-}
-
-
-</style>
-
+  <div class="w-full text-center">
+    <a href="camera.html" class="ui-button">
+      <span class="button-content">เข้าสู่เว็บไซต์</span>
+    </a>
   </div>
 </div>
+
+<div class="footer-text">© presented by klabot dev team</div>
 
 <script>
 window.addEventListener("load", () => {
   document.getElementById("popup").classList.add("active");
 });
 
-document.getElementById("closePopup").addEventListener("click", function() {
-  const popup = document.getElementById("popup");
-  popup.classList.remove("active");
-  setTimeout(() => popup.style.display = "none", 400);
-});
+const closePopup = document.getElementById("closePopup");
+if (closePopup) {
+  closePopup.addEventListener("click", () => {
+    const popup = document.getElementById("popup");
+    popup.classList.remove("active");
+    setTimeout(() => popup.style.display = "none", 400);
+  });
+}
 
+/* ===== ป้องกัน error sidebar (ไม่ทำอะไรถ้าไม่มี element) ===== */
+const closeSidebarX = document.getElementById("closeSidebarX");
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlay");
 
-    // ปุ่มกากบาท
-    document.getElementById("closeSidebarX").addEventListener("click", () => {
-        sidebar.classList.remove("active");
-        overlay.style.display = "none";
-    });
+if (closeSidebarX && sidebar && overlay) {
+  closeSidebarX.addEventListener("click", () => {
+    sidebar.classList.remove("active");
+    overlay.style.display = "none";
+  });
 
-    // กดพื้นหลังปิดเมนู
-    overlay.addEventListener("click", () => {
-        sidebar.classList.remove("active");
-        overlay.style.display = "none";
-    });
+  overlay.addEventListener("click", () => {
+    sidebar.classList.remove("active");
+    overlay.style.display = "none";
+  });
+}
 </script>
 
-<!-- ======================= -->
-<!-- 📌 LAYOUT ใหม่ตามที่ขอ -->
-<!-- ======================= -->
-<div class="flex flex-col gap-[2%] min-h-screen">
-      <div class="w-full text-center pt-6">
-        <h1 class="text-3xl font-bold text-gray-700"> Welcome to Klabot </h1>
-      </div>
-
-      <div class="container">
-        <div class="item">
-          <img src="https://github.com/kirari123eiei/Test-Farm/blob/main/public/Klabot.jpg?raw=true" class="item1">
-          <div class="content">Klabot</div>
-          <div class="text">โครงงานสิ่งประดิษฐ์ด้านการเกษตร โรงเรียนสาธิตมหาวิทยาลัยขอนแก่น (มอดินแดง)</div>
-        </div>
-        <div class="item">
-          <img src="https://github.com/kirari123eiei/Test-Farm/blob/main/public/Klabot.jpg?raw=true" class="item2">
-        </div>
-      </div>
-
-
-
-  <div class="w-full text-center">
-    <a href="camera.html" class="ui-button fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40">
-      <span class="button-content">เข้าสู่เว็บไซต์</span>
-    </a>
-  </div>
-</div>
-
-<div class="footer-text"> © presented by klabot dev team </div>
-<script src="main.js"></script>
 </body>
 </html>
