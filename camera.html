@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Main Manu</title>
+<title>Main Menu</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
@@ -499,7 +499,7 @@
         <li><a href="capture.html" class="menu image text-blue-600">รูปภาพ</a></li>
         <div class="sidebar-divider"></div>
 
-        <li><a href="FAQ.html" class="menu faq text-blue-600">FAQ</a></li>
+        <li><a href="FAQ.html" class="menu faq text-blue-600">ฟังก์ชันอื่นๆ</a></li>
         <div class="sidebar-divider"></div>
     </ul>
 
@@ -629,48 +629,53 @@ document.getElementById("sidebarLogoutBtn").addEventListener("click", async ()=>
   if(error) console.error(error.message); else window.location.href="login.html";
 });
 
-// Grid
 function initGrid(){
   const grid = document.getElementById("grid");
-  const cols = 4;
-  const rows = 6;
-  const iframe = document.querySelector("iframe");
-  const gridHeight = iframe.clientHeight;
-  const cellSize = gridHeight/(rows+1);
-  grid.style.width = `${cellSize*(cols+1)}px`;
-  grid.style.height = `${gridHeight}px`;
+  grid.innerHTML = "";
 
-  for(let i=1;i<=cols;i++){
-    const v=document.createElement("div");
-    v.className="vertical-line";
-    v.style.left=`${(i/(cols+1))*100}%`;
+  const cols = 3;
+  const rows = 11;
+
+  const cellSize = 60;   // 🔥 ปรับตรงนี้ → ช่องใหญ่ขึ้น / เล็กลง
+
+  grid.style.width  = `${cellSize * (cols + 1)}px`;
+  grid.style.height = `${cellSize * (rows + 1)}px`;
+
+  /* เส้นตั้ง */
+  for(let i = 1; i <= cols; i++){
+    const v = document.createElement("div");
+    v.className = "vertical-line";
+    v.style.left = `${i * cellSize}px`;
     grid.appendChild(v);
   }
-  for(let j=1;j<=rows;j++){
-    const h=document.createElement("div");
-    h.className="horizontal-line";
-    h.style.top=`${(j/(rows+1))*100}%`;
+
+  /* เส้นนอน */
+  for(let j = 1; j <= rows; j++){
+    const h = document.createElement("div");
+    h.className = "horizontal-line";
+    h.style.top = `${j * cellSize}px`;
     grid.appendChild(h);
   }
 
-  for(let i=1;i<=cols;i++){
-  for(let j=1;j<=rows;j++){
-    const x=(i/(cols+1))*grid.clientWidth;
-    const y=(j/(rows+1))*grid.clientHeight;
+  /* จุด 🌱 */
+  for(let x = 1; x <= cols; x++){
+    for(let y = 1; y <= rows; y++){
+      const px = x * cellSize;
+      const py = y * cellSize;
 
-    const pointContainer=document.createElement("div");
-    pointContainer.className="point-container";
-    pointContainer.style.left=`${x}px`;
-    pointContainer.style.top=`${y}px`;
+      const pointContainer = document.createElement("point-container");
+      pointContainer.className = "point-container";
+      pointContainer.style.left = `${px}px`;
+      pointContainer.style.top = `${py}px`;
 
-    const seed=document.createElement("div");
-    seed.className="seed";
-    seed.textContent="🌱";
-    seed.addEventListener("click",()=>openGridOverlay(i,j));
+      const seed = document.createElement("div");
+      seed.className = "seed";
+      seed.textContent = "🌱";
+      seed.addEventListener("click", () => openGridOverlay(x, y));
 
-    pointContainer.appendChild(seed);
-    grid.appendChild(pointContainer);
-  }
+      pointContainer.appendChild(seed);
+      grid.appendChild(pointContainer);
+    }
 
   /*for(let i=1;i<=cols;i++){
     for(let j=1;j<=rows;j++){
@@ -687,12 +692,6 @@ function initGrid(){
       grid.appendChild(pointContainer);
     }*/
   }
-  
-
-  lightSwitch.addEventListener("change",(e)=>{
-    lightStatus.textContent = e.target.checked ? "> ควบคุมสถานะไฟ : ไฟเปิด" : "> ควบคุมสถานะไฟ : ไฟปิด";
-});
-
 }
 
 // Overlay functions
@@ -755,27 +754,35 @@ const pointActionMap = {
   "1,4": "D",
   "1,5": "E",
   "1,6": "F",
+  "1,7": "G",
+  "1,8": "H",
+  "1,9": "I",
+  "1,10": "J",
+  "1,11": "K",
 
-  "2,1": "G",
-  "2,2": "H",
-  "2,3": "I",
-  "2,4": "J",
-  "2,5": "K",
-  "2,6": "L",
+  "2,1": "L",
+  "2,2": "M",
+  "2,3": "N",
+  "2,4": "O",
+  "2,5": "P",
+  "2,6": "Q",
+  "2,7": "R",
+  "2,8": "S",
+  "2,9": "T",
+  "2,10": "U",
+  "2,11": "V",
 
-  "3,1": "M",
-  "3,2": "N",
-  "3,3": "O",
-  "3,4": "P",
-  "3,5": "Q",
-  "3,6": "R",
-
-  "4,1": "S",
-  "4,2": "T",
-  "4,3": "U",
-  "4,4": "V",
-  "4,5": "W",
-  "4,6": "X"
+  "3,1": "W",
+  "3,2": "X",
+  "3,3": "Y",
+  "3,4": "Z",
+  "3,5": "A1",
+  "3,6": "B1",
+  "3,7": "C1",
+  "3,8": "D1",
+  "3,9": "E1",
+  "3,10": "F1",
+  "3,11": "G1"
 };
 
 
@@ -789,13 +796,23 @@ const pointWaterMap = {
   "1,4": "water41",
   "1,5": "water51",
   "1,6": "water61",
+  "1,7": "water71",
+  "1,8": "water81",
+  "1,9": "water91",
+  "1,10": "water101",
+  "1,11": "water111",
 
   "2,1": "water12",
   "2,2": "water22",
   "2,3": "water32",
   "2,4": "water42",
-  "2,5": "water25",
+  "2,5": "water52",
   "2,6": "water62",
+  "2,7": "water72",
+  "2,8": "water82",
+  "2,9": "water92",
+  "2,10": "water102",
+  "2,11": "water112",
 
   "3,1": "water13",
   "3,2": "water23",
@@ -803,14 +820,13 @@ const pointWaterMap = {
   "3,4": "water43",
   "3,5": "water53",
   "3,6": "water63",
-
-  "4,1": "water14",
-  "4,2": "water24",
-  "4,3": "water34",
-  "4,4": "water44",
-  "4,5": "water54",
-  "4,6": "water64"
+  "3,7": "water73",
+  "3,8": "water83",
+  "3,9": "water93",
+  "3,10": "water103",
+  "3,11": "water113"
 };
+
 
 
 /* ===============================
@@ -823,6 +839,11 @@ const pointMoistureMap = {
   "1,4": "moisture41",
   "1,5": "moisture51",
   "1,6": "moisture61",
+  "1,7": "moisture71",
+  "1,8": "moisture81",
+  "1,9": "moisture91",
+  "1,10": "moisture101",
+  "1,11": "moisture111",
 
   "2,1": "moisture12",
   "2,2": "moisture22",
@@ -830,6 +851,11 @@ const pointMoistureMap = {
   "2,4": "moisture42",
   "2,5": "moisture52",
   "2,6": "moisture62",
+  "2,7": "moisture72",
+  "2,8": "moisture82",
+  "2,9": "moisture92",
+  "2,10": "moisture102",
+  "2,11": "moisture112",
 
   "3,1": "moisture13",
   "3,2": "moisture23",
@@ -837,14 +863,13 @@ const pointMoistureMap = {
   "3,4": "moisture43",
   "3,5": "moisture53",
   "3,6": "moisture63",
-
-  "4,1": "moisture14",
-  "4,2": "moisture24",
-  "4,3": "moisture34",
-  "4,4": "moisture44",
-  "4,5": "moisture54",
-  "4,6": "moisture64"
+  "3,7": "moisture73",
+  "3,8": "moisture83",
+  "3,9": "moisture93",
+  "3,10": "moisture103",
+  "3,11": "moisture113"
 };
+
 
 
 
@@ -932,30 +957,37 @@ document.getElementById("pointFileInput").addEventListener("change", async(event
 
 
   /* ===== Sidebar Control ===== */
-const sidebar = document.getElementById("sidebar");
-const overlay = document.getElementById("overlayBg");
-const toggle = document.getElementById("sidebarToggle");
+document.addEventListener("DOMContentLoaded", () => {
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlayBg");
+  const toggle = document.getElementById("sidebarToggle");
+  const menuBtn = document.getElementById("menuBtn");
 
-// ปุ่มเปิดเมนู
-document.getElementById("menuBtn").addEventListener("click", () => {
+  if (!sidebar || !overlay || !menuBtn) return;
+
+  // เปิด sidebar
+  menuBtn.addEventListener("click", () => {
     sidebar.classList.add("active");
     overlay.style.display = "block";
-    toggle.checked = true; // เล่น animation hamburger → X
-});
+    if (toggle) toggle.checked = true;
+  });
 
-// กดปุ่ม hamburger เพื่อปิด
-toggle.addEventListener("change", () => {
-    if (!toggle.checked) {
+  // กด hamburger ปิด
+  if (toggle) {
+    toggle.addEventListener("change", () => {
+      if (!toggle.checked) {
         sidebar.classList.remove("active");
         overlay.style.display = "none";
-    }
-});
+      }
+    });
+  }
 
-// กดพื้นหลังปิดเมนู
-overlay.addEventListener("click", () => {
+  // คลิก overlay ปิด
+  overlay.addEventListener("click", () => {
     sidebar.classList.remove("active");
     overlay.style.display = "none";
-    toggle.checked = false;
+    if (toggle) toggle.checked = false;
+  });
 });
 
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Main Manu</title>
+<title>Main Menu</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
@@ -579,7 +579,7 @@
 
     <canvas id="pointChart" width="300" height="150"></canvas>
 
-    <button class="hand" onclick="openHandOverlay()">ฟังก์ชันแขนกล</button>
+    <button class="hand" onclick="openHandOverlay()">ฟังก์ชันอื่นๆ</button>
     
   </div>
 
@@ -687,11 +687,6 @@ function initGrid(){
       grid.appendChild(pointContainer);
     }*/
   }
-  
-
-  lightSwitch.addEventListener("change",(e)=>{
-    lightStatus.textContent = e.target.checked ? "> ควบคุมสถานะไฟ : ไฟเปิด" : "> ควบคุมสถานะไฟ : ไฟปิด";
-});
 
 }
 
@@ -932,30 +927,37 @@ document.getElementById("pointFileInput").addEventListener("change", async(event
 
 
   /* ===== Sidebar Control ===== */
-const sidebar = document.getElementById("sidebar");
-const overlay = document.getElementById("overlayBg");
-const toggle = document.getElementById("sidebarToggle");
+document.addEventListener("DOMContentLoaded", () => {
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlayBg");
+  const toggle = document.getElementById("sidebarToggle");
+  const menuBtn = document.getElementById("menuBtn");
 
-// ปุ่มเปิดเมนู
-document.getElementById("menuBtn").addEventListener("click", () => {
+  if (!sidebar || !overlay || !menuBtn) return;
+
+  // เปิด sidebar
+  menuBtn.addEventListener("click", () => {
     sidebar.classList.add("active");
     overlay.style.display = "block";
-    toggle.checked = true; // เล่น animation hamburger → X
-});
+    if (toggle) toggle.checked = true;
+  });
 
-// กดปุ่ม hamburger เพื่อปิด
-toggle.addEventListener("change", () => {
-    if (!toggle.checked) {
+  // กด hamburger ปิด
+  if (toggle) {
+    toggle.addEventListener("change", () => {
+      if (!toggle.checked) {
         sidebar.classList.remove("active");
         overlay.style.display = "none";
-    }
-});
+      }
+    });
+  }
 
-// กดพื้นหลังปิดเมนู
-overlay.addEventListener("click", () => {
+  // คลิก overlay ปิด
+  overlay.addEventListener("click", () => {
     sidebar.classList.remove("active");
     overlay.style.display = "none";
-    toggle.checked = false;
+    if (toggle) toggle.checked = false;
+  });
 });
 
 

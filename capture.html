@@ -274,7 +274,7 @@
         <li><a href="capture.html" class="menu image text-blue-600">รูปภาพ</a></li>
         <div class="sidebar-divider"></div>
 
-        <li><a href="FAQ.html" class="menu faq text-blue-600">FAQ</a></li>
+        <li><a href="FAQ.html" class="menu faq text-blue-600">ฟังก์ชันอื่นๆ</a></li>
         <div class="sidebar-divider"></div>
     </ul>
 
@@ -447,31 +447,38 @@
     });
 
       /* ===== Sidebar Control ===== */
-    const sidebar = document.getElementById("sidebar");
-    const overlay = document.getElementById("overlayBg");
-    const toggle = document.getElementById("sidebarToggle");
+    document.addEventListener("DOMContentLoaded", () => {
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlayBg");
+  const toggle = document.getElementById("sidebarToggle");
+  const menuBtn = document.getElementById("menuBtn");
 
-    // ปุ่มเปิดเมนู
-    document.getElementById("menuBtn").addEventListener("click", () => {
-        sidebar.classList.add("active");
-        overlay.style.display = "block";
-        toggle.checked = true; // เล่น animation hamburger → X
-    });
+  if (!sidebar || !overlay || !menuBtn) return;
 
-    // กดปุ่ม hamburger เพื่อปิด
+  // เปิด sidebar
+  menuBtn.addEventListener("click", () => {
+    sidebar.classList.add("active");
+    overlay.style.display = "block";
+    if (toggle) toggle.checked = true;
+  });
+
+  // กด hamburger ปิด
+  if (toggle) {
     toggle.addEventListener("change", () => {
-        if (!toggle.checked) {
-            sidebar.classList.remove("active");
-            overlay.style.display = "none";
-        }
-    });
-
-    // กดพื้นหลังปิดเมนู
-    overlay.addEventListener("click", () => {
+      if (!toggle.checked) {
         sidebar.classList.remove("active");
         overlay.style.display = "none";
-        toggle.checked = false;
+      }
     });
+  }
+
+  // คลิก overlay ปิด
+  overlay.addEventListener("click", () => {
+    sidebar.classList.remove("active");
+    overlay.style.display = "none";
+    if (toggle) toggle.checked = false;
+  });
+});
 
 </script>
 
