@@ -526,7 +526,7 @@
 <div id="overlayBg"></div>
 
 
-<div id="app" style="display:none;">
+<div id="app">
   <h1>แขนกลฝั่งติดราง</h1>
 
   <div class="content" style="display:flex;flex-wrap:wrap;gap:30px;align-items:flex-start;justify-content:center;">
@@ -892,31 +892,31 @@ function openHandOverlay() {
   }
 
   /* แขนกล */
-  if (action) {
-    const armBtn = document.createElement("button");
-    armBtn.className = "hand one";
-    armBtn.innerText = `ส่งค่า ${action} และคีบ`;
-    armBtn.onclick = () => sendAction(action);
-    area.appendChild(armBtn);
-  }
+if (action) {
+  const armBtn = document.createElement("button");
+  armBtn.className = "hand one";
+  armBtn.innerText = `ส่งค่า ${action} และคีบ`;
+  armBtn.onclick = (e) => sendAction(action, e.target); // ✅
+  area.appendChild(armBtn);
+}
 
-  /* รดน้ำ */
-  if (waterAction) {
-    const waterBtn = document.createElement("button");
-    waterBtn.className = "hand one water";
-    waterBtn.innerText = `รดน้ำ ${waterAction}`;
-    waterBtn.onclick = () => sendAction(waterAction);
-    area.appendChild(waterBtn);
-  }
+/* รดน้ำ */
+if (waterAction) {
+  const waterBtn = document.createElement("button");
+  waterBtn.className = "hand one water";
+  waterBtn.innerText = `รดน้ำ ${waterAction}`;
+  waterBtn.onclick = (e) => sendAction(waterAction, e.target); // ✅
+  area.appendChild(waterBtn);
+}
 
-  /* วัดความชื้น */
-  if (moistureAction) {
-    const moistureBtn = document.createElement("button");
-    moistureBtn.className = "hand one moisture";
-    moistureBtn.innerText = `วัดความชื้น ${moistureAction}`;
-    moistureBtn.onclick = () => sendAction(moistureAction);
-    area.appendChild(moistureBtn);
-  }
+/* วัดความชื้น */
+if (moistureAction) {
+  const moistureBtn = document.createElement("button");
+  moistureBtn.className = "hand one moisture";
+  moistureBtn.innerText = `วัดความชื้น ${moistureAction}`;
+  moistureBtn.onclick = (e) => sendAction(moistureAction, e.target); // ✅
+  area.appendChild(moistureBtn);
+}
 }
 
 
@@ -957,71 +957,59 @@ document.getElementById("pointFileInput").addEventListener("change", async(event
 
 
   /* ===== Sidebar Control ===== */
-document.addEventListener("DOMContentLoaded", () => {
-  const sidebar = document.getElementById("sidebar");
-  const overlay = document.getElementById("overlayBg");
-  const toggle = document.getElementById("sidebarToggle");
-  const menuBtn = document.getElementById("menuBtn");
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlayBg");
+const toggle = document.getElementById("sidebarToggle");
 
-  if (!sidebar || !overlay || !menuBtn) return;
-
-  // เปิด sidebar
-  menuBtn.addEventListener("click", () => {
+// ปุ่มเปิดเมนู
+document.getElementById("menuBtn").addEventListener("click", () => {
     sidebar.classList.add("active");
     overlay.style.display = "block";
-    if (toggle) toggle.checked = true;
-  });
+    toggle.checked = true; // เล่น animation hamburger → X
+});
 
-  // กด hamburger ปิด
-  if (toggle) {
-    toggle.addEventListener("change", () => {
-      if (!toggle.checked) {
+// กดปุ่ม hamburger เพื่อปิด
+toggle.addEventListener("change", () => {
+    if (!toggle.checked) {
         sidebar.classList.remove("active");
         overlay.style.display = "none";
-      }
-    });
-  }
+    }
+});
 
-  // คลิก overlay ปิด
-  overlay.addEventListener("click", () => {
+// กดพื้นหลังปิดเมนู
+overlay.addEventListener("click", () => {
     sidebar.classList.remove("active");
     overlay.style.display = "none";
-    if (toggle) toggle.checked = false;
-  });
+    toggle.checked = false;
 });
 
 
 /* ===============================
    ส่งค่า ACTION ไป Supabase (เฉพาะ A B C ...)
 ================================ */
-function sendAction(action) {
-  const btn = event.target;
+function sendAction(action, btn) {
   btn.disabled = true;
   btn.style.cursor = "not-allowed";
 
   fetch("https://yiaemxmwfxrfrwtogamw.supabase.co/rest/v1/robot_commands", {
     method: "POST",
     headers: {
-      apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw",
-      Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw",
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
       "Content-Type": "application/json",
       "Prefer": "return=minimal"
     },
     body: JSON.stringify({
-    action: action,
-    status: "pending"
+      action,
+      status: "pending"
+    })
   })
-
-  })
-  .then(async res => {
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text);
-    }
+  .then(res => {
+    if (!res.ok) throw new Error("ส่งไม่สำเร็จ");
     alert(`ส่งค่า ${action} แล้ว ✅`);
   })
   .catch(err => {
-    console.error("Supabase error:", err.message);
+    console.error(err);
     alert("ส่งไม่สำเร็จ ❌");
   })
   .finally(() => {
@@ -1031,6 +1019,7 @@ function sendAction(action) {
     }, 20000);
   });
 }
+
 
 </script>
 </body>
