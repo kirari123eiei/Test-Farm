@@ -927,37 +927,30 @@ document.getElementById("pointFileInput").addEventListener("change", async(event
 
 
   /* ===== Sidebar Control ===== */
-document.addEventListener("DOMContentLoaded", () => {
-  const sidebar = document.getElementById("sidebar");
-  const overlay = document.getElementById("overlayBg");
-  const toggle = document.getElementById("sidebarToggle");
-  const menuBtn = document.getElementById("menuBtn");
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlayBg");
+const toggle = document.getElementById("sidebarToggle");
 
-  if (!sidebar || !overlay || !menuBtn) return;
-
-  // เปิด sidebar
-  menuBtn.addEventListener("click", () => {
+// ปุ่มเปิดเมนู
+document.getElementById("menuBtn").addEventListener("click", () => {
     sidebar.classList.add("active");
     overlay.style.display = "block";
-    if (toggle) toggle.checked = true;
-  });
+    toggle.checked = true; // เล่น animation hamburger → X
+});
 
-  // กด hamburger ปิด
-  if (toggle) {
-    toggle.addEventListener("change", () => {
-      if (!toggle.checked) {
+// กดปุ่ม hamburger เพื่อปิด
+toggle.addEventListener("change", () => {
+    if (!toggle.checked) {
         sidebar.classList.remove("active");
         overlay.style.display = "none";
-      }
-    });
-  }
+    }
+});
 
-  // คลิก overlay ปิด
-  overlay.addEventListener("click", () => {
+// กดพื้นหลังปิดเมนู
+overlay.addEventListener("click", () => {
     sidebar.classList.remove("active");
     overlay.style.display = "none";
-    if (toggle) toggle.checked = false;
-  });
+    toggle.checked = false;
 });
 
 
@@ -1004,5 +997,4 @@ function sendAction(action) {
 
 </script>
 </body>
-
 </html>

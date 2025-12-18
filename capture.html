@@ -447,38 +447,31 @@
     });
 
       /* ===== Sidebar Control ===== */
-    document.addEventListener("DOMContentLoaded", () => {
-  const sidebar = document.getElementById("sidebar");
-  const overlay = document.getElementById("overlayBg");
-  const toggle = document.getElementById("sidebarToggle");
-  const menuBtn = document.getElementById("menuBtn");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlayBg");
+    const toggle = document.getElementById("sidebarToggle");
 
-  if (!sidebar || !overlay || !menuBtn) return;
+    // ปุ่มเปิดเมนู
+    document.getElementById("menuBtn").addEventListener("click", () => {
+        sidebar.classList.add("active");
+        overlay.style.display = "block";
+        toggle.checked = true; // เล่น animation hamburger → X
+    });
 
-  // เปิด sidebar
-  menuBtn.addEventListener("click", () => {
-    sidebar.classList.add("active");
-    overlay.style.display = "block";
-    if (toggle) toggle.checked = true;
-  });
-
-  // กด hamburger ปิด
-  if (toggle) {
+    // กดปุ่ม hamburger เพื่อปิด
     toggle.addEventListener("change", () => {
-      if (!toggle.checked) {
+        if (!toggle.checked) {
+            sidebar.classList.remove("active");
+            overlay.style.display = "none";
+        }
+    });
+
+    // กดพื้นหลังปิดเมนู
+    overlay.addEventListener("click", () => {
         sidebar.classList.remove("active");
         overlay.style.display = "none";
-      }
+        toggle.checked = false;
     });
-  }
-
-  // คลิก overlay ปิด
-  overlay.addEventListener("click", () => {
-    sidebar.classList.remove("active");
-    overlay.style.display = "none";
-    if (toggle) toggle.checked = false;
-  });
-});
 
 </script>
 
