@@ -526,7 +526,7 @@
 <div id="overlayBg"></div>
 
 
-<div id="app">
+<div id="app" style="display:none;">
   <h1>แขนกลฝั่งติดราง</h1>
 
   <div class="content" style="display:flex;flex-wrap:wrap;gap:30px;align-items:flex-start;justify-content:center;">
@@ -613,29 +613,15 @@ let currentPoint = {x:0,y:0};
 let chart = null;
 
 // เช็ค user
-async function checkUser() {
-  console.log("checkUser called");
-
-  const { data, error } = await supabase.auth.getSession();
-  console.log("session:", data?.session);
-
-  if (error || !data.session) {
-    console.log("NO SESSION → redirect");
-    window.location.href = "login.html";
-    return;
-  }
-
-  currentUser = data.session.user;
-
-  document.getElementById("sidebarUsername").textContent =
-    `ผู้ใช้: ${currentUser.email}`;
-
-  document.getElementById("app").style.display = "block";
+async function checkUser(){
+  const { data: { session } } = await supabase.auth.getSession();
+  if(!session || !session.user){ window.location.href="login.html"; return; }
+  currentUser = session.user;
+  document.getElementById("sidebarUsername").textContent = `ผู้ใช้: ${currentUser.email}`;
+  document.getElementById("app").style.display="block";
   initGrid();
 }
-
-document.addEventListener("DOMContentLoaded", checkUser);
-
+checkUser();
 
 // logout
 document.getElementById("sidebarLogoutBtn").addEventListener("click", async ()=>{
@@ -906,31 +892,31 @@ function openHandOverlay() {
   }
 
   /* แขนกล */
-if (action) {
-  const armBtn = document.createElement("button");
-  armBtn.className = "hand one";
-  armBtn.innerText = `ส่งค่า ${action} และคีบ`;
-  armBtn.onclick = (e) => sendAction(action, e.target); // ✅
-  area.appendChild(armBtn);
-}
+  if (action) {
+    const armBtn = document.createElement("button");
+    armBtn.className = "hand one";
+    armBtn.innerText = `ส่งค่า ${action} และคีบ`;
+    armBtn.onclick = () => sendAction(action);
+    area.appendChild(armBtn);
+  }
 
-/* รดน้ำ */
-if (waterAction) {
-  const waterBtn = document.createElement("button");
-  waterBtn.className = "hand one water";
-  waterBtn.innerText = `รดน้ำ ${waterAction}`;
-  waterBtn.onclick = (e) => sendAction(waterAction, e.target); // ✅
-  area.appendChild(waterBtn);
-}
+  /* รดน้ำ */
+  if (waterAction) {
+    const waterBtn = document.createElement("button");
+    waterBtn.className = "hand one water";
+    waterBtn.innerText = `รดน้ำ ${waterAction}`;
+    waterBtn.onclick = () => sendAction(waterAction);
+    area.appendChild(waterBtn);
+  }
 
-/* วัดความชื้น */
-if (moistureAction) {
-  const moistureBtn = document.createElement("button");
-  moistureBtn.className = "hand one moisture";
-  moistureBtn.innerText = `วัดความชื้น ${moistureAction}`;
-  moistureBtn.onclick = (e) => sendAction(moistureAction, e.target); // ✅
-  area.appendChild(moistureBtn);
-}
+  /* วัดความชื้น */
+  if (moistureAction) {
+    const moistureBtn = document.createElement("button");
+    moistureBtn.className = "hand one moisture";
+    moistureBtn.innerText = `วัดความชื้น ${moistureAction}`;
+    moistureBtn.onclick = () => sendAction(moistureAction);
+    area.appendChild(moistureBtn);
+  }
 }
 
 
@@ -1001,29 +987,34 @@ overlay.addEventListener("click", () => {
 /* ===============================
    ส่งค่า ACTION ไป Supabase (เฉพาะ A B C ...)
 ================================ */
-function sendAction(action, btn) {
+function sendAction(action) {
+  const btn = event.target;
   btn.disabled = true;
   btn.style.cursor = "not-allowed";
 
   fetch("https://yiaemxmwfxrfrwtogamw.supabase.co/rest/v1/robot_commands", {
     method: "POST",
     headers: {
-      apikey: SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw",
+      Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw",
       "Content-Type": "application/json",
       "Prefer": "return=minimal"
     },
     body: JSON.stringify({
-      action,
-      status: "pending"
-    })
+    action: action,
+    status: "pending"
   })
-  .then(res => {
-    if (!res.ok) throw new Error("ส่งไม่สำเร็จ");
+
+  })
+  .then(async res => {
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text);
+    }
     alert(`ส่งค่า ${action} แล้ว ✅`);
   })
   .catch(err => {
-    console.error(err);
+    console.error("Supabase error:", err.message);
     alert("ส่งไม่สำเร็จ ❌");
   })
   .finally(() => {
@@ -1033,7 +1024,6 @@ function sendAction(action, btn) {
     }, 20000);
   });
 }
-
 
 </script>
 </body>

@@ -210,7 +210,28 @@ body {
 <div class="footer-text">© presented by klabot dev team</div>
 
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL = "https://yiaemxmwfxrfrwtogamw.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+let currentPoint = {x:0,y:0};
+let chart = null;
+
+// เช็ค user
+async function checkUser(){
+  const { data: { session } } = await supabase.auth.getSession();
+  if(!session || !session.user){ window.location.href="login.html"; return; }
+  currentUser = session.user;
+  document.getElementById("sidebarUsername").textContent = `ผู้ใช้: ${currentUser.email}`;
+  document.getElementById("app").style.display="block";
+  initGrid();
+}
+checkUser();
+
+
 window.addEventListener("load", () => {
   document.getElementById("popup").classList.add("active");
 });
@@ -244,4 +265,3 @@ if (closeSidebarX && sidebar && overlay) {
 
 </body>
 </html>
-
