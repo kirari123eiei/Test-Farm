@@ -606,7 +606,7 @@
 <script>
 const SUPABASE_URL = "https://yiaemxmwfxrfrwtogamw.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw";
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
 let currentPoint = {x:0,y:0};
@@ -614,7 +614,7 @@ let chart = null;
 
 // เช็ค user
 async function checkUser(){
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await supabaseClient.auth.getSession();
   if(!session || !session.user){ window.location.href="login.html"; return; }
   currentUser = session.user;
   document.getElementById("sidebarUsername").textContent = `ผู้ใช้: ${currentUser.email}`;
@@ -625,7 +625,7 @@ checkUser();
 
 // logout
 document.getElementById("sidebarLogoutBtn").addEventListener("click", async ()=>{
-  const {error} = await supabase.auth.signOut();
+  const {error} = await supabaseClient.auth.signOut();
   if(error) console.error(error.message); else window.location.href="login.html";
 });
 
@@ -702,14 +702,14 @@ async function openGridOverlay(x, y) {
   document.getElementById("pointTitle").textContent = `จุด (${x},${y})`;
 
   // โหลดชื่อและรูป
-  const { data, error } = await supabase.from("points").select("*").eq("user_id", currentUser.id).eq("x", x).eq("y", y).single();
+  const { data, error } = await supabaseClient.from("points").select("*").eq("user_id", currentUser.id).eq("x", x).eq("y", y).single();
   const input = document.getElementById("pointNameInput");
   input.value = data?.name || "";
   const img = document.getElementById("pointImage");
   if (data?.image_url) { img.src = data.image_url; img.style.display = "block"; } else img.style.display = "none";
 
   // โหลดค่าความชื้นจาก paintable
-  const { data: vals } = await supabase
+  const { data: vals } = await supabaseClient
     .from("paintable")
     .select("soil_moisture, inserted_at")
     .eq("user_id", currentUser.id)
@@ -932,7 +932,7 @@ async function renameSuccess(){
   const input=document.getElementById("pointNameInput");
   const name=input.value.trim();
   if(!name) return;
-  const {error}=await supabase.from("points").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,name},{onConflict:['user_id','x','y']});
+  const {error}=await supabaseClient.from("points").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,name},{onConflict:['user_id','x','y']});
   if(error) console.error(error.message);
 }
 
@@ -946,12 +946,12 @@ document.getElementById("pointFileInput").addEventListener("change", async(event
   reader.readAsDataURL(file);
   const fileName=`${currentUser.id}/point-${currentPoint.x}-${currentPoint.y}-${Date.now()}.${file.name.split('.').pop()}`;
   try{
-    const {data,error}=await supabase.storage.from("grid-images").upload(fileName,file,{cacheControl:"3600",upsert:true});
+    const {data,error}=await supabaseClient.storage.from("grid-images").upload(fileName,file,{cacheControl:"3600",upsert:true});
     if(error) throw error;
-    const {data:publicData}=supabase.storage.from("grid-images").getPublicUrl(fileName);
+    const {data:publicData}=supabaseClient.storage.from("grid-images").getPublicUrl(fileName);
     const imageUrl=publicData.publicUrl;
     const img=document.getElementById("pointImage"); img.src=imageUrl; img.style.display="block";
-    await supabase.from("points").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,image_url:imageUrl},{onConflict:['user_id','x','y']});
+    await supabaseClient.from("points").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,image_url:imageUrl},{onConflict:['user_id','x','y']});
   }catch(err){ console.error(err); alert("อัปโหลดรูปไม่สำเร็จ"); }
 });
 
