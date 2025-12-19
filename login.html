@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>Login</title>
+  <title>Capture</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
   <style>
     body {
@@ -81,8 +81,10 @@
     © presented by klabot dev team
   </div>
 
-  <script>
-  const supabase = window.supabase.createClient(
+<script>
+  const { createClient } = supabase;
+
+  const supabaseClient = createClient(
     "https://yiaemxmwfxrfrwtogamw.supabase.co",
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw"
   );
@@ -93,25 +95,18 @@
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value.trim();
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
+    const { data, error } =
+      await supabaseClient.auth.signInWithPassword({ email, password });
 
     if (error) {
       alert(error.message);
       return;
     }
 
-    // ✅ เช็กว่า session มีจริง
-    const { data: sessionData } = await supabase.auth.getSession();
-    console.log("SESSION:", sessionData.session);
-
-    if (sessionData.session) {
-      window.location.replace("index.html");
-    }
+    window.location.href = 'index.html';
   });
-  </script>
+</script>
+
 </body>
 </html>
 
