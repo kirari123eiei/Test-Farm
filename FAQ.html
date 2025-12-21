@@ -6,7 +6,14 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <style>
     body { font-family: Arial; margin: 0; padding: 30px; background: #f3f4f6; display: flex; flex-direction: column; align-items: center; }
-    h1 { font-size:24px; font-weight:700; color:#1e40af; text-align:center; margin-bottom:50px; }
+    h1 { font-size:24px; font-weight:700; color:#1e40af; text-align:center; margin-bottom:10px; }
+
+    .divide {
+    width: 95%;
+    height: 1px;
+    background: #e5e7eb;
+    margin: 50px;
+  }
 
       /* Sidebar */
   #sidebar {
@@ -215,49 +222,6 @@
   transform: translateX(4px);
 }
 
-.weatherbtn {
-  background: #419aff; /* สีพื้นคล้าย Add Line */
-  color: white;
-  font-weight: 600;
-  border-radius: 0.75rem; /* โค้งมนแบบ Add Line */
-  padding: 0.6rem 1.5rem; /* ขนาดปุ่ม */
-  border: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem; /* ช่องว่างระหว่างข้อความกับ icon */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: all 0.2s ease;
-  overflow: hidden;
-}
-
-.weatherbtn:hover {
-  background: #1288ff; /* สีเข้มขึ้นเล็กน้อย */
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-}
-
-/* เพิ่มความ smooth เวลาซ่อน */
-.weatherbtn.hide {
-  opacity: 0;
-  height: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  margin: 0;
-}
-
-/* Icon เลื่อนเมื่อ hover */
-.weatherbtn svg {
-  width: 1.25rem;
-  height: 1.25rem;
-  transition: transform 0.2s ease;
-}
-
-.weatherbtn:hover svg {
-  transform: translateX(4px);
-}
-
 
 /* Weather Card ปรับสไตล์คล้าย Klabot */
 .weather {
@@ -275,10 +239,6 @@
     padding: 2rem;
     background: inherit;
     transition: all 0.3s ease;
-}
-
-.weather:hover {
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 /* Weather Details Grid */
@@ -308,6 +268,71 @@
 .manual {
   text-align: center;
 }
+
+.line-accordion {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.item {
+  border-bottom: 1px solid #eee;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.title {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 18px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title:hover {
+  background: #f9f9f9;
+}
+
+.arrow {
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid #999;
+  border-bottom: 2px solid #999;
+  transform: rotate(45deg);
+  transition: transform 0.3s ease;
+}
+
+.item.active .arrow {
+  transform: rotate(-135deg);
+}
+
+.content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+  background: #fff;
+}
+
+.content p {
+  padding: 0 20px 18px;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #555;
+}
+
 
 </style>
 </head>
@@ -386,33 +411,57 @@
 
 <h1>ฟังก์ชันอื่นๆ</h1>
 
+<div class="divide"></div>
+
 <div class="flex w-full gap-8">
 
   <!-- Div ซ้าย -->
-  <div class="flex-1 flex flex-col items-start gap-4">
-    <h1 class="manual text-left">คู่มือการใช้งาน</h1>
+  <div class="line-accordion text-left">
 
-
-    <div>
-      <h3>การติดตั้งเครื่องเพาะปลูกต้นกล้า</h3>
+  <div class="item">
+    <button class="title">
+      LINE Official Account คืออะไร
+      <span class="arrow"></span>
+    </button>
+    <div class="content">
+      <p>
+        LINE Official Account คือบัญชีสำหรับธุรกิจหรือแบรนด์
+        ใช้สื่อสารกับลูกค้าผ่าน LINE ได้โดยตรง
+      </p>
     </div>
+  </div>
 
-    <div>
-      <h3>การตั้งค่าเครื่องเพาะปลูกต้นกล้า</h3>
+  <div class="item">
+    <button class="title">
+      ใช้งานฟรีหรือไม่
+      <span class="arrow"></span>
+    </button>
+    <div class="content">
+      <p>
+        สามารถใช้งานได้ฟรี แต่มีแพ็กเกจเสริมสำหรับการส่งข้อความเพิ่มเติม
+      </p>
     </div>
+  </div>
 
-    <div>
-      <h3>การใช้งานเว็บไซต์</h3>
+  <div class="item">
+    <button class="title">
+      สมัครใช้งานอย่างไร
+      <span class="arrow"></span>
+    </button>
+    <div class="content">
+      <p>
+        สมัครได้ที่เว็บไซต์ LINE Official Account
+        โดยใช้ LINE ID ของคุณ
+      </p>
     </div>
+  </div>
 
-    <div>
-      <h3>การส่งแจ้งเตือนการทำงาน</h3>
-    </div>
 </div>
 
 
+
 <!-- ขวา -->
-<div class="flex flex-col gap-4 w-80 mt-8 px-4">
+<div class="flex flex-col gap-4 w-80 px-4">
 
   <!-- ขวา: Weather + Klabot + Feedback -->
   <div class="flex flex-col gap-4 w-80">
@@ -689,6 +738,33 @@ function getWeather() {
     document.getElementById("feedbackInput").value = "";
   }
 });
+
+const items = document.querySelectorAll(".line-accordion .item");
+
+  items.forEach(item => {
+    const title = item.querySelector(".title");
+    const content = item.querySelector(".content");
+
+    title.addEventListener("click", () => {
+      // ปิดอันอื่น
+      items.forEach(i => {
+        if (i !== item) {
+          i.classList.remove("active");
+          i.querySelector(".content").style.maxHeight = null;
+        }
+      });
+
+      // toggle อันที่กด
+      item.classList.toggle("active");
+
+      if (item.classList.contains("active")) {
+        content.style.maxHeight = content.scrollHeight + "px";
+      } else {
+        content.style.maxHeight = null;
+      }
+    });
+  });
+
 </script>
 </body>
 </html>
