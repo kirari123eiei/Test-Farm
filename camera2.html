@@ -1,593 +1,507 @@
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Main Menu</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      font-family: Arial;
-      margin: 0;
-      padding: 30px;
-      background: #f3f4f6;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Main Menu</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body { font-family: Arial; margin: 0; padding: 30px; background: #f3f4f6; display: flex; flex-direction: column; align-items: center; }
+  h1 { font-size:24px; font-weight:700; color:#1e40af; text-align:center; margin-bottom:50px; }
+  iframe { width: 640px; height: 480px; border: 3px solid #000; border-radius: 12px; margin: 20px 0; }
+  .grid-container { position: relative; background: white; border: 1px solid #ccc; margin-top: 20px; max-width: 640px; width: 100%; }
+  .vertical-line, .horizontal-line { position: absolute; background: #bbb; }
+  .vertical-line { width: 1px; top: 0; bottom: 0; }
+  .horizontal-line { height: 1px; left: 0; right: 0; }
+  .circle { width: 16px; height: 16px; background: #3498db; border-radius: 50%; transform: translate(-50%, -50%); cursor: pointer; z-index: 5; transition: background 0.5s; }
+  .circle:hover { background: #2c7fb7; }
+  .point-container { position: absolute; }
+  /* Overlay */
+  .grid-overlay {
+    position: absolute;
+    top: 130px;
+    right: 85px;
+    width: 350px;
+    background: white;
+    border-radius: 12px;
+    z-index: 10;
+    padding: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    display: none;
+  }
+  .grid-back-btn {
+    position:absolute;
+    display:inline-block;
+    top:10px; left:10px;
+    border:none; background:none;
+    font-size:16px; font-weight:bold; color:#1e40af;
+    cursor:pointer;
+  }
 
-    h1 {
-      font-size: 24px;
-      font-weight: 700;
-      color: #1e40af;
-      text-align: center;
-      margin-bottom: 50px;
-    }
+  .grid-back-btn:hover { text-decoration: underline; }
 
-    iframe {
-      width: 640px;
-      height: 480px;
-      border: 3px solid #000;
-      border-radius: 12px;
-      margin: 20px 0;
-    }
+  .rename-btn {
+    width: 100%;
+    background: #6b7280;
+    color: white;
+    padding: 10px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+    transition: background 0.25s;
+  }
+  .rename-btn:hover { background: #4b5563; }
 
-    .grid-container {
-      position: relative;
-      background: white;
-      border: 1px solid #ccc;
-      margin-top: 20px;
-      max-width: 640px;
-      width: 100%;
-    }
+  .rename-btn:active {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+  }
+  
+  .upload-btn {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    background: #374151;
+    color: white;
+    padding: 10px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 15px;
+    transition: background 0.25s;
+    font-size: 14px;
+  }
 
-    .vertical-line,
-    .horizontal-line {
-      position: absolute;
-      background: #bbb;
-    }
+  /* ทำเป็นสไตล์แบบ Uiverse */
+.fancy-upload {
+  --width: 100px;
+  --height: 36px;
+  --tooltip-height: 32px;
+  --tooltip-width: 110px;
+  --gap-between-tooltip-to-button: 15px;
+  --button-color: #374151;
+  --tooltip-color: #fff;
 
-    .vertical-line {
-      width: 1px;
-      top: 0;
-      bottom: 0;
-    }
+  width: var(--width);
+  height: var(--height);
+  background: var(--button-color);
+  position: relative;
+  text-align: center;
+  border-radius: 0.45em;
+  font-family: "Arial";
+  transition: background 0.3s;
+  color: white;
+  overflow: hidden;
+  padding: 0;
+}
 
-    .horizontal-line {
-      height: 1px;
-      left: 0;
-      right: 0;
-    }
+/* Tooltip */
+.fancy-upload::before {
+  position: absolute;
+  content: attr(data-tooltip);
+  width: var(--tooltip-width);
+  height: var(--tooltip-height);
+  background-color: var(--tooltip-color);
+  font-size: 0.8rem;
+  color: #111;
+  border-radius: .25em;
+  line-height: var(--tooltip-height);
+  bottom: calc(var(--height) + var(--gap-between-tooltip-to-button) + 10px);
+  left: calc(50% - var(--tooltip-width) / 2);
+}
 
-    .circle {
-      width: 16px;
-      height: 16px;
-      background: #3498db;
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      cursor: pointer;
-      z-index: 5;
-      transition: background 0.5s;
-    }
+.fancy-upload::after {
+  position: absolute;
+  content: '';
+  width: 0;
+  height: 0;
+  border: 8px solid transparent;
+  border-top-color: var(--tooltip-color);
+  left: calc(50% - 8px);
+  bottom: calc(100% + var(--gap-between-tooltip-to-button) - 10px);
+}
 
-    .circle:hover {
-      background: #2c7fb7;
-    }
+.fancy-upload::after,
+.fancy-upload::before {
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s;
+}
 
-    .point-container {
-      position: absolute;
-    }
+.button-wrapper, .text, .icon {
+  overflow: hidden;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+}
 
-    /* Overlay */
-    .grid-overlay {
-      position: absolute;
-      top: 130px;
-      right: 85px;
-      width: 350px;
-      background: white;
-      border-radius: 12px;
-      z-index: 10;
-      padding: 20px;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-      display: none;
-    }
+.text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  transition: top 0.4s;
+}
 
-    .grid-back-btn {
-      position: absolute;
-      display: inline-block;
-      top: 10px;
-      left: 10px;
-      border: none;
-      background: none;
-      font-size: 16px;
-      font-weight: bold;
-      color: #1e40af;
-      cursor: pointer;
-    }
+.icon {
+  top: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: top 0.4s;
+}
 
-    .grid-back-btn:hover {
-      text-decoration: underline;
-    }
+/* Hover effect */
+.fancy-upload:hover {
+  background: #1f2937;
+}
 
-    .rename-btn {
-      width: 100%;
-      background: #6b7280;
-      color: white;
-      padding: 10px 0;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      margin-bottom: 10px;
-      text-align: center;
-      transition: background 0.25s;
-    }
+.fancy-upload:hover .text {
+  top: -100%;
+}
 
-    .rename-btn:hover {
-      background: #4b5563;
-    }
+.fancy-upload:hover .icon {
+  top: 0;
+}
 
-    .rename-btn:active {
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-    }
+.fancy-upload:hover::before,
+.fancy-upload:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
 
-    .upload-btn {
-      display: inline-block;
-      width: 100%;
-      text-align: center;
-      background: #374151;
-      color: white;
-      padding: 10px 0;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      margin-bottom: 15px;
-      transition: background 0.25s;
-      font-size: 14px;
-    }
+.fancy-upload:hover::after {
+  bottom: calc(var(--height) + var(--gap-between-tooltip-to-button) - 16px);
+}
 
-    /* ทำเป็นสไตล์แบบ Uiverse */
-    .fancy-upload {
-      --width: 100px;
-      --height: 36px;
-      --tooltip-height: 32px;
-      --tooltip-width: 110px;
-      --gap-between-tooltip-to-button: 15px;
-      --button-color: #374151;
-      --tooltip-color: #fff;
+.fancy-upload:hover::before {
+  bottom: calc(var(--height) + var(--gap-between-tooltip-to-button));
+}
 
-      width: var(--width);
-      height: var(--height);
-      background: var(--button-color);
-      position: relative;
-      text-align: center;
-      border-radius: 0.45em;
-      font-family: "Arial";
-      transition: background 0.3s;
-      color: white;
-      overflow: hidden;
-      padding: 0;
-    }
+.fancy-upload:active {
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
 
-    /* Tooltip */
-    .fancy-upload::before {
-      position: absolute;
-      content: attr(data-tooltip);
-      width: var(--tooltip-width);
-      height: var(--tooltip-height);
-      background-color: var(--tooltip-color);
-      font-size: 0.8rem;
-      color: #111;
-      border-radius: .25em;
-      line-height: var(--tooltip-height);
-      bottom: calc(var(--height) + var(--gap-between-tooltip-to-button) + 10px);
-      left: calc(50% - var(--tooltip-width) / 2);
-    }
+  /* เพิ่ม: ขีดเส้นใต้เมื่อเอาเมาส์ไปจ่อ */
+.footer-text {
+  font-size: 12px;
+  color: #999;
+  margin-top: 40px;
+  text-align: right;
+  width: 100%;
+  padding-bottom: 20px;
+  transition: color 0.15s, text-decoration 0.15s;
+}
 
-    .fancy-upload::after {
-      position: absolute;
-      content: '';
-      width: 0;
-      height: 0;
-      border: 8px solid transparent;
-      border-top-color: var(--tooltip-color);
-      left: calc(50% - 8px);
-      bottom: calc(100% + var(--gap-between-tooltip-to-button) - 10px);
-    }
+.footer-text:hover {
+  text-decoration: underline;
+  cursor: pointer;
+  color: #777;
+}
 
-    .fancy-upload::after,
-    .fancy-upload::before {
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.4s;
-    }
+  /* Sidebar */
+  #sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    width: 260px;
+    height: 100%;
+    background: white;
+    box-shadow: 3px 0 12px rgba(0,0,0,0.15);
+    padding: 20px;
+    z-index: 60;
+    transition: left 0.3s ease;
+  }
 
-    .button-wrapper,
-    .text,
-    .icon {
-      overflow: hidden;
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      left: 0;
-    }
+  .sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 10px;
+}
 
-    .text {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      top: 0;
-      transition: top 0.4s;
-    }
+.sidebar-header h2 {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+}
 
-    .icon {
-      top: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: top 0.4s;
-    }
+.hamburger-btn {
+  position: absolute;
+  left: 1.25rem; /* left-5 */
+  top: 1.25rem;  /* top-5 */
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
 
-    /* Hover effect */
-    .fancy-upload:hover {
-      background: #1f2937;
-    }
+.hamburger-btn svg {
+  width: 3em;
+  height: 3em;
+}
 
-    .fancy-upload:hover .text {
-      top: -100%;
-    }
+.hamburger-btn path {
+  fill: none;
+  stroke: rgb(0, 0, 0);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke 0.2s ease;
+}
 
-    .fancy-upload:hover .icon {
-      top: 0;
-    }
+/* hamburger */
+.hamburger {
+  cursor: pointer;
+}
 
-    .fancy-upload:hover::before,
-    .fancy-upload:hover::after {
-      opacity: 1;
-      visibility: visible;
-    }
+.hamburger input {
+  display: none;
+}
 
-    .fancy-upload:hover::after {
-      bottom: calc(var(--height) + var(--gap-between-tooltip-to-button) - 16px);
-    }
+.hamburger svg {
+  height: 2.5em;
+  transition: transform 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-    .fancy-upload:hover::before {
-      bottom: calc(var(--height) + var(--gap-between-tooltip-to-button));
-    }
+/* hover แล้วสีจางลง */
+.hamburger-btn:hover path {
+  stroke: #1e40af;
+}
 
-    .fancy-upload:active {
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-    }
+.line {
+  fill: none;
+  stroke: #333;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+  transition: stroke-dasharray 600ms cubic-bezier(0.4, 0, 0.2, 1),
+              stroke-dashoffset 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-    /* เพิ่ม: ขีดเส้นใต้เมื่อเอาเมาส์ไปจ่อ */
-    .footer-text {
-      font-size: 12px;
-      color: #999;
-      margin-top: 40px;
-      text-align: right;
-      width: 100%;
-      padding-bottom: 20px;
-      transition: color 0.15s, text-decoration 0.15s;
-    }
+.line-top-bottom {
+  stroke-dasharray: 12 63;
+}
 
-    .footer-text:hover {
-      text-decoration: underline;
-      cursor: pointer;
-      color: #777;
-    }
+.hamburger input:hover + svg {
+  transform: rotate(-45deg);
+}
 
-    /* Sidebar */
-    #sidebar {
+.hamburger input:hover+ svg .line-top-bottom {
+  stroke-dasharray: 20 300;
+  stroke-dashoffset: -32.42;
+}
+
+#closeSidebarX {
+  font-size: 32px;
+  cursor: pointer;
+  color: #333;
+  font-weight: bold;
+}
+
+#sidebar.active { left: 0; }
+
+
+#overlayBg {
       position: fixed;
-      top: 0;
-      left: -260px;
-      width: 260px;
-      height: 100%;
-      background: white;
-      box-shadow: 3px 0 12px rgba(0, 0, 0, 0.15);
-      padding: 20px;
-      z-index: 60;
-      transition: left 0.3s ease;
-    }
+      top:0; left:0;
+      width:100%; height:100%;
+      background: rgba(0,0,0,0.4);
+      display:none;
+      z-index:55;
+  }
 
-    .sidebar-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin: 10px;
-    }
+/* ลิงก์ใน Sidebar */
+#sidebar a {
+    display: block;
+    padding: 12px 16px;
+    border-radius: 999px;
+    text-decoration: none;
+    width: 100%;
+    color: #1e40af;
 
-    .sidebar-header h2 {
-      font-size: 24px;
-      font-weight: bold;
-      margin: 0;
-    }
-
-    .hamburger-btn {
-      position: absolute;
-      left: 1.25rem;
-      /* left-5 */
-      top: 1.25rem;
-      /* top-5 */
-      background: none;
-      border: none;
-      padding: 0;
-      cursor: pointer;
-    }
-
-    .hamburger-btn svg {
-      width: 3em;
-      height: 3em;
-    }
-
-    .hamburger-btn path {
-      fill: none;
-      stroke: rgb(0, 0, 0);
-      stroke-width: 3;
-      stroke-linecap: round;
-      transition: stroke 0.2s ease;
-    }
-
-    /* hamburger */
-    .hamburger {
-      cursor: pointer;
-    }
-
-    .hamburger input {
-      display: none;
-    }
-
-    .hamburger svg {
-      height: 2.5em;
-      transition: transform 600ms cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* hover แล้วสีจางลง */
-    .hamburger-btn:hover path {
-      stroke: #1e40af;
-    }
-
-    .line {
-      fill: none;
-      stroke: #333;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      stroke-width: 3;
-      transition: stroke-dasharray 600ms cubic-bezier(0.4, 0, 0.2, 1),
-        stroke-dashoffset 600ms cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .line-top-bottom {
-      stroke-dasharray: 12 63;
-    }
-
-    .hamburger input:hover+svg {
-      transform: rotate(-45deg);
-    }
-
-    .hamburger input:hover+svg .line-top-bottom {
-      stroke-dasharray: 20 300;
-      stroke-dashoffset: -32.42;
-    }
-
-    #closeSidebarX {
-      font-size: 32px;
-      cursor: pointer;
-      color: #333;
-      font-weight: bold;
-    }
-
-    #sidebar.active {
-      left: 0;
-    }
-
-
-    #overlayBg {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.4);
-      display: none;
-      z-index: 55;
-    }
-
-    /* ลิงก์ใน Sidebar */
-    #sidebar a {
-      display: block;
-      padding: 12px 16px;
-      border-radius: 999px;
-      text-decoration: none;
-      width: 100%;
-      color: #1e40af;
-
-      /* เอฟเฟกต์ */
-      transition:
+    /* เอฟเฟกต์ */
+    transition: 
         background 0.3s ease,
         color 0.3s ease,
         box-shadow 0.3s ease,
         transform 0.3s ease;
-    }
+}
 
-    /* effect กลาง ใช้ร่วมกัน */
-    #sidebar a.menu {
-      display: block;
-      padding: 10px 14px;
-      border-radius: 999px;
-      transition: all 0.3s ease;
-    }
+/* effect กลาง ใช้ร่วมกัน */
+#sidebar a.menu {
+    display: block;
+    padding: 10px 14px;
+    border-radius: 999px;
+    transition: all 0.3s ease;
+}
 
-    /* หน้าแรก */
-    #sidebar a.home:hover {
-      background: #487bdb;
-      color: #fff;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-      transform: translateY(-5px);
-    }
+/* หน้าแรก */
+#sidebar a.home:hover {
+    background: #487bdb;
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    transform: translateY(-5px);
+}
 
-    /* กล้อง */
-    #sidebar a.camera:hover {
-      background: #10b981;
-      /* เขียว */
-      color: #fff;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-      transform: translateY(-5px);
-    }
+/* กล้อง */
+#sidebar a.camera:hover {
+    background: #10b981; /* เขียว */
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    transform: translateY(-5px);
+}
 
-    /* กล้อง2 */
-    #sidebar a.camera2:hover {
-      background: #e6d308;
-      /* เขียว */
-      color: #fff;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-      transform: translateY(-5px);
-    }
+/* กล้อง2 */
+#sidebar a.camera2:hover {
+    background: #e6d308; /* เขียว */
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    transform: translateY(-5px);
+}
 
-    /* อัตโนมัติ */
-    #sidebar a.auto:hover {
-      background: #eb9e05;
-      /* เขียว */
-      color: #fff;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-      transform: translateY(-5px);
-    }
+/* อัตโนมัติ */
+#sidebar a.auto:hover {
+    background: #eb9e05; /* เขียว */
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    transform: translateY(-5px);
+}
 
-    /* รูปภาพ */
-    #sidebar a.image:hover {
-      background: #f50b0b;
-      /* ส้ม */
-      color: #fff;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-      transform: translateY(-5px);
-    }
+/* รูปภาพ */
+#sidebar a.image:hover {
+    background: #f50b0b; /* ส้ม */
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    transform: translateY(-5px);
+}
 
-    /* FAQ */
-    #sidebar a.faq:hover {
-      background: #ef348e;
-      /* แดง */
-      color: #fff;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-      transform: translateY(-5px);
-    }
+/* FAQ */
+#sidebar a.faq:hover {
+    background: #ef348e; /* แดง */
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    transform: translateY(-5px);
+}
 
 
-    .sidebar-divider {
+  .sidebar-divider {
       width: 90%;
       height: 1px;
       background: #e5e7eb;
       margin: 100px 0;
-    }
+  }
 
-    .hand {
-      font-weight: bold;
-      padding: 10px;
-      margin: 15px;
-      height: 100%;
-      width: 95%;
-      background-color: rgb(225, 225, 228);
-      border-radius: 8px;
-      justify-self: unset;
-    }
+.hand {
+  font-weight: bold;
+  padding: 10px;
+  margin: 15px;
+  height: 100%;
+  width: 95%;
+  background-color: rgb(225, 225, 228);
+  border-radius: 8px;
+  justify-self: unset;
+}
 
-    .hand:active {
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-    }
+.hand:active {
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
 
-    .one {
-      background-color: #36b98b;
-      color: white;
-      margin-bottom: 5px;
-      margin-top: 10px;
-    }
+.one {
+  background-color: #36b98b;
+  color: white;
+  margin-bottom: 5px;
+  margin-top: 10px;
+}
 
-    .two {
-      background-color: #487bdb;
-      color: white;
-      margin-top: 5px;
-    }
+.two {
+  background-color: #487bdb;
+  color: white;
+  margin-top: 5px;
+}
 
-    .one:active,
-    .two:active {
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-    }
+.one:active, .two:active {
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
 
-    .line {
-      margin: 15px;
-    }
+.line {
+  margin: 15px;
+}
 
-    .seed {
-      font-size: 35px;
-      /* ปรับขนาดได้ */
-      cursor: pointer;
-      user-select: none;
-      transform: translate(-50%, -50%);
-    }
+.seed {
+  font-size: 35px;        /* ปรับขนาดได้ */
+  cursor: pointer;
+  user-select: none;
+  transform: translate(-50%, -50%);
+}
 
-    .seed:hover {
-      transform: translate(-50%, -50%) scale(1.3);
-      transition: all 0.15s;
-    }
+.seed:hover {
+  transform: translate(-50%, -50%) scale(1.3);
+  transition: all 0.15s;
+}
 
-    .hand.water {
-      background-color: #487bdb;
-    }
+.hand.water {
+  background-color: #487bdb;
+}
 
-    .hand.moisture {
-      background-color: #9020d1;
-    }
-  </style>
+.hand.moisture {
+  background-color: #9020d1;
+}
+
+
+</style>
 </head>
-
 <body>
   <!-- 🔵 ปุ่มสามขีด -->
-  <button id="menuBtn" class="hamburger-btn">
+    <button id="menuBtn" class="hamburger-btn">
     <svg viewBox="0 0 32 32">
-      <path d="M7 10 27 10"></path>
-      <path d="M7 16 27 16"></path>
-      <path d="M7 22 27 22"></path>
+        <path d="M7 10 27 10"></path>
+        <path d="M7 16 27 16"></path>
+        <path d="M7 22 27 22"></path>
     </svg>
-  </button>
+    </button>
 
-  <!-- 🔵 SIDEBAR -->
-  <div id="sidebar">
+<!-- 🔵 SIDEBAR -->
+<div id="sidebar">
 
     <div class="sidebar-header">
       <h2>Menu</h2>
       <label class="hamburger" id="closeSidebarBtn">
-        <input type="checkbox" id="sidebarToggle">
-        <svg viewBox="0 0 32 32">
-          <path class="line line-top-bottom" d="M27 10 13 10C10.8 10 9 8.2 9 6
+      <input type="checkbox" id="sidebarToggle">
+      <svg viewBox="0 0 32 32">
+        <path class="line line-top-bottom"
+          d="M27 10 13 10C10.8 10 9 8.2 9 6
             9 3.5 10.8 2 13 2
             15.2 2 17 3.8 17 6
             L17 26C17 28.2 18.8 30
             21 30 23.2 30 25 28.2
             25 26 25 23.8 23.2 22
             21 22L7 22"></path>
-          <path class="line" d="M7 16 27 16"></path>
-        </svg>
-      </label>
+        <path class="line" d="M7 16 27 16"></path>
+      </svg>
+    </label>
     </div>
 
     <ul class="space-y-3 margin-top-4">
-      <li><a href="index.html" class="menu home text-blue-600">หน้าแรก</a></li>
-      <div class="sidebar-divider"></div>
+        <li><a href="index.html" class="menu home text-blue-600">หน้าแรก</a></li>
+        <div class="sidebar-divider"></div> 
 
-      <li><a href="camera.html" class="menu camera text-blue-600">แขนกลฝั่งติดราง</a></li>
-      <div class="sidebar-divider"></div>
+        <li><a href="camera.html" class="menu camera text-blue-600">แขนกล 1</a></li>
+        <div class="sidebar-divider"></div>
 
-      <li><a href="camera2.html" class="menu camera2 text-blue-600">แขนกลฝั่งยังไม่ติดราง</a></li>
-      <div class="sidebar-divider"></div>
+        <li><a href="camera2.html" class="menu camera2 text-blue-600">แขนกล 2</a></li>
+        <div class="sidebar-divider"></div>
 
-      <li><a href="auto.html" class="menu auto text-blue-600">ระบบอัตโนมัติ</a></li>
-      <div class="sidebar-divider"></div>
+        <li><a href="auto.html" class="menu auto text-blue-600">ระบบอัตโนมัติ</a></li>
+        <div class="sidebar-divider"></div>
 
-      <li><a href="capture.html" class="menu image text-blue-600">รูปภาพ</a></li>
-      <div class="sidebar-divider"></div>
+        <li><a href="capture.html" class="menu image text-blue-600">รูปภาพ</a></li>
+        <div class="sidebar-divider"></div>
 
-      <li><a href="FAQ.html" class="menu faq text-blue-600">FAQ</a></li>
-      <div class="sidebar-divider"></div>
+        <li><a href="FAQ.html" class="menu faq text-blue-600">ฟังก์ชันอื่นๆ</a></li>
+        <div class="sidebar-divider"></div>
     </ul>
 
     <!-- ⭐ ผู้ใช้ + Logout ย้ายมาไว้ที่นี่ ⭐ -->
@@ -597,488 +511,637 @@
         left: 20px;
         right: 20px;
     ">
-      <div id="sidebarUsername" class="font-bold text-blue-700 mb-2">
-        ผู้ใช้: -
-      </div>
+        <div id="sidebarUsername"
+            class="font-bold text-blue-700 mb-2">
+            ผู้ใช้: -
+        </div>
 
-      <button id="sidebarLogoutBtn"
-        class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-bold transition">
-        ออกจากระบบ
+        <button id="sidebarLogoutBtn"
+            class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-bold transition">
+            ออกจากระบบ
+        </button>
+    </div>
+
+</div>
+
+<div id="overlayBg"></div>
+
+
+<div id="app">
+  <h1>แขนกล 2</h1>
+
+  <div class="content" style="display:flex;flex-wrap:wrap;gap:30px;align-items:flex-start;justify-content:center;">
+    <iframe src="http://192.168.1.112" allow="camera; microphone;"></iframe>
+    <div class="grid-container" id="grid"></div>
+  </div>
+
+  <!-- Overlay -->
+<div class="grid-overlay" id="gridOverlay">
+
+  <!-- ===== Overlay เดิม (จุด) ===== -->
+  <div id="pointOverlayContent">
+
+    <button class="grid-back-btn" onclick="closeGridOverlay()">← ย้อนกลับ</button>
+
+    <div style="font-weight:bold;margin-bottom:10px;margin-top:20px;text-align:center;" id="pointTitle">
+      จุด (1,1)
+    </div>
+
+    <div class="sidebar-divider line"></div>
+
+    <input type="text" id="pointNameInput"
+      placeholder="ตั้งชื่อจุด"
+      style="width:100%;padding:6px;border:1px solid #ccc;border-radius:6px;margin-bottom:10px;">
+
+    <!-- ปุ่ม Upload + Rename -->
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px;">
+
+      <label class="upload-btn fancy-upload">
+        <div class="button-wrapper">
+          <div class="text">อัปโหลดรูป</div>
+          <span class="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <path fill="none" stroke="currentColor" stroke-width="2"
+                d="M12 15V3m0 12l-4-4m4 4l4-4M2 17l.621 2.485A2 2 0 0 0 4.561 21h14.878a2 2 0 0 0 1.94-1.515L22 17" />
+            </svg>
+          </span>
+        </div>
+        <input type="file" id="pointFileInput" accept="image/*" hidden>
+      </label>
+
+      <button class="rename-btn" onclick="renameSuccess()"
+        style="width:100px;height:36px;">
+        เปลี่ยนชื่อ
       </button>
     </div>
 
+    <img id="pointImage"
+      style="width:100%;display:none;border-radius:6px;margin-bottom:10px;">
+
+    <canvas id="pointChart" width="300" height="150"></canvas>
+
+    <button class="hand" onclick="openHandOverlay()">ฟังก์ชันแขนกล</button>
+    
   </div>
 
-  <div id="overlayBg"></div>
+  <!-- ===== Overlay แขนกล ===== -->
+    <div id="handOverlay" style="display:none;">
 
+      <button class="grid-back-btn" onclick="backToPointOverlay()">← ย้อนกลับ</button>
 
-  <div id="app">
-    <h1>แขนกลฝั่งไม่ติดราง</h1>
+      <h2 style="text-align:center;margin-top:20px;">ฟังก์ชันแขนกล</h2>
+      <div class="sidebar-divider line"></div>
 
-    <div class="content" style="display:flex;flex-wrap:wrap;gap:30px;align-items:flex-start;justify-content:center;">
-      <iframe src="http://192.168.1.112" allow="camera; microphone;"></iframe>
-      <div class="grid-container" id="grid"></div>
+      <div id="handButtonArea" style="text-align:center;"></div>
+
     </div>
-
-    <!-- Overlay -->
-    <div class="grid-overlay" id="gridOverlay">
-
-      <!-- ===== Overlay เดิม (จุด) ===== -->
-      <div id="pointOverlayContent">
-
-        <button class="grid-back-btn" onclick="closeGridOverlay()">← ย้อนกลับ</button>
-
-        <div style="font-weight:bold;margin-bottom:10px;margin-top:20px;text-align:center;" id="pointTitle">
-          จุด (1,1)
-        </div>
-
-        <div class="sidebar-divider line"></div>
-
-        <input type="text" id="pointNameInput" placeholder="ตั้งชื่อจุด"
-          style="width:100%;padding:6px;border:1px solid #ccc;border-radius:6px;margin-bottom:10px;">
-
-        <!-- ปุ่ม Upload + Rename -->
-        <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px;">
-
-          <label class="upload-btn fancy-upload">
-            <div class="button-wrapper">
-              <div class="text">อัปโหลดรูป</div>
-              <span class="icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                  <path fill="none" stroke="currentColor" stroke-width="2"
-                    d="M12 15V3m0 12l-4-4m4 4l4-4M2 17l.621 2.485A2 2 0 0 0 4.561 21h14.878a2 2 0 0 0 1.94-1.515L22 17" />
-                </svg>
-              </span>
-            </div>
-            <input type="file" id="pointFileInput" accept="image/*" hidden>
-          </label>
-
-          <button class="rename-btn" onclick="renameSuccess()" style="width:100px;height:36px;">
-            เปลี่ยนชื่อ
-          </button>
-        </div>
-
-        <img id="pointImage" style="width:100%;display:none;border-radius:6px;margin-bottom:10px;">
-
-        <canvas id="pointChart" width="300" height="150"></canvas>
-
-        <button class="hand" onclick="openHandOverlay()">ฟังก์ชันอื่นๆ</button>
-
-      </div>
-
-      <!-- ===== Overlay แขนกล ===== -->
-      <div id="handOverlay" style="display:none;">
-
-        <button class="grid-back-btn" onclick="backToPointOverlay()">← ย้อนกลับ</button>
-
-        <h2 style="text-align:center;margin-top:20px;">ฟังก์ชันแขนกล</h2>
-        <div class="sidebar-divider line"></div>
-
-        <div id="handButtonArea" style="text-align:center;"></div>
-
-      </div>
-    </div>
+</div>
 
 
 
-    <div class="footer-text">
-      © presented by klabot dev team
-    </div>
+<div class="footer-text">
+    © presented by klabot dev team
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-      const SUPABASE_URL = "https://yiaemxmwfxrfrwtogamw.supabase.co";
-      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw";
-      const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://yiaemxmwfxrfrwtogamw.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      let currentUser = null;
-      let currentPoint = { x: 0, y: 0 };
-      let chart = null;
+let currentUser = null;
+let currentPoint = {x:0,y:0};
+let chart = null;
 
-      // เช็ค user
-      async function checkUser() {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (!session || !session.user) { window.location.href = "login.html"; return; }
-        currentUser = session.user;
-        document.getElementById("sidebarUsername").textContent = `ผู้ใช้: ${currentUser.email}`;
-        document.getElementById("app").style.display = "block";
-        initGrid();
-      }
-      checkUser();
+// เช็ค user
+async function checkUser(){
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if(!session || !session.user){ window.location.href="login.html"; return; }
+  currentUser = session.user;
+  document.getElementById("sidebarUsername").textContent = `ผู้ใช้: ${currentUser.email}`;
+  document.getElementById("app").style.display="block";
+  initGrid();
+}
+checkUser();
 
-      // logout
-      document.getElementById("sidebarLogoutBtn").addEventListener("click", async () => {
-        const { error } = await supabaseClient.auth.signOut();
-        if (error) console.error(error.message); else window.location.href = "login.html";
-      });
+// logout
+document.getElementById("sidebarLogoutBtn").addEventListener("click", async ()=>{
+  const {error} = await supabaseClient.auth.signOut();
+  if(error) console.error(error.message); else window.location.href="login.html";
+});
 
-      // Grid
-      function initGrid() {
-        const grid = document.getElementById("grid");
-        const cols = 4;
-        const rows = 6;
-        const iframe = document.querySelector("iframe");
-        const gridHeight = iframe.clientHeight;
-        const cellSize = gridHeight / (rows + 1);
-        grid.style.width = `${cellSize * (cols + 1)}px`;
-        grid.style.height = `${gridHeight}px`;
+function initGrid(){
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
 
-        for (let i = 1; i <= cols; i++) {
-          const v = document.createElement("div");
-          v.className = "vertical-line";
-          v.style.left = `${(i / (cols + 1)) * 100}%`;
-          grid.appendChild(v);
-        }
-        for (let j = 1; j <= rows; j++) {
-          const h = document.createElement("div");
-          h.className = "horizontal-line";
-          h.style.top = `${(j / (rows + 1)) * 100}%`;
-          grid.appendChild(h);
-        }
+  const cols = 6;
+  const rows = 11;
+  const cellSize = 60;   // 🔥 ปรับตรงนี้ → ช่องใหญ่ขึ้น / เล็กลง
 
-        for (let i = 1; i <= cols; i++) {
-          for (let j = 1; j <= rows; j++) {
-            const x = (i / (cols + 1)) * grid.clientWidth;
-            const y = (j / (rows + 1)) * grid.clientHeight;
+  grid.style.width  = `${cellSize * (cols + 1)}px`;
+  grid.style.height = `${cellSize * (rows + 1)}px`;
 
-            const pointContainer = document.createElement("div");
-            pointContainer.className = "point-container";
-            pointContainer.style.left = `${x}px`;
-            pointContainer.style.top = `${y}px`;
+  /* เส้นตั้ง */
+  for(let i = 1; i <= cols; i++){
+    const v = document.createElement("div");
+    v.className = "vertical-line";
+    v.style.left = `${i * cellSize}px`;
+    grid.appendChild(v);
+  }
 
-            const seed = document.createElement("div");
-            seed.className = "seed";
-            seed.textContent = "🌱";
-            seed.addEventListener("click", () => openGridOverlay(i, j));
+  /* เส้นนอน */
+  for(let j = 1; j <= rows; j++){
+    const h = document.createElement("div");
+    h.className = "horizontal-line";
+    h.style.top = `${j * cellSize}px`;
+    grid.appendChild(h);
+  }
 
-            pointContainer.appendChild(seed);
-            grid.appendChild(pointContainer);
-          }
+  /* จุด 🌱 */
+  for(let x = 1; x <= cols; x++){
+    for(let y = 1; y <= rows; y++){
+      const px = x * cellSize;
+      const py = y * cellSize;
 
-          /*for(let i=1;i<=cols;i++){
-            for(let j=1;j<=rows;j++){
-              const x=(i/(cols+1))*grid.clientWidth;
-              const y=(j/(rows+1))*grid.clientHeight;
-              const pointContainer=document.createElement("div");
-              pointContainer.className="point-container";
-              pointContainer.style.left=`${x}px`;
-              pointContainer.style.top=`${y}px`;
-              const circle=document.createElement("div");
-              circle.className="circle";
-              circle.addEventListener("click",()=>openGridOverlay(i,j));
-              pointContainer.appendChild(circle);
-              grid.appendChild(pointContainer);
-            }*/
-        }
+      const pointContainer = document.createElement("div"); // ต้องเป็น div
+      pointContainer.className = "point-container";
+      pointContainer.style.left = `${px}px`;
+      pointContainer.style.top = `${py}px`;
 
+      const seed = document.createElement("div");
+      seed.className = "seed";
+      seed.textContent = "🌱";
+
+      // กำหนดช่วง disable
+      const disabled = (x >= 1 && x <= 3);
+      if(disabled){
+          seed.style.opacity = "0.3";
+          seed.style.cursor = "not-allowed";
+      } else {
+          seed.addEventListener("click", () => openGridOverlay(x, y));
       }
 
-      // Overlay functions
-      async function openGridOverlay(x, y) {
-        currentPoint = { x, y };
-        const overlay = document.getElementById("gridOverlay");
-        overlay.style.display = "block";
-        document.getElementById("pointTitle").textContent = `จุด (${x},${y})`;
+      pointContainer.appendChild(seed);
+      grid.appendChild(pointContainer);
+    }
+  }
+}
 
-        // โหลดชื่อและรูป
-        const { data, error } = await supabaseClient.from("points1").select("*").eq("user_id", currentUser.id).eq("x", x).eq("y", y).single();
-        const input = document.getElementById("pointNameInput");
-        input.value = data?.name || "";
-        const img = document.getElementById("pointImage");
-        if (data?.image_url) { img.src = data.image_url; img.style.display = "block"; } else img.style.display = "none";
+  /*for(let i=1;i<=cols;i++){
+    for(let j=1;j<=rows;j++){
+      const x=(i/(cols+1))*grid.clientWidth;
+      const y=(j/(rows+1))*grid.clientHeight;
+      const pointContainer=document.createElement("div");
+      pointContainer.className="point-container";
+      pointContainer.style.left=`${x}px`;
+      pointContainer.style.top=`${y}px`;
+      const circle=document.createElement("div");
+      circle.className="circle";
+      circle.addEventListener("click",()=>openGridOverlay(i,j));
+      pointContainer.appendChild(circle);
+      grid.appendChild(pointContainer);
+    }*/
+   
 
-        // โหลดค่าความชื้นจาก maintable
-        const { data: vals } = await supabaseClient
-          .from("maintable")
-          .select("soil_moisture, inserted_at")
-          .eq("user_id", currentUser.id)
-          .eq("point_x", x)
-          .eq("point_y", y)
-          .order("inserted_at", { ascending: true });
+// Overlay functions
+async function openGridOverlay(x, y) {
+  currentPoint = { x, y };
+  const overlay = document.getElementById("gridOverlay");
+  overlay.style.display = "block";
+  document.getElementById("pointTitle").textContent = `จุด (${x},${y})`;
 
-        const labels = vals?.map(d => new Date(d.inserted_at).toLocaleTimeString()) || [];
-        const values = vals?.map(d => d.soil_moisture) || [];
+  // โหลดชื่อและรูป
+  const { data, error } = await supabaseClient.from("points1").select("*").eq("user_id", currentUser.id).eq("x", x).eq("y", y).single();
+  const input = document.getElementById("pointNameInput");
+  input.value = data?.name || "";
+  const img = document.getElementById("pointImage");
+  if (data?.image_url) { img.src = data.image_url; img.style.display = "block"; } else img.style.display = "none";
 
-        // กำหนด chart overlay pointChart
-        const ctx = document.getElementById("pointChart").getContext("2d");
-        if (chart) chart.destroy();
-        chart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels,
-            datasets: [{
-              label: 'ความชื้น',
-              data: values,
-              borderColor: 'rgb(54,162,235)',
-              backgroundColor: 'rgba(54,162,235,0.2)',
-              tension: 0.3,
-              pointRadius: 2
-            }]
-          },
-          options: {
-            responsive: false,
-            plugins: { legend: { display: false } },
-            scales: { x: { display: true }, y: { display: true, min: 0, max: 100 } }
-          }
-        });
-      }
+  // โหลดค่าความชื้นจาก maintable
+  const { data: vals } = await supabaseClient
+    .from("maintable")
+    .select("soil_moisture, inserted_at")
+    .eq("user_id", currentUser.id)
+    .eq("point_x", x)
+    .eq("point_y", y)
+    .order("inserted_at", { ascending: true });
 
-      /* ===============================
-         MAP จุด → ACTION แขนกล
-      ================================ */
-      const pointActionMap = {
-        "1,1": "A",
-        "1,2": "B",
-        "1,3": "C",
-        "1,4": "D",
-        "1,5": "E",
-        "1,6": "F",
+  const labels = vals?.map(d => new Date(d.inserted_at).toLocaleTimeString()) || [];
+  const values = vals?.map(d => d.soil_moisture) || [];
 
-        "2,1": "G",
-        "2,2": "H",
-        "2,3": "I",
-        "2,4": "J",
-        "2,5": "K",
-        "2,6": "L",
+  // กำหนด chart overlay pointChart
+  const ctx = document.getElementById("pointChart").getContext("2d");
+  if (chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'ความชื้น',
+        data: values,
+        borderColor: 'rgb(54,162,235)',
+        backgroundColor: 'rgba(54,162,235,0.2)',
+        tension: 0.3,
+        pointRadius: 2
+      }]
+    },
+    options: {
+      responsive: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { display: true }, y: { display: true, min: 0, max: 100 } }
+    }
+  });
+}
 
-        "3,1": "M",
-        "3,2": "N",
-        "3,3": "O",
-        "3,4": "P",
-        "3,5": "Q",
-        "3,6": "R",
+/* ===============================
+   MAP จุด → ACTION แขนกล
+================================ */
+const pointActionMap = {
+  "1,1": "A",
+  "1,2": "B",
+  "1,3": "C",
+  "1,4": "D",
+  "1,5": "E",
+  "1,6": "F",
+  "1,7": "G",
+  "1,8": "H",
+  "1,9": "I",
+  "1,10": "J",
+  "1,11": "K",
 
-        "4,1": "S",
-        "4,2": "T",
-        "4,3": "U",
-        "4,4": "V",
-        "4,5": "W",
-        "4,6": "X"
-      };
+  "2,1": "L",
+  "2,2": "M",
+  "2,3": "N",
+  "2,4": "O",
+  "2,5": "P",
+  "2,6": "Q",
+  "2,7": "R",
+  "2,8": "S",
+  "2,9": "T",
+  "2,10": "U",
+  "2,11": "V",
 
+  "3,1": "W",
+  "3,2": "X",
+  "3,3": "Y",
+  "3,4": "Z",
+  "3,5": "A1",
+  "3,6": "B1",
+  "3,7": "C1",
+  "3,8": "D1",
+  "3,9": "E1",
+  "3,10": "F1",
+  "3,11": "G1",
 
-      /* ===============================
-         MAP จุด → ACTION รดน้ำ
-      ================================ */
-      const pointWaterMap = {
-        "1,1": "water11",
-        "1,2": "water21",
-        "1,3": "water31",
-        "1,4": "water41",
-        "1,5": "water51",
-        "1,6": "water61",
+  "4,1": "A2",
+  "4,2": "B2",
+  "4,3": "C2",
+  "4,4": "D2",
+  "4,5": "E2",
+  "4,6": "F2",
+  "4,7": "G2",
+  "4,8": "H2",
+  "4,9": "I2",
+  "4,10": "J2",
+  "4,11": "K2",
 
-        "2,1": "water12",
-        "2,2": "water22",
-        "2,3": "water32",
-        "2,4": "water42",
-        "2,5": "water25",
-        "2,6": "water62",
+  "5,1": "L2",
+  "5,2": "M2",
+  "5,3": "N2",
+  "5,4": "O2",
+  "5,5": "P2",
+  "5,6": "Q2",
+  "5,7": "R2",
+  "5,8": "S2",
+  "5,9": "T2",
+  "5,10": "U2",
+  "5,11": "V2",
 
-        "3,1": "water13",
-        "3,2": "water23",
-        "3,3": "water33",
-        "3,4": "water43",
-        "3,5": "water53",
-        "3,6": "water63",
-
-        "4,1": "water14",
-        "4,2": "water24",
-        "4,3": "water34",
-        "4,4": "water44",
-        "4,5": "water54",
-        "4,6": "water64"
-      };
-
-
-      /* ===============================
-         MAP จุด → ACTION วัดความชื้น
-      ================================ */
-      const pointMoistureMap = {
-        "1,1": "moisture11",
-        "1,2": "moisture21",
-        "1,3": "moisture31",
-        "1,4": "moisture41",
-        "1,5": "moisture51",
-        "1,6": "moisture61",
-
-        "2,1": "moisture12",
-        "2,2": "moisture22",
-        "2,3": "moisture32",
-        "2,4": "moisture42",
-        "2,5": "moisture52",
-        "2,6": "moisture62",
-
-        "3,1": "moisture13",
-        "3,2": "moisture23",
-        "3,3": "moisture33",
-        "3,4": "moisture43",
-        "3,5": "moisture53",
-        "3,6": "moisture63",
-
-        "4,1": "moisture14",
-        "4,2": "moisture24",
-        "4,3": "moisture34",
-        "4,4": "moisture44",
-        "4,5": "moisture54",
-        "4,6": "moisture64"
-      };
+  "6,1": "W2",
+  "6,2": "X2",
+  "6,3": "Y2",
+  "6,4": "Z2",
+  "6,5": "A3",
+  "6,6": "B3",
+  "6,7": "C3",
+  "6,8": "D3",
+  "6,9": "E3",
+  "6,10": "F3",
+  "6,11": "G3"
+};
 
 
+/* ===============================
+   MAP จุด → ACTION รดน้ำ
+================================ */
+const pointWaterMap = {
+  "1,1": "water11",
+  "1,2": "water21",
+  "1,3": "water31",
+  "1,4": "water41",
+  "1,5": "water51",
+  "1,6": "water61",
+  "1,7": "water71",
+  "1,8": "water81",
+  "1,9": "water91",
+  "1,10": "water101",
+  "1,11": "water111",
+
+  "2,1": "water12",
+  "2,2": "water22",
+  "2,3": "water32",
+  "2,4": "water42",
+  "2,5": "water52",
+  "2,6": "water62",
+  "2,7": "water72",
+  "2,8": "water82",
+  "2,9": "water92",
+  "2,10": "water102",
+  "2,11": "water112",
+
+  "3,1": "water13",
+  "3,2": "water23",
+  "3,3": "water33",
+  "3,4": "water43",
+  "3,5": "water53",
+  "3,6": "water63",
+  "3,7": "water73",
+  "3,8": "water83",
+  "3,9": "water93",
+  "3,10": "water103",
+  "3,11": "water113",
+
+  "4,1": "water14",
+  "4,2": "water24",
+  "4,3": "water34",
+  "4,4": "water44",
+  "4,5": "water54",
+  "4,6": "water64",
+  "4,7": "water74",
+  "4,8": "water84",
+  "4,9": "water94",
+  "4,10": "water104",
+  "4,11": "water114",
+
+  "5,1": "water15",
+  "5,2": "water25",
+  "5,3": "water35",
+  "5,4": "water45",
+  "5,5": "water55",
+  "5,6": "water65",
+  "5,7": "water75",
+  "5,8": "water85",
+  "5,9": "water95",
+  "5,10": "water105",
+  "5,11": "water115",
+
+  "6,1": "water16",
+  "6,2": "water26",
+  "6,3": "water36",
+  "6,4": "water46",
+  "6,5": "water56",
+  "6,6": "water66",
+  "6,7": "water76",
+  "6,8": "water86",
+  "6,9": "water96",
+  "6,10": "water106",
+  "6,11": "water116"
+};
 
 
-      function openHandOverlay() {
-        document.getElementById("pointOverlayContent").style.display = "none";
-        document.getElementById("handOverlay").style.display = "block";
 
-        const key = `${currentPoint.x},${currentPoint.y}`;
-        const action = pointActionMap[key];
-        const waterAction = pointWaterMap[key];
-        const moistureAction = pointMoistureMap[key];
+/* ===============================
+   MAP จุด → ACTION วัดความชื้น
+================================ */
+const pointMoistureMap = {
+  "1,1": "moisture11",
+  "1,2": "moisture21",
+  "1,3": "moisture31",
+  "1,4": "moisture41",
+  "1,5": "moisture51",
+  "1,6": "moisture61",
+  "1,7": "moisture71",
+  "1,8": "moisture81",
+  "1,9": "moisture91",
+  "1,10": "moisture101",
+  "1,11": "moisture111",
 
-        const area = document.getElementById("handButtonArea");
-        area.innerHTML = "";
+  "2,1": "moisture12",
+  "2,2": "moisture22",
+  "2,3": "moisture32",
+  "2,4": "moisture42",
+  "2,5": "moisture52",
+  "2,6": "moisture62",
+  "2,7": "moisture72",
+  "2,8": "moisture82",
+  "2,9": "moisture92",
+  "2,10": "moisture102",
+  "2,11": "moisture112",
 
-        if (!action && !waterAction && !moistureAction) {
-          area.innerHTML = "<p style='text-align:center;'>จุดนี้ไม่มีฟังก์ชัน</p>";
-          return;
-        }
+  "3,1": "moisture13",
+  "3,2": "moisture23",
+  "3,3": "moisture33",
+  "3,4": "moisture43",
+  "3,5": "moisture53",
+  "3,6": "moisture63",
+  "3,7": "moisture73",
+  "3,8": "moisture83",
+  "3,9": "moisture93",
+  "3,10": "moisture103",
+  "3,11": "moisture113",
 
-        /* แขนกล */
-        if (action) {
-          const armBtn = document.createElement("button");
-          armBtn.className = "hand one";
-          armBtn.innerText = `ส่งค่า ${action} และคีบ`;
-          armBtn.onclick = () => sendAction(action);
-          area.appendChild(armBtn);
-        }
+  "4,1": "moisture14",
+  "4,2": "moisture24",
+  "4,3": "moisture34",
+  "4,4": "moisture44",
+  "4,5": "moisture54",
+  "4,6": "moisture64",
+  "4,7": "moisture74",
+  "4,8": "moisture84",
+  "4,9": "moisture94",
+  "4,10": "moisture104",
+  "4,11": "moisture114",
 
-        /* รดน้ำ */
-        if (waterAction) {
-          const waterBtn = document.createElement("button");
-          waterBtn.className = "hand one water";
-          waterBtn.innerText = `รดน้ำ ${waterAction}`;
-          waterBtn.onclick = () => sendAction(waterAction);
-          area.appendChild(waterBtn);
-        }
+  "5,1": "moisture15",
+  "5,2": "moisture25",
+  "5,3": "moisture35",
+  "5,4": "moisture45",
+  "5,5": "moisture55",
+  "5,6": "moisture65",
+  "5,7": "moisture75",
+  "5,8": "moisture85",
+  "5,9": "moisture95",
+  "5,10": "moisture105",
+  "5,11": "moisture115",
 
-        /* วัดความชื้น */
-        if (moistureAction) {
-          const moistureBtn = document.createElement("button");
-          moistureBtn.className = "hand one moisture";
-          moistureBtn.innerText = `วัดความชื้น ${moistureAction}`;
-          moistureBtn.onclick = () => sendAction(moistureAction);
-          area.appendChild(moistureBtn);
-        }
-      }
-
-
-
-      function backToPointOverlay() {
-        document.getElementById("handOverlay").style.display = "none";
-        document.getElementById("pointOverlayContent").style.display = "block";
-      }
-
-      function closeGridOverlay() { document.getElementById("gridOverlay").style.display = "none"; }
-
-      async function renameSuccess() {
-        const input = document.getElementById("pointNameInput");
-        const name = input.value.trim();
-        if (!name) return;
-        const { error } = await supabaseClient.from("points1").upsert({ user_id: currentUser.id, x: currentPoint.x, y: currentPoint.y, name }, { onConflict: ['user_id', 'x', 'y'] });
-        if (error) console.error(error.message);
-      }
-
-      // Upload image
-      document.getElementById("pointFileInput").addEventListener("change", async (event) => {
-        const file = event.target.files[0]; if (!file) return;
-        const reader = new FileReader();
-        reader.onload = e => {
-          const img = document.getElementById("pointImage"); img.src = e.target.result; img.style.display = "block";
-        };
-        reader.readAsDataURL(file);
-        const fileName = `${currentUser.id}/point-${currentPoint.x}-${currentPoint.y}-${Date.now()}.${file.name.split('.').pop()}`;
-        try {
-          const { data, error } = await supabaseClient.storage.from("grid-images").upload(fileName, file, { cacheControl: "3600", upsert: true });
-          if (error) throw error;
-          const { data: publicData } = supabaseClient.storage.from("grid-images").getPublicUrl(fileName);
-          const imageUrl = publicData.publicUrl;
-          const img = document.getElementById("pointImage"); img.src = imageUrl; img.style.display = "block";
-          await supabaseClient.from("points1").upsert({ user_id: currentUser.id, x: currentPoint.x, y: currentPoint.y, image_url: imageUrl }, { onConflict: ['user_id', 'x', 'y'] });
-        } catch (err) { console.error(err); alert("อัปโหลดรูปไม่สำเร็จ"); }
-      });
+  "6,1": "moisture16",
+  "6,2": "moisture26",
+  "6,3": "moisture36",
+  "6,4": "moisture46",
+  "6,5": "moisture56",
+  "6,6": "moisture66",
+  "6,7": "moisture76",
+  "6,8": "moisture86",
+  "6,9": "moisture96",
+  "6,10": "moisture106",
+  "6,11": "moisture116"  
+};
 
 
-      /* ===== Sidebar Control ===== */
-      const sidebar = document.getElementById("sidebar");
-      const overlay = document.getElementById("overlayBg");
-      const toggle = document.getElementById("sidebarToggle");
 
-      // ปุ่มเปิดเมนู
-      document.getElementById("menuBtn").addEventListener("click", () => {
-        sidebar.classList.add("active");
-        overlay.style.display = "block";
-        toggle.checked = true; // เล่น animation hamburger → X
-      });
 
-      // กดปุ่ม hamburger เพื่อปิด
-      toggle.addEventListener("change", () => {
-        if (!toggle.checked) {
-          sidebar.classList.remove("active");
-          overlay.style.display = "none";
-        }
-      });
 
-      // กดพื้นหลังปิดเมนู
-      overlay.addEventListener("click", () => {
+function openHandOverlay() {
+  document.getElementById("pointOverlayContent").style.display = "none";
+  document.getElementById("handOverlay").style.display = "block";
+
+  const key = `${currentPoint.x},${currentPoint.y}`;
+  const action = pointActionMap[key];
+  const waterAction = pointWaterMap[key];
+  const moistureAction = pointMoistureMap[key];
+
+  const area = document.getElementById("handButtonArea");
+  area.innerHTML = "";
+
+  if (!action && !waterAction && !moistureAction) {
+    area.innerHTML = "<p style='text-align:center;'>จุดนี้ไม่มีฟังก์ชัน</p>";
+    return;
+  }
+
+  /* แขนกล */
+  if (action) {
+    const armBtn = document.createElement("button");
+    armBtn.className = "hand one";
+    armBtn.innerText = `ส่งค่า ${action} และคีบ`;
+    armBtn.onclick = () => sendAction(action);
+    area.appendChild(armBtn);
+  }
+
+  /* รดน้ำ */
+  if (waterAction) {
+    const waterBtn = document.createElement("button");
+    waterBtn.className = "hand one water";
+    waterBtn.innerText = `รดน้ำ ${waterAction}`;
+    waterBtn.onclick = () => sendAction(waterAction);
+    area.appendChild(waterBtn);
+  }
+
+  /* วัดความชื้น */
+  if (moistureAction) {
+    const moistureBtn = document.createElement("button");
+    moistureBtn.className = "hand one moisture";
+    moistureBtn.innerText = `วัดความชื้น ${moistureAction}`;
+    moistureBtn.onclick = () => sendAction(moistureAction);
+    area.appendChild(moistureBtn);
+  }
+}
+
+
+
+function backToPointOverlay() {
+  document.getElementById("handOverlay").style.display = "none";
+  document.getElementById("pointOverlayContent").style.display = "block";
+}
+
+function closeGridOverlay(){ document.getElementById("gridOverlay").style.display="none"; }
+
+async function renameSuccess(){
+  const input=document.getElementById("pointNameInput");
+  const name=input.value.trim();
+  if(!name) return;
+  const {error}=await supabaseClient.from("points1").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,name},{onConflict:['user_id','x','y']});
+  if(error) console.error(error.message);
+}
+
+// Upload image
+document.getElementById("pointFileInput").addEventListener("change", async(event)=>{
+  const file=event.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=document.getElementById("pointImage"); img.src=e.target.result; img.style.display="block";
+  };
+  reader.readAsDataURL(file);
+  const fileName=`${currentUser.id}/point-${currentPoint.x}-${currentPoint.y}-${Date.now()}.${file.name.split('.').pop()}`;
+  try{
+    const {data,error}=await supabaseClient.storage.from("grid-images").upload(fileName,file,{cacheControl:"3600",upsert:true});
+    if(error) throw error;
+    const {data:publicData}=supabaseClient.storage.from("grid-images").getPublicUrl(fileName);
+    const imageUrl=publicData.publicUrl;
+    const img=document.getElementById("pointImage"); img.src=imageUrl; img.style.display="block";
+    await supabaseClient.from("points1").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,image_url:imageUrl},{onConflict:['user_id','x','y']});
+  }catch(err){ console.error(err); alert("อัปโหลดรูปไม่สำเร็จ"); }
+});
+
+
+  /* ===== Sidebar Control ===== */
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlayBg");
+const toggle = document.getElementById("sidebarToggle");
+
+// ปุ่มเปิดเมนู
+document.getElementById("menuBtn").addEventListener("click", () => {
+    sidebar.classList.add("active");
+    overlay.style.display = "block";
+    toggle.checked = true; // เล่น animation hamburger → X
+});
+
+// กดปุ่ม hamburger เพื่อปิด
+toggle.addEventListener("change", () => {
+    if (!toggle.checked) {
         sidebar.classList.remove("active");
         overlay.style.display = "none";
-        toggle.checked = false;
-      });
+    }
+});
+
+// กดพื้นหลังปิดเมนู
+overlay.addEventListener("click", () => {
+    sidebar.classList.remove("active");
+    overlay.style.display = "none";
+    toggle.checked = false;
+});
 
 
-      /* ===============================
-         ส่งค่า ACTION ไป Supabase (เฉพาะ A B C ...)
-      ================================ */
-      function sendAction(action) {
-        const btn = event.target;
-        btn.disabled = true;
-        btn.style.cursor = "not-allowed";
+/* ===============================
+   ส่งค่า ACTION ไป SupabaseClient (เฉพาะ A B C ...)
+================================ */
+function sendAction(action) {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.style.cursor = "not-allowed";
 
-        fetch("https://yiaemxmwfxrfrwtogamw.supabase.co/rest/v1/robot_commands1", {
-          method: "POST",
-          headers: {
-            apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw",
-            Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw",
-            "Content-Type": "application/json",
-            "Prefer": "return=minimal"
-          },
-          body: JSON.stringify({
-            action: action,
-            status: "pending"
-          })
+  fetch("https://yiaemxmwfxrfrwtogamw.supabase.co/rest/v1/robot_commands1", {
+    method: "POST",
+    headers: {
+      apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw",
+      Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw",
+      "Content-Type": "application/json",
+      "Prefer": "return=minimal"
+    },
+    body: JSON.stringify({
+    action: action,
+    status: "pending"
+  })
 
-        })
-          .then(async res => {
-            if (!res.ok) {
-              const text = await res.text();
-              throw new Error(text);
-            }
-            alert(`ส่งค่า ${action} แล้ว ✅`);
-          })
-          .catch(err => {
-            console.error("Supabase error:", err.message);
-            alert("ส่งไม่สำเร็จ ❌");
-          })
-          .finally(() => {
-            setTimeout(() => {
-              btn.disabled = false;
-              btn.style.cursor = "pointer";
-            }, 20000);
-          });
-      }
+  })
+  .then(async res => {
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text);
+    }
+    alert(`ส่งค่า ${action} แล้ว ✅`);
+  })
+  .catch(err => {
+    console.error("Supabase error:", err.message);
+    alert("ส่งไม่สำเร็จ ❌");
+  })
+  .finally(() => {
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.style.cursor = "pointer";
+    }, 20000);
+  });
+}
 
-    </script>
+</script>
 </body>
-
 </html>

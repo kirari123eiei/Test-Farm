@@ -450,6 +450,7 @@
   background-color: #9020d1;
 }
 
+
 </style>
 </head>
 <body>
@@ -527,7 +528,7 @@
 
 
 <div id="app">
-  <h1>แขนกลฝั่งติดราง</h1>
+  <h1>แขนกล 1</h1>
 
   <div class="content" style="display:flex;flex-wrap:wrap;gap:30px;align-items:flex-start;justify-content:center;">
     <iframe src="http://192.168.1.112" allow="camera; microphone;"></iframe>
@@ -633,9 +634,8 @@ function initGrid(){
   const grid = document.getElementById("grid");
   grid.innerHTML = "";
 
-  const cols = 3;
+  const cols = 6;
   const rows = 11;
-
   const cellSize = 60;   // 🔥 ปรับตรงนี้ → ช่องใหญ่ขึ้น / เล็กลง
 
   grid.style.width  = `${cellSize * (cols + 1)}px`;
@@ -663,7 +663,7 @@ function initGrid(){
       const px = x * cellSize;
       const py = y * cellSize;
 
-      const pointContainer = document.createElement("point-container");
+      const pointContainer = document.createElement("div"); // ต้องเป็น div
       pointContainer.className = "point-container";
       pointContainer.style.left = `${px}px`;
       pointContainer.style.top = `${py}px`;
@@ -671,11 +671,20 @@ function initGrid(){
       const seed = document.createElement("div");
       seed.className = "seed";
       seed.textContent = "🌱";
-      seed.addEventListener("click", () => openGridOverlay(x, y));
+
+      // เงื่อนไขช่วง 4,1 → 6,11
+      if(x >= 4 && y >= 1){
+        seed.style.opacity = "0.3";
+        seed.style.cursor = "not-allowed";
+      } else {
+        seed.addEventListener("click", () => openGridOverlay(x, y));
+      }
 
       pointContainer.appendChild(seed);
       grid.appendChild(pointContainer);
     }
+  }
+}
 
   /*for(let i=1;i<=cols;i++){
     for(let j=1;j<=rows;j++){
@@ -691,8 +700,7 @@ function initGrid(){
       pointContainer.appendChild(circle);
       grid.appendChild(pointContainer);
     }*/
-  }
-}
+
 
 // Overlay functions
 async function openGridOverlay(x, y) {
@@ -782,7 +790,43 @@ const pointActionMap = {
   "3,8": "D1",
   "3,9": "E1",
   "3,10": "F1",
-  "3,11": "G1"
+  "3,11": "G1",
+
+  "4,1": "A2",
+  "4,2": "B2",
+  "4,3": "C2",
+  "4,4": "D2",
+  "4,5": "E2",
+  "4,6": "F2",
+  "4,7": "G2",
+  "4,8": "H2",
+  "4,9": "I2",
+  "4,10": "J2",
+  "4,11": "K2",
+
+  "5,1": "L2",
+  "5,2": "M2",
+  "5,3": "N2",
+  "5,4": "O2",
+  "5,5": "P2",
+  "5,6": "Q2",
+  "5,7": "R2",
+  "5,8": "S2",
+  "5,9": "T2",
+  "5,10": "U2",
+  "5,11": "V2",
+
+  "6,1": "W2",
+  "6,2": "X2",
+  "6,3": "Y2",
+  "6,4": "Z2",
+  "6,5": "A3",
+  "6,6": "B3",
+  "6,7": "C3",
+  "6,8": "D3",
+  "6,9": "E3",
+  "6,10": "F3",
+  "6,11": "G3"
 };
 
 
@@ -824,7 +868,43 @@ const pointWaterMap = {
   "3,8": "water83",
   "3,9": "water93",
   "3,10": "water103",
-  "3,11": "water113"
+  "3,11": "water113",
+
+  "4,1": "water14",
+  "4,2": "water24",
+  "4,3": "water34",
+  "4,4": "water44",
+  "4,5": "water54",
+  "4,6": "water64",
+  "4,7": "water74",
+  "4,8": "water84",
+  "4,9": "water94",
+  "4,10": "water104",
+  "4,11": "water114",
+
+  "5,1": "water15",
+  "5,2": "water25",
+  "5,3": "water35",
+  "5,4": "water45",
+  "5,5": "water55",
+  "5,6": "water65",
+  "5,7": "water75",
+  "5,8": "water85",
+  "5,9": "water95",
+  "5,10": "water105",
+  "5,11": "water115",
+
+  "6,1": "water16",
+  "6,2": "water26",
+  "6,3": "water36",
+  "6,4": "water46",
+  "6,5": "water56",
+  "6,6": "water66",
+  "6,7": "water76",
+  "6,8": "water86",
+  "6,9": "water96",
+  "6,10": "water106",
+  "6,11": "water116"
 };
 
 
@@ -867,7 +947,43 @@ const pointMoistureMap = {
   "3,8": "moisture83",
   "3,9": "moisture93",
   "3,10": "moisture103",
-  "3,11": "moisture113"
+  "3,11": "moisture113",
+
+  "4,1": "moisture14",
+  "4,2": "moisture24",
+  "4,3": "moisture34",
+  "4,4": "moisture44",
+  "4,5": "moisture54",
+  "4,6": "moisture64",
+  "4,7": "moisture74",
+  "4,8": "moisture84",
+  "4,9": "moisture94",
+  "4,10": "moisture104",
+  "4,11": "moisture114",
+
+  "5,1": "moisture15",
+  "5,2": "moisture25",
+  "5,3": "moisture35",
+  "5,4": "moisture45",
+  "5,5": "moisture55",
+  "5,6": "moisture65",
+  "5,7": "moisture75",
+  "5,8": "moisture85",
+  "5,9": "moisture95",
+  "5,10": "moisture105",
+  "5,11": "moisture115",
+
+  "6,1": "moisture16",
+  "6,2": "moisture26",
+  "6,3": "moisture36",
+  "6,4": "moisture46",
+  "6,5": "moisture56",
+  "6,6": "moisture66",
+  "6,7": "moisture76",
+  "6,8": "moisture86",
+  "6,9": "moisture96",
+  "6,10": "moisture106",
+  "6,11": "moisture116"  
 };
 
 
@@ -985,7 +1101,7 @@ overlay.addEventListener("click", () => {
 
 
 /* ===============================
-   ส่งค่า ACTION ไป Supabase (เฉพาะ A B C ...)
+   ส่งค่า ACTION ไป SupabaseClient (เฉพาะ A B C ...)
 ================================ */
 function sendAction(action) {
   const btn = event.target;

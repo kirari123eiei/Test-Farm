@@ -262,10 +262,10 @@
         <li><a href="index.html" class="menu home text-blue-600">หน้าแรก</a></li>
         <div class="sidebar-divider"></div>
 
-        <li><a href="camera.html" class="menu camera text-blue-600">กล้องและตาราง 1</a></li>
+        <li><a href="camera.html" class="menu camera text-blue-600">แขนกล 1</a></li>
         <div class="sidebar-divider"></div>
 
-        <li><a href="camera2.html" class="menu camera2 text-blue-600">กล้องและตาราง 2</a></li>
+        <li><a href="camera2.html" class="menu camera2 text-blue-600">แขนกล 2</a></li>
         <div class="sidebar-divider"></div>
 
         <li><a href="auto.html" class="menu auto text-blue-600">ระบบอัตโนมัติ</a></li>
@@ -274,7 +274,7 @@
         <li><a href="capture.html" class="menu image text-blue-600">รูปภาพ</a></li>
         <div class="sidebar-divider"></div>
 
-        <li><a href="FAQ.html" class="menu faq text-blue-600">FAQ</a></li>
+        <li><a href="FAQ.html" class="menu faq text-blue-600">ฟังก์ชันอื่นๆ</a></li>
         <div class="sidebar-divider"></div>
     </ul>
 
@@ -322,115 +322,158 @@
     </div>
 
     <!-- Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
     <script>
     const SUPABASE_URL = "https://yiaemxmwfxrfrwtogamw.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw";
-    
-    const supabaseClient = supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_ANON_KEY
-    );
-    
-    const BUCKET_NAME = "esp32-images";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const BUCKET_NAME = 'esp32-images';
     let currentUser = null;
-    
-    /* ===== Auth ===== */
+
+    // ================= ตรวจสอบผู้ใช้ =================
     async function checkUser() {
-      const { data: { session }, error } =
-        await supabaseClient.auth.getSession();
-    
-      if (error || !session) {
-        console.warn("No session");
-        return;
-      }
-    
-      currentUser = session.user;
-      document.getElementById("sidebarUsername").textContent =
-        "ผู้ใช้: " + currentUser.email;
-    
-      loadImages();
-    }
-    
-    /* ===== Load Images ===== */
-    async function loadImages() {
-      const empty = document.getElementById("empty");
-      const grid = document.getElementById("grid");
-    
-      const { data: images, error } = await supabaseClient
-        .from("user_images")
-        .select("image_url, created_at")
-        .order("created_at", { ascending: false });
-    
-        if (error) {
-            console.error("SUPABASE ERROR:", error);
-            empty.style.display = "block";
-            empty.textContent = error.message;
+        const { data: { session } } = await supabaseClient.auth.getSession();
+
+        if (!session || !session.user) {
+            window.location.href = "login.html";
             return;
         }
 
-    
-      if (!images || images.length === 0) {
-        empty.style.display = "block";
-        empty.textContent = "ยังไม่มีรูป";
-        return;
-      }
-    
-      empty.style.display = "none";
-      grid.innerHTML = "";
-    
-      images.forEach(item => {
-        const card = document.createElement("div");
-        card.className = "card";
-    
-        const img = document.createElement("img");
-        img.className = "thumb";
-    
-        let imageUrl = "";
-    
-        if (item.image_url.startsWith("http")) {
-          imageUrl = item.image_url;
-        } else {
-          const { data } = supabaseClient
-            .storage
-            .from(BUCKET_NAME)
-            .getPublicUrl(item.image_url);
-          imageUrl = data.publicUrl;
-        }
-    
-        img.src = imageUrl;
-    
-        card.appendChild(img);
-        grid.appendChild(card);
-      });
+        currentUser = session.user;
+
+        // ✅ แสดงชื่อผู้ใช้ใน Sidebar
+        document.getElementById("sidebarUsername").textContent =
+            `ผู้ใช้: ${currentUser.email}`;
+
+        loadImages();
     }
-    
-    /* ===== Sidebar ===== */
+    checkUser();
+
+    // ================= Logout (Sidebar) =================
+    document.getElementById("sidebarLogoutBtn").addEventListener("click", async () => {
+        const { error } = await supabaseClient.auth.signOut();
+        if (!error) window.location.href = "login.html";
+    });
+
+    // ================= โหลดรูป =================
+    async function loadImages() {
+        const empty = document.getElementById("empty");
+        const grid = document.getElementById("grid");
+
+        if (!currentUser) return;
+
+        const { data: images, error } = await supabaseClient
+            .from("user_images")
+            .select("user_id, image_url, ip_address, created_at")
+            .eq("user_id", currentUser.id)
+            .order("created_at", { ascending: false });
+
+        if (error) {
+            console.error(error);
+            grid.innerHTML = "";
+            empty.style.display = "block";
+            empty.textContent = "เกิดข้อผิดพลาดขณะโหลดข้อมูล";
+            return;
+        }
+
+        if (!images || images.length === 0) {
+            grid.innerHTML = "";
+            empty.style.display = "block";
+            empty.textContent = "ยังไม่มีภาพในระบบ";
+            return;
+        }
+
+        empty.style.display = "none";
+        grid.innerHTML = "";
+
+        images.forEach(item => {
+            const card = document.createElement("div");
+            card.className = "card";
+
+            const img = document.createElement("img");
+            img.className = "thumb";
+
+            let imageUrl = "";
+            if (item.image_url) {
+                if (typeof item.image_url === "object" && item.image_url.path) {
+                    const { data: urlData } = supabaseClient
+                        .storage
+                        .from(BUCKET_NAME)
+                        .getPublicUrl(item.image_url.path);
+                    imageUrl = urlData.publicUrl;
+                } else if (typeof item.image_url === "string") {
+                    imageUrl = item.image_url;
+                }
+            }
+            img.src = imageUrl;
+
+            card.addEventListener("click", () => {
+                document.getElementById("previewImage").src = imageUrl;
+                document.getElementById("previewOverlay").style.display = "flex";
+            });
+
+            const meta = document.createElement("div");
+            meta.className = "meta";
+
+            const title = document.createElement("div");
+            title.className = "title";
+            title.textContent = "Captured by ESP32-CAM";
+
+            const stats = document.createElement("div");
+            stats.className = "stats";
+            stats.textContent =
+                `IP: ${item.ip_address || "ไม่ทราบ"} • ${new Date(item.created_at).toLocaleString()}`;
+
+            meta.appendChild(title);
+            meta.appendChild(stats);
+            card.appendChild(img);
+            card.appendChild(meta);
+            grid.appendChild(card);
+        });
+    }
+
+    document.getElementById("reloadBtn").addEventListener("click", loadImages);
+
+    document.getElementById("closePreview").addEventListener("click", () => {
+        document.getElementById("previewOverlay").style.display = "none";
+    });
+
+    document.getElementById("previewOverlay").addEventListener("click", e => {
+        if (e.target.id === "previewOverlay") {
+            document.getElementById("previewOverlay").style.display = "none";
+        }
+    });
+
+      /* ===== Sidebar Control ===== */
     const sidebar = document.getElementById("sidebar");
     const overlay = document.getElementById("overlayBg");
     const toggle = document.getElementById("sidebarToggle");
-    const closeBtn = document.getElementById("closeSidebarBtn");
 
-    /* เปิด sidebar */
-    document.getElementById("menuBtn").onclick = () => {
+    // ปุ่มเปิดเมนู
+    document.getElementById("menuBtn").addEventListener("click", () => {
         sidebar.classList.add("active");
         overlay.style.display = "block";
-        toggle.checked = true;
-    };
+        toggle.checked = true; // เล่น animation hamburger → X
+    });
 
-    /* ปิด sidebar (คลิกพื้นหลัง) */
-    overlay.onclick = closeSidebar;
+    // กดปุ่ม hamburger เพื่อปิด
+    toggle.addEventListener("change", () => {
+        if (!toggle.checked) {
+            sidebar.classList.remove("active");
+            overlay.style.display = "none";
+        }
+    });
 
-    /* ปิด sidebar (คลิกปุ่ม X) */
-    closeBtn.onclick = closeSidebar;
+    // กดพื้นหลังปิดเมนู
+    overlay.addEventListener("click", () => {
+        sidebar.classList.remove("active");
+        overlay.style.display = "none";
+        toggle.checked = false;
+    });
 
-    function closeSidebar() {
-    sidebar.classList.remove("active");
-    overlay.style.display = "none";
-    toggle.checked = false;
-    }
-    checkUser();
-    </script>    
+</script>
 
 </body>
 </html>

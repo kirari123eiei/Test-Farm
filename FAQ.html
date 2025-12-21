@@ -305,6 +305,10 @@
     color: rgba(255,255,255,0.8);
 }
 
+.manual {
+  text-align: center;
+}
+
 </style>
 </head>
 <body>
@@ -342,10 +346,10 @@
         <li><a href="index.html" class="menu home text-blue-600">หน้าแรก</a></li>
         <div class="sidebar-divider"></div>
 
-        <li><a href="camera.html" class="menu camera text-blue-600">แขนกลฝั่งติดราง</a></li>
+        <li><a href="camera.html" class="menu camera text-blue-600">แขนกล 1</a></li>
         <div class="sidebar-divider"></div>
 
-        <li><a href="camera2.html" class="menu camera2 text-blue-600">แขนกลฝั่งยังไม่ติดราง</a></li>
+        <li><a href="camera2.html" class="menu camera2 text-blue-600">แขนกล 2</a></li>
         <div class="sidebar-divider"></div>
 
         <li><a href="auto.html" class="menu auto text-blue-600">ระบบอัตโนมัติ</a></li>
@@ -382,92 +386,195 @@
 
 <h1>ฟังก์ชันอื่นๆ</h1>
 
-<div class="flex justify-between items-start w-full mt-8 px-4 gap-4">
-  <!-- ซ้าย: Weather (การ์ด + ปุ่ม) -->
-<div class="flex flex-col gap-4">
-  <!-- Weather Card -->
-  <div id="weatherCard" class="weather hidden group relative w-80 p-6">
-    <!-- inner-card สำหรับ style คล้าย Klabot -->
-    <div class="inner-card relative overflow-hidden rounded-2xl shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
-      
-      <!-- Header -->
-      <div class="flex items-center justify-between">
-        <div>
-          <h3 id="city" class="text-lg font-semibold text-white">-</h3>
-          <p class="text-sm text-white/80">Thailand</p>
-        </div>
-      </div>
+<div class="flex w-full gap-8">
 
-      <!-- Temp -->
-      <div class="mt-8 flex items-center justify-between">
-        <div class="flex items-start">
-          <span id="temp" class="text-6xl font-bold text-white">--</span>
-          <span class="mt-1 text-2xl text-white/80">°C</span>
-        </div>
-      </div>
+  <!-- Div ซ้าย -->
+  <div class="flex-1 flex flex-col items-start gap-4">
+    <h1 class="manual text-left">คู่มือการใช้งาน</h1>
 
-      <!-- Details -->
-      <div class="mt-8 grid grid-cols-3 gap-4 rounded-xl bg-white/20 p-4 backdrop-blur-sm">
-        <div class="flex flex-col items-center gap-1">
-          <span class="text-sm font-medium text-white">Humidity</span>
-          <span id="humidity" class="text-lg font-semibold text-white">--%</span>
-        </div>
-        <div class="flex flex-col items-center gap-1">
-          <span class="text-sm font-medium text-white">Wind</span>
-          <span id="wind" class="text-lg font-semibold text-white">-- m/s</span>
-        </div>
-        <div class="flex flex-col items-center gap-1">
-          <span class="text-sm font-medium text-white">Weather</span>
-          <span id="desc" class="text-sm font-semibold text-white text-center">--</span>
-        </div>
-      </div>
 
+    <div>
+      <h3>การติดตั้งเครื่องเพาะปลูกต้นกล้า</h3>
     </div>
-  </div>
 
-  <button id="weatherBtn" onclick="getWeather()" class="weatherbtn">
-    <span class="flex items-center gap-2">
-      ดูสภาพอากาศ
-      <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" class="w-5 h-5">
-        <path d="M17 8l4 4m0 0l-4 4m4-4H3" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path>
-      </svg>
-    </span>
+    <div>
+      <h3>การตั้งค่าเครื่องเพาะปลูกต้นกล้า</h3>
+    </div>
+
+    <div>
+      <h3>การใช้งานเว็บไซต์</h3>
+    </div>
+
+    <div>
+      <h3>การส่งแจ้งเตือนการทำงาน</h3>
+    </div>
+</div>
+
+
+<!-- ขวา -->
+<div class="flex flex-col gap-4 w-80 mt-8 px-4">
+
+  <!-- ขวา: Weather + Klabot + Feedback -->
+  <div class="flex flex-col gap-4 w-80">
+
+    <!-- Weather -->
+    <div class="flex flex-col gap-4">
+      <div id="weatherCard" class="weather group relative w-80 p-6">
+        <div class="inner-card relative overflow-hidden rounded-2xl shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
+
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 id="city" class="text-lg font-semibold text-white">-</h3>
+              <p class="text-sm text-white/80">Thailand</p>
+            </div>
+          </div>
+
+          <div class="mt-8 flex items-center justify-between">
+            <div class="flex items-start">
+              <span id="temp" class="text-6xl font-bold text-white">--</span>
+              <span class="mt-1 text-2xl text-white/80">°C</span>
+            </div>
+          </div>
+
+          <div class="mt-8 grid grid-cols-3 gap-4 rounded-xl bg-white/20 p-4 backdrop-blur-sm">
+            <div class="flex flex-col items-center gap-1">
+              <span class="text-sm font-medium text-white">Humidity</span>
+              <span id="humidity" class="text-lg font-semibold text-white">--%</span>
+            </div>
+            <div class="flex flex-col items-center gap-1">
+              <span class="text-sm font-medium text-white">Wind</span>
+              <span id="wind" class="text-lg font-semibold text-white">-- m/s</span>
+            </div>
+            <div class="flex flex-col items-center gap-1">
+              <span class="text-sm font-medium text-white">Weather</span>
+              <span id="desc" class="text-sm font-semibold text-white text-center">--</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Klabot Card -->
+    <div class="relative flex gap-4 mt-8 w-80 flex-col rounded-xl bg-gradient-to-br from-white to-gray-50 bg-clip-border text-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+      <div class="relative mx-4 -mt-6 h-40 overflow-hidden rounded-xl bg-clip-border shadow-lg group">
+        <img 
+          src="https://github.com/kirari123eiei/Test-Farm/blob/main/public/Klabot.jpg?raw=true" 
+          alt="Klabot Banner" 
+          class="absolute inset-0 w-full h-full object-cover"
+        />
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:20px_20px] animate-pulse"></div>
+      </div>
+
+      <div class="p-6">
+        <h5 class="mb-2 block text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
+          Klabot
+        </h5>
+        <p class="text-base font-light text-gray-700">
+          หากต้องการให้ส่งแจ้งเตือนการทำงานผ่านทางไลน์ของ Klabot
+        </p>
+      </div>
+
+      <div class="p-6 pt-0">
+        <a href="https://lin.ee/0LnQrNy" target="_blank" class="add group relative w-full inline-flex items-center justify-center px-6 py-3 font-bold text-white rounded-lg hover:-translate-y-0.5">
+          <span class="relative flex items-center gap-2">
+            Add Line
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" class="w-5 h-5 group-hover:translate-x-1">
+              <path d="M17 8l4 4m0 0l-4 4m4-4H3" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path>
+            </svg>
+          </span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Feedback -->
+    <div
+  class="mt-6 bg-gradient-to-br from-white to-slate-50 border border-slate-200 grid grid-cols-6 gap-3 rounded-xl p-4 text-sm shadow-lg hover:shadow-xl transition-all duration-300"
+>
+  <h1
+    class="text-center bg-gradient-to-r from-slate-600 to-slate-800 bg-clip-text text-transparent text-2xl font-bold text-black col-span-6 mb-2"
+  >
+    Send Feedback
+  </h1>
+
+  <textarea
+    id="feedbackInput"
+    class="bg-slate-50/80 text-slate-600 h-32 placeholder:text-slate-400 border border-slate-200 col-span-6 resize-none outline-none rounded-lg p-3 duration-300 hover:bg-slate-50 focus:border-slate-600 focus:ring-2 focus:ring-slate-200 focus:shadow-inner"
+    placeholder="Your feedback..."
+  ></textarea>
+
+  <!-- Emoji SVG Buttons -->
+  <button
+    class="fill-slate-600 col-span-1 flex justify-center items-center rounded-lg p-3 duration-300 bg-slate-50/80 hover:bg-slate-100 hover:border-slate-600 active:scale-95 focus:fill-blue-200 focus:bg-blue-400 border border-slate-200 hover:shadow-md group"
+    type="button"
+  >
+    <svg
+      class="transform transition-transform group-hover:scale-110 duration-200"
+      viewBox="0 0 512 512"
+      height="20px"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm177.6 62.1C192.8 334.5 218.8 352 256 352s63.2-17.5 78.4-33.9c9-9.7 24.2-10.4 33.9-1.4s10.4 24.2 1.4 33.9c-22 23.8-60 49.4-113.6 49.4s-91.7-25.5-113.6-49.4c-9-9.7-8.4-24.9 1.4-33.9s24.9-8.4 33.9 1.4zM144.4 208a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm192-32a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"
+      ></path>
+    </svg>
   </button>
 
+  <button
+    class="fill-slate-600 col-span-1 flex justify-center items-center rounded-lg p-3 duration-300 bg-slate-50/80 hover:bg-slate-100 hover:border-slate-600 active:scale-95 focus:fill-blue-200 focus:bg-blue-400 border border-slate-200 hover:shadow-md group"
+    type="button"
+  >
+    <svg
+      class="transform transition-transform group-hover:scale-110 duration-200"
+      viewBox="0 0 512 512"
+      height="20px"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zM174.6 384.1c-4.5 12.5-18.2 18.9-30.7 14.4s-18.9-18.2-14.4-30.7C146.9 319.4 198.9 288 256 288s109.1 31.4 126.6 79.9c4.5 12.5-2 26.2-14.4 30.7s-26.2-2-30.7-14.4C328.2 358.5 297.2 336 256 336s-72.2 22.5-81.4 48.1zM144.4 208a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm192-32a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"
+      ></path>
+    </svg>
+  </button>
+
+  <span class="col-span-2"></span>
+
+  <!-- Send Button -->
+  <button
+    id="sendFeedback"
+    class="bg-slate-50/80 stroke-slate-600 border border-slate-200 col-span-2 flex items-center justify-center gap-2 rounded-lg p-3 duration-300 hover:bg-slate-100 hover:border-slate-600 active:scale-95 focus:stroke-blue-200 focus:bg-blue-400 hover:shadow-md group"
+  >
+    <svg
+      class="transform transition-transform group-hover:translate-x-1 duration-200"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24px"
+      height="24px"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M7.39999 6.32003L15.89 3.49003C19.7 2.22003 21.77 4.30003 20.51 8.11003L17.68 16.6C15.78 22.31 12.66 22.31 10.76 16.6L9.91999 14.08L7.39999 13.24C1.68999 11.34 1.68999 8.23003 7.39999 6.32003Z"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke="currentColor"
+      ></path>
+      <path
+        d="M10.11 13.6501L13.69 10.0601"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke="currentColor"
+      ></path>
+    </svg>
+    <span class="font-medium text-slate-600 group-hover:text-slate-800">Send</span>
+  </button>
 </div>
 
 
-  <!-- ขวา: Klabot Card -->
-  <div class="relative flex w-80 flex-col rounded-xl bg-gradient-to-br from-white to-gray-50 bg-clip-border text-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-    <div class="relative mx-4 -mt-6 h-40 overflow-hidden rounded-xl bg-clip-border shadow-lg group">
-      <img 
-        src="https://github.com/kirari123eiei/Test-Farm/blob/main/public/Klabot.jpg?raw=true" 
-        alt="Klabot Banner" 
-        class="absolute inset-0 w-full h-full object-cover"
-      />
-      <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:20px_20px] animate-pulse"></div>
-    </div>
-    <div class="p-6">
-      <h5 class="mb-2 block font-sans text-xl font-semibold leading-snug tracking-normal text-gray-900 antialiased group-hover:text-blue-600 transition-colors duration-300">
-        Klabot
-      </h5>
-      <p class="block font-sans text-base font-light leading-relaxed text-gray-700 antialiased">
-        หากต้องการให้ส่งแจ้งเตือนการทำงานผ่านทางไลน์ของ Klabot
-      </p>
-    </div>
-    <div class="p-6 pt-0">
-      <a href="https://lin.ee/0LnQrNy" target="_blank" class="add group relative w-full inline-flex items-center justify-center px-6 py-3 font-bold text-white rounded-lg hover:-translate-y-0.5">
-        <span class="relative flex items-center gap-2">
-          Add Line
-          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" class="w-5 h-5 transform transition-transform group-hover:translate-x-1">
-            <path d="M17 8l4 4m0 0l-4 4m4-4H3" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path>
-          </svg>
-        </span>
-      </a>
-    </div>
   </div>
 </div>
 
+</div>
 
 
 
@@ -478,7 +585,7 @@
 <script>
 const SUPABASE_URL = "https://yiaemxmwfxrfrwtogamw.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw";
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
 let currentPoint = {x:0,y:0};
@@ -486,7 +593,7 @@ let chart = null;
 
 // เช็ค user
 async function checkUser(){
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await supabaseClient.auth.getSession();
   if(!session || !session.user){ window.location.href="login.html"; return; }
   currentUser = session.user;
   document.getElementById("sidebarUsername").textContent = `ผู้ใช้: ${currentUser.email}`;
@@ -497,7 +604,7 @@ checkUser();
 
 // logout
 document.getElementById("sidebarLogoutBtn").addEventListener("click", async ()=>{
-  const {error} = await supabase.auth.signOut();
+  const {error} = await supabaseClient.auth.signOut();
   if(error) console.error(error.message); else window.location.href="login.html";
 });
 
@@ -534,14 +641,6 @@ function getWeather() {
   )
     .then(res => res.json())
     .then(data => {
-      // แสดง Weather Card
-      document.getElementById("weatherCard").classList.remove("hidden");
-
-      // ซ่อนปุ่มแบบสมูท
-      const btn = document.getElementById("weatherBtn");
-      if (btn) btn.classList.add("hide");
-
-      // กำหนดค่า Weather
       document.getElementById("city").textContent = data.name;
       document.getElementById("temp").textContent = Math.round(data.main.temp);
       document.getElementById("humidity").textContent =
@@ -552,10 +651,44 @@ function getWeather() {
         data.weather[0].description;
     })
     .catch(err => {
-      alert("โหลดข้อมูลไม่สำเร็จ");
       console.error(err);
     });
 }
+
+    document.addEventListener("DOMContentLoaded", () => {
+    getWeather();
+  });
+
+
+//Feedback
+    document.getElementById("sendFeedback").addEventListener("click", async () => {
+  const feedback = document.getElementById("feedbackInput").value.trim();
+
+  if (!feedback) {
+    alert("กรุณาใส่ feedback");
+    return;
+  }
+
+  if (!currentUser) {
+    alert("ยังไม่ได้เข้าสู่ระบบ");
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from("feedbacks")
+    .insert({
+      user_id: currentUser.id,
+      feedback: feedback
+    });
+
+  if (error) {
+    console.error(error);
+    alert("ส่ง feedback ไม่สำเร็จ");
+  } else {
+    alert("ส่ง feedback สำเร็จ ✅");
+    document.getElementById("feedbackInput").value = "";
+  }
+});
 </script>
 </body>
 </html>
