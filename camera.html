@@ -551,10 +551,10 @@ input:checked + .slider:before {
         <li><a href="index.html" class="menu home text-blue-600">หน้าแรก</a></li>
         <div class="sidebar-divider"></div> 
 
-        <li><a href="camera.html" class="menu camera text-blue-600">แขนกลฝั่งติดราง</a></li>
+        <li><a href="camera.html" class="menu camera text-blue-600">แขนกล 1</a></li>
         <div class="sidebar-divider"></div>
 
-        <li><a href="camera2.html" class="menu camera2 text-blue-600">แขนกลฝั่งยังไม่ติดราง</a></li>
+        <li><a href="camera2.html" class="menu camera2 text-blue-600">แขนกล 2</a></li>
         <div class="sidebar-divider"></div>
 
         <li><a href="auto.html" class="menu auto text-blue-600">ระบบอัตโนมัติ</a></li>
@@ -607,6 +607,19 @@ input:checked + .slider:before {
           <span class="slider"></span>
         </label>
       </div>
+
+      <div style="display:flex; align-items:center; gap:16px;">
+        <h2 style="margin:0;">
+          สถานะโซลาร์เซลล์: <span id="solarStatus">---</span>
+        </h2>
+
+        <label class="switch">
+          <input type="checkbox" id="solarSwitch">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      
     </div>
     <div class="grid-container" id="grid"></div>
   </div>
@@ -782,9 +795,20 @@ function initGrid(){
 // Overlay functions
 async function openGridOverlay(x, y) {
   currentPoint = { x, y };
+
   const overlay = document.getElementById("gridOverlay");
   overlay.style.display = "block";
+
   document.getElementById("pointTitle").textContent = `จุด (${x},${y})`;
+
+  // ⭐ หน่วง 1 tick กันคลิกเดียวกันปิด overlay
+  setTimeout(() => {
+    document.addEventListener("click", outsideOverlayClick);
+  }, 0);
+
+
+  
+  
 
   // โหลดชื่อและรูป
   const { data, error } = await supabaseClient.from("points").select("*").eq("user_id", currentUser.id).eq("x", x).eq("y", y).single();
@@ -828,6 +852,8 @@ async function openGridOverlay(x, y) {
     }
   });
 }
+
+
 
 /* ===============================
    MAP จุด → ACTION แขนกล
@@ -911,158 +937,157 @@ const pointActionMap = {
    MAP จุด → ACTION รดน้ำ
 ================================ */
 const pointWaterMap = {
-  "1,1": "water_1_1",
-  "1,2": "water_1_2",
-  "1,3": "water_1_3",
-  "1,4": "water_1_4",
-  "1,5": "water_1_5",
-  "1,6": "water_1_6",
-  "1,7": "water_1_7",
-  "1,8": "water_1_8",
-  "1,9": "water_1_9",
-  "1,10": "water_1_10",
-  "1,11": "water_1_11",
+  "1,1": "water_A_1_1",
+  "1,2": "water_A_1_2",
+  "1,3": "water_A_1_3",
+  "1,4": "water_A_1_4",
+  "1,5": "water_A_1_5",
+  "1,6": "water_A_1_6",
+  "1,7": "water_A_1_7",
+  "1,8": "water_A_1_8",
+  "1,9": "water_A_1_9",
+  "1,10": "water_A_1_10",
+  "1,11": "water_A_1_11",
 
-  "2,1": "water_2_1",
-  "2,2": "water_2_2",
-  "2,3": "water_2_3",
-  "2,4": "water_2_4",
-  "2,5": "water_2_5",
-  "2,6": "water_2_6",
-  "2,7": "water_2_7",
-  "2,8": "water_2_8",
-  "2,9": "water_2_9",
-  "2,10": "water_2_10",
-  "2,11": "water_2_11",
+  "2,1": "water_A_2_1",
+  "2,2": "water_A_2_2",
+  "2,3": "water_A_2_3",
+  "2,4": "water_A_2_4",
+  "2,5": "water_A_2_5",
+  "2,6": "water_A_2_6",
+  "2,7": "water_A_2_7",
+  "2,8": "water_A_2_8",
+  "2,9": "water_A_2_9",
+  "2,10": "water_A_2_10",
+  "2,11": "water_A_2_11",
 
-  "3,1": "water_3_1",
-  "3,2": "water_3_2",
-  "3,3": "water_3_3",
-  "3,4": "water_3_4",
-  "3,5": "water_3_5",
-  "3,6": "water_3_6",
-  "3,7": "water_3_7",
-  "3,8": "water_3_8",
-  "3,9": "water_3_9",
-  "3,10": "water_3_10",
-  "3,11": "water_3_11",
+  "3,1": "water_A_3_1",
+  "3,2": "water_A_3_2",
+  "3,3": "water_A_3_3",
+  "3,4": "water_A_3_4",
+  "3,5": "water_A_3_5",
+  "3,6": "water_A_3_6",
+  "3,7": "water_A_3_7",
+  "3,8": "water_A_3_8",
+  "3,9": "water_A_3_9",
+  "3,10": "water_A_3_10",
+  "3,11": "water_A_3_11",
 
-  "4,1": "water_4_1",
-  "4,2": "water_4_2",
-  "4,3": "water_4_3",
-  "4,4": "water_4_4",
-  "4,5": "water_4_5",
-  "4,6": "water_4_6",
-  "4,7": "water_4_7",
-  "4,8": "water_4_8",
-  "4,9": "water_4_9",
-  "4,10": "water_4_10",
-  "4,11": "water_4_11",
+  "4,1": "water_A_4_1",
+  "4,2": "water_A_4_2",
+  "4,3": "water_A_4_3",
+  "4,4": "water_A_4_4",
+  "4,5": "water_A_4_5",
+  "4,6": "water_A_4_6",
+  "4,7": "water_A_4_7",
+  "4,8": "water_A_4_8",
+  "4,9": "water_A_4_9",
+  "4,10": "water_A_4_10",
+  "4,11": "water_A_4_11",
 
-  "5,1": "water_5_1",
-  "5,2": "water_5_2",
-  "5,3": "water_5_3",
-  "5,4": "water_5_4",
-  "5,5": "water_5_5",
-  "5,6": "water_5_6",
-  "5,7": "water_5_7",
-  "5,8": "water_5_8",
-  "5,9": "water_5_9",
-  "5,10": "water_5_10",
-  "5,11": "water_5_11",
+  "5,1": "water_A_5_1",
+  "5,2": "water_A_5_2",
+  "5,3": "water_A_5_3",
+  "5,4": "water_A_5_4",
+  "5,5": "water_A_5_5",
+  "5,6": "water_A_5_6",
+  "5,7": "water_A_5_7",
+  "5,8": "water_A_5_8",
+  "5,9": "water_A_5_9",
+  "5,10": "water_A_5_10",
+  "5,11": "water_A_5_11",
 
-  "6,1": "water_6_1",
-  "6,2": "water_6_2",
-  "6,3": "water_6_3",
-  "6,4": "water_6_4",
-  "6,5": "water_6_5",
-  "6,6": "water_6_6",
-  "6,7": "water_6_7",
-  "6,8": "water_6_8",
-  "6,9": "water_6_9",
-  "6,10": "water_6_10",
-  "6,11": "water_6_11"
+  "6,1": "water_A_6_1",
+  "6,2": "water_A_6_2",
+  "6,3": "water_A_6_3",
+  "6,4": "water_A_6_4",
+  "6,5": "water_A_6_5",
+  "6,6": "water_A_6_6",
+  "6,7": "water_A_6_7",
+  "6,8": "water_A_6_8",
+  "6,9": "water_A_6_9",
+  "6,10": "water_A_6_10",
+  "6,11": "water_A_6_11"
 };
-
-
 
 
 /* ===============================
    MAP จุด → ACTION วัดความชื้น
 ================================ */
 const pointMoistureMap = {
-  "1,1": "moisture_1_1",
-  "1,2": "moisture_1_2",
-  "1,3": "moisture_1_3",
-  "1,4": "moisture_1_4",
-  "1,5": "moisture_1_5",
-  "1,6": "moisture_1_6",
-  "1,7": "moisture_1_7",
-  "1,8": "moisture_1_8",
-  "1,9": "moisture_1_9",
-  "1,10": "moisture_1_10",
-  "1,11": "moisture_1_11",
+  "1,1": "moisture_A_1_1",
+  "1,2": "moisture_A_1_2",
+  "1,3": "moisture_A_1_3",
+  "1,4": "moisture_A_1_4",
+  "1,5": "moisture_A_1_5",
+  "1,6": "moisture_A_1_6",
+  "1,7": "moisture_A_1_7",
+  "1,8": "moisture_A_1_8",
+  "1,9": "moisture_A_1_9",
+  "1,10": "moisture_A_1_10",
+  "1,11": "moisture_A_1_11",
 
-  "2,1": "moisture_2_1",
-  "2,2": "moisture_2_2",
-  "2,3": "moisture_2_3",
-  "2,4": "moisture_2_4",
-  "2,5": "moisture_2_5",
-  "2,6": "moisture_2_6",
-  "2,7": "moisture_2_7",
-  "2,8": "moisture_2_8",
-  "2,9": "moisture_2_9",
-  "2,10": "moisture_2_10",
-  "2,11": "moisture_2_11",
+  "2,1": "moisture_A_2_1",
+  "2,2": "moisture_A_2_2",
+  "2,3": "moisture_A_2_3",
+  "2,4": "moisture_A_2_4",
+  "2,5": "moisture_A_2_5",
+  "2,6": "moisture_A_2_6",
+  "2,7": "moisture_A_2_7",
+  "2,8": "moisture_A_2_8",
+  "2,9": "moisture_A_2_9",
+  "2,10": "moisture_A_2_10",
+  "2,11": "moisture_A_2_11",
 
-  "3,1": "moisture_3_1",
-  "3,2": "moisture_3_2",
-  "3,3": "moisture_3_3",
-  "3,4": "moisture_3_4",
-  "3,5": "moisture_3_5",
-  "3,6": "moisture_3_6",
-  "3,7": "moisture_3_7",
-  "3,8": "moisture_3_8",
-  "3,9": "moisture_3_9",
-  "3,10": "moisture_3_10",
-  "3,11": "moisture_3_11",
+  "3,1": "moisture_A_3_1",
+  "3,2": "moisture_A_3_2",
+  "3,3": "moisture_A_3_3",
+  "3,4": "moisture_A_3_4",
+  "3,5": "moisture_A_3_5",
+  "3,6": "moisture_A_3_6",
+  "3,7": "moisture_A_3_7",
+  "3,8": "moisture_A_3_8",
+  "3,9": "moisture_A_3_9",
+  "3,10": "moisture_A_3_10",
+  "3,11": "moisture_A_3_11",
 
-  "4,1": "moisture_4_1",
-  "4,2": "moisture_4_2",
-  "4,3": "moisture_4_3",
-  "4,4": "moisture_4_4",
-  "4,5": "moisture_4_5",
-  "4,6": "moisture_4_6",
-  "4,7": "moisture_4_7",
-  "4,8": "moisture_4_8",
-  "4,9": "moisture_4_9",
-  "4,10": "moisture_4_10",
-  "4,11": "moisture_4_11",
+  "4,1": "moisture_A_4_1",
+  "4,2": "moisture_A_4_2",
+  "4,3": "moisture_A_4_3",
+  "4,4": "moisture_A_4_4",
+  "4,5": "moisture_A_4_5",
+  "4,6": "moisture_A_4_6",
+  "4,7": "moisture_A_4_7",
+  "4,8": "moisture_A_4_8",
+  "4,9": "moisture_A_4_9",
+  "4,10": "moisture_A_4_10",
+  "4,11": "moisture_A_4_11",
 
-  "5,1": "moisture_5_1",
-  "5,2": "moisture_5_2",
-  "5,3": "moisture_5_3",
-  "5,4": "moisture_5_4",
-  "5,5": "moisture_5_5",
-  "5,6": "moisture_5_6",
-  "5,7": "moisture_5_7",
-  "5,8": "moisture_5_8",
-  "5,9": "moisture_5_9",
-  "5,10": "moisture_5_10",
-  "5,11": "moisture_5_11",
+  "5,1": "moisture_A_5_1",
+  "5,2": "moisture_A_5_2",
+  "5,3": "moisture_A_5_3",
+  "5,4": "moisture_A_5_4",
+  "5,5": "moisture_A_5_5",
+  "5,6": "moisture_A_5_6",
+  "5,7": "moisture_A_5_7",
+  "5,8": "moisture_A_5_8",
+  "5,9": "moisture_A_5_9",
+  "5,10": "moisture_A_5_10",
+  "5,11": "moisture_A_5_11",
 
-  "6,1": "moisture_6_1",
-  "6,2": "moisture_6_2",
-  "6,3": "moisture_6_3",
-  "6,4": "moisture_6_4",
-  "6,5": "moisture_6_5",
-  "6,6": "moisture_6_6",
-  "6,7": "moisture_6_7",
-  "6,8": "moisture_6_8",
-  "6,9": "moisture_6_9",
-  "6,10": "moisture_6_10",
-  "6,11": "moisture_6_11"
+  "6,1": "moisture_A_6_1",
+  "6,2": "moisture_A_6_2",
+  "6,3": "moisture_A_6_3",
+  "6,4": "moisture_A_6_4",
+  "6,5": "moisture_A_6_5",
+  "6,6": "moisture_A_6_6",
+  "6,7": "moisture_A_6_7",
+  "6,8": "moisture_A_6_8",
+  "6,9": "moisture_A_6_9",
+  "6,10": "moisture_A_6_10",
+  "6,11": "moisture_A_6_11"
 };
+
 
 
 
@@ -1251,6 +1276,58 @@ lightSwitch.addEventListener("change", () => {
     client.publish(topicSet, "OFF");
   }
 });
+
+// 🔹 topic ของ solarcell
+const solarSet = "Klabot/room1/solar/set";
+const solarStatus = "Klabot/room1/solar/status";
+
+const statusText1 = document.getElementById("solarStatus");
+const solarSwitch = document.getElementById("solarSwitch");
+
+// เชื่อมต่อ MQTT
+client.on('connect', () => {
+  client.subscribe(solarStatus);
+});
+
+// รับสถานะจากอุปกรณ์
+client.on('message', (topic, message) => {
+  if (topic === solarStatus) {
+    const state = message.toString();
+    statusText1.innerText = state;
+
+    // sync switch กับสถานะจริง
+    solarSwitch.checked = (state === "ON");
+  }
+});
+
+// เมื่อกด switch
+solarSwitch.addEventListener("change", () => {
+  if (solarSwitch.checked) {
+    client.publish(solarSet, "ON");
+  } else {
+    client.publish(solarSet, "OFF");
+  }
+});
+
+
+
+function closeGridOverlay() {
+  document.getElementById("gridOverlay").style.display = "none";
+  document.removeEventListener("click", outsideOverlayClick);
+}
+
+document.getElementById("gridOverlay").addEventListener("click", function (e) {
+  e.stopPropagation();
+});
+
+function outsideOverlayClick(e) {
+  const overlay = document.getElementById("gridOverlay");
+
+  if (!overlay.contains(e.target)) {
+    closeGridOverlay();
+  }
+}
+
 
 </script>
 </body>
