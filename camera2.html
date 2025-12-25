@@ -514,6 +514,63 @@ input:checked + .slider:before {
   background-color: #fff;
 }
 
+/* ===== Tooltip ของจุด ===== */
+.point-tooltip {
+  position: absolute;
+  bottom: 130%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.8);
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 20;
+}
+
+.point-container:hover .point-tooltip {
+  opacity: 1;
+}
+
+.mode-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.5s;
+  border: none;
+  margin: 10px;
+  margin-bottom: 20px;
+  color: white;
+}
+
+/* Hover */
+.mode-btn:hover {
+  background-color: #1e40af;
+}
+
+.mode-btn:active {
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+/* Active */
+.mode-btn.active {
+  background: #1e40af;
+  opacity: 1;
+}
+
+/* Inactive */
+.mode-btn.inactive {
+  background: #7c828d;
+  opacity: 0.55;
+}
+
+
+
 </style>
 </head>
 <body>
@@ -591,11 +648,29 @@ input:checked + .slider:before {
 
 
 <div id="app">
-  <h1>แขนกล 2</h1>
+  <h1>แขนกล 1</h1>
 
   <div class="content" style="display:flex;flex-wrap:wrap;gap:30px;align-items:flex-start;justify-content:center;">
     <div>
       <iframe src="http://10.65.154.188" allow="camera; microphone;"></iframe>
+
+          <!-- ===== ปุ่มเลือกโหมด ===== -->
+    <div style="display:flex;gap:10px;margin-top:10px;justify-content:center;">
+      <button id="detailModeBtn"
+        class="mode-btn active"
+        onclick="setOverlayMode('detail')">
+        โหมดดูรายละเอียด
+      </button>
+
+      <button id="handModeBtn"
+        class="mode-btn inactive"
+        onclick="setOverlayMode('hand')">
+        โหมดสั่งแขนกล
+      </button>
+    </div>
+
+
+
 
       <div style="display:flex; align-items:center; gap:16px;">
         <h2 style="margin:0;">
@@ -667,23 +742,13 @@ input:checked + .slider:before {
     <img id="pointImage"
       style="width:100%;display:none;border-radius:6px;margin-bottom:10px;">
 
-    <canvas id="pointChart" width="300" height="150"></canvas>
+    <canvas id="pointChart" width="300" height="180"></canvas>
 
-    <button class="hand" onclick="openHandOverlay()">ฟังก์ชันแขนกล</button>
+        <!-- ===== ปุ่มแขนกล (ใช้ในโหมดสั่งแขนกล) ===== -->
+    <div id="inlineHandArea" style="display:none;margin-top:10px;"></div>
+
     
   </div>
-
-  <!-- ===== Overlay แขนกล ===== -->
-    <div id="handOverlay" style="display:none;">
-
-      <button class="grid-back-btn" onclick="backToPointOverlay()">← ย้อนกลับ</button>
-
-      <h2 style="text-align:center;margin-top:20px;">ฟังก์ชันแขนกล</h2>
-      <div class="sidebar-divider line"></div>
-
-      <div id="handButtonArea" style="text-align:center;"></div>
-
-    </div>
 </div>
 
 
@@ -748,33 +813,55 @@ function initGrid(){
   }
 
   /* จุด 🌱 */
-  for(let x = 1; x <= cols; x++){
-    for(let y = 1; y <= rows; y++){
-      const px = x * cellSize;
-      const py = y * cellSize;
+for(let x = 1; x <= cols; x++){
+  for(let y = 1; y <= rows; y++){
+    const px = x * cellSize;
+    const py = y * cellSize;
 
-      const pointContainer = document.createElement("div"); // ต้องเป็น div
-      pointContainer.className = "point-container";
-      pointContainer.style.left = `${px}px`;
-      pointContainer.style.top = `${py}px`;
+    const pointContainer = document.createElement("div");
+    pointContainer.className = "point-container";
+    pointContainer.style.left = `${px}px`;
+    pointContainer.style.top = `${py}px`;
 
-      const seed = document.createElement("div");
-      seed.className = "seed";
-      seed.textContent = "🌱";
+    const seed = document.createElement("div");
+    seed.className = "seed";
+    seed.textContent = "🌱";
 
-      // กำหนดช่วง disable
-      const disabled = (x >= 1 && x <= 3);
-      if(disabled){
-          seed.style.opacity = "0.3";
-          seed.style.cursor = "not-allowed";
-      } else {
-          seed.addEventListener("click", () => openGridOverlay(x, y));
-      }
+    // tooltip
+    const tooltip = document.createElement("div");
+    tooltip.className = "point-tooltip";
+    tooltip.textContent = `(${x}, ${y})`;
 
-      pointContainer.appendChild(seed);
-      grid.appendChild(pointContainer);
+    // โหลดชื่อจุดจาก Supabase ตอน hover
+    pointContainer.addEventListener("mouseenter", async () => {
+    const { data } = await supabaseClient
+      .from("points")
+      .select("name")
+      .eq("user_id", currentUser.id)
+      .eq("x", x)
+      .eq("y", y)
+      .single();
+
+    tooltip.innerHTML = `
+      ตำแหน่ง: (${x},${y})<br>
+      ชื่อ: ${data?.name || "-"}
+    `;
+  });
+
+    // ===== กำหนดช่วง disable =====
+    const disabled = (x >= 1 && x <= 3);
+    if (disabled) {
+      seed.style.opacity = "0.3";
+      seed.style.cursor = "not-allowed";
+    } else {
+      seed.addEventListener("click", () => openGridOverlay(x, y));
     }
+
+    pointContainer.appendChild(seed);
+    pointContainer.appendChild(tooltip);
+    grid.appendChild(pointContainer);
   }
+}
 }
 
   /*for(let i=1;i<=cols;i++){
@@ -806,6 +893,8 @@ async function openGridOverlay(x, y) {
   setTimeout(() => {
     document.addEventListener("click", outsideOverlayClick);
   }, 0);
+
+  setOverlayMode(overlayMode);
   
 
   // โหลดชื่อและรูป
@@ -829,7 +918,14 @@ async function openGridOverlay(x, y) {
 
   // กำหนด chart overlay pointChart
   const ctx = document.getElementById("pointChart").getContext("2d");
+  // สร้างกราฟเฉพาะโหมดดูรายละเอียด
+if (overlayMode === "detail") {
+  const canvas = document.getElementById("pointChart");
+  canvas.style.display = "block";
+
+  const ctx = canvas.getContext("2d");
   if (chart) chart.destroy();
+
   chart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -846,9 +942,21 @@ async function openGridOverlay(x, y) {
     options: {
       responsive: false,
       plugins: { legend: { display: false } },
-      scales: { x: { display: true }, y: { display: true, min: 0, max: 100 } }
+      scales: {
+        x: { display: true },
+        y: { display: true, min: 0, max: 100 }
+      }
     }
   });
+} else {
+  // โหมดสั่งแขนกล → ซ่อนกราฟ + ทำลาย chart
+  if (chart) {
+    chart.destroy();
+    chart = null;
+  }
+  document.getElementById("pointChart").style.display = "none";
+}
+
 }
 
 /* ===============================
@@ -1090,50 +1198,40 @@ const pointMoistureMap = {
 
 
 
-function openHandOverlay() {
-  document.getElementById("pointOverlayContent").style.display = "none";
-  document.getElementById("handOverlay").style.display = "block";
+function renderInlineHandButtons(){
+  const area = document.getElementById("inlineHandArea");
+  area.innerHTML = "";
 
   const key = `${currentPoint.x},${currentPoint.y}`;
   const action = pointActionMap[key];
   const waterAction = pointWaterMap[key];
   const moistureAction = pointMoistureMap[key];
 
-  const area = document.getElementById("handButtonArea");
-  area.innerHTML = "";
-
-  if (!action && !waterAction && !moistureAction) {
-    area.innerHTML = "<p style='text-align:center;'>จุดนี้ไม่มีฟังก์ชัน</p>";
-    return;
-  }
-
-  /* แขนกล */
-  if (action) {
-    const armBtn = document.createElement("button");
-    armBtn.className = "hand one";
-    armBtn.innerText = `ส่งค่า ${action} และคีบ`;
-    armBtn.onclick = () => sendAction(action);
-    area.appendChild(armBtn);
-  }
-
-  /* รดน้ำ */
-  if (waterAction) {
-    const waterBtn = document.createElement("button");
-    waterBtn.className = "hand one water";
-    waterBtn.innerText = `รดน้ำ ${waterAction}`;
-    waterBtn.onclick = () => sendAction(waterAction);
-    area.appendChild(waterBtn);
-  }
-
-  /* วัดความชื้น */
-  if (moistureAction) {
-    const moistureBtn = document.createElement("button");
-    moistureBtn.className = "hand one moisture";
-    moistureBtn.innerText = `วัดความชื้น ${moistureAction}`;
-    moistureBtn.onclick = () => sendAction(moistureAction);
-    area.appendChild(moistureBtn);
-  }
+  if(action){
+  const btn = document.createElement("button");
+  btn.className = "hand one";
+  btn.innerText = `ส่งค่า ${action} และคีบ`;
+  btn.onclick = (e) => sendAction(action, e);
+  area.appendChild(btn);
 }
+
+if(waterAction){
+  const btn = document.createElement("button");
+  btn.className = "hand one water";
+  btn.innerText = `รดน้ำ`;
+  btn.onclick = (e) => sendAction(waterAction, e);
+  area.appendChild(btn);
+}
+
+if(moistureAction){
+  const btn = document.createElement("button");
+  btn.className = "hand one moisture";
+  btn.innerText = `วัดความชื้น`;
+  btn.onclick = (e) => sendAction(moistureAction, e);
+  area.appendChild(btn);
+}
+}
+
 
 
 
@@ -1148,7 +1246,7 @@ async function renameSuccess(){
   const input=document.getElementById("pointNameInput");
   const name=input.value.trim();
   if(!name) return;
-  const {error}=await supabaseClient.from("points1").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,name},{onConflict:['user_id','x','y']});
+  const {error}=await supabaseClient.from("points").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,name},{onConflict:['user_id','x','y']});
   if(error) console.error(error.message);
 }
 
@@ -1167,7 +1265,7 @@ document.getElementById("pointFileInput").addEventListener("change", async(event
     const {data:publicData}=supabaseClient.storage.from("grid-images").getPublicUrl(fileName);
     const imageUrl=publicData.publicUrl;
     const img=document.getElementById("pointImage"); img.src=imageUrl; img.style.display="block";
-    await supabaseClient.from("points1").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,image_url:imageUrl},{onConflict:['user_id','x','y']});
+    await supabaseClient.from("points").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,image_url:imageUrl},{onConflict:['user_id','x','y']});
   }catch(err){ console.error(err); alert("อัปโหลดรูปไม่สำเร็จ"); }
 });
 
@@ -1203,43 +1301,47 @@ overlay.addEventListener("click", () => {
 /* ===============================
    ส่งค่า ACTION ไป SupabaseClient (เฉพาะ A B C ...)
 ================================ */
-function sendAction(action) {
-  const btn = event.target;
-  btn.disabled = true;
-  btn.style.cursor = "not-allowed";
+
+function sendAction(action, e) {
+  e.preventDefault();
+
+  const btn = e.target;
 
   fetch("https://yiaemxmwfxrfrwtogamw.supabase.co/rest/v1/robot_commands", {
     method: "POST",
     headers: {
-      apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw",
-      Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw",
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
       "Content-Type": "application/json",
       "Prefer": "return=minimal"
     },
     body: JSON.stringify({
-    action: action,
-    status: "pending"
+      action: action,
+      status: "pending"
+    })
   })
+  .then(res => {
+    if (!res.ok) throw new Error("insert failed");
 
-  })
-  .then(async res => {
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text);
-    }
     alert(`ส่งค่า ${action} แล้ว ✅`);
-  })
-  .catch(err => {
-    console.error("Supabase error:", err.message);
-    alert("ส่งไม่สำเร็จ ❌");
-  })
-  .finally(() => {
+
+    // 🔒 ค่อยล็อกปุ่มหลังส่งสำเร็จ
+    btn.disabled = true;
+    btn.style.cursor = "not-allowed";
+
+    // ⏱️ ปลดล็อกหลัง 20 วิ
     setTimeout(() => {
       btn.disabled = false;
       btn.style.cursor = "pointer";
     }, 20000);
+  })
+  .catch(err => {
+    console.error(err);
+    alert("ส่งไม่สำเร็จ ❌");
   });
 }
+
+
 
 const client = mqtt.connect('wss://broker.hivemq.com:8884/mqtt');
 
@@ -1307,6 +1409,7 @@ solarSwitch.addEventListener("change", () => {
 });
 
 
+
 function closeGridOverlay() {
   document.getElementById("gridOverlay").style.display = "none";
   document.removeEventListener("click", outsideOverlayClick);
@@ -1321,6 +1424,41 @@ function outsideOverlayClick(e) {
 
   if (!overlay.contains(e.target)) {
     closeGridOverlay();
+  }
+}
+
+
+let overlayMode = "detail";
+
+function setOverlayMode(mode) {
+  overlayMode = mode;
+
+  const chart = document.getElementById("pointChart");
+  const inlineHand = document.getElementById("inlineHandArea");
+
+  const detailBtn = document.getElementById("detailModeBtn");
+  const handBtn = document.getElementById("handModeBtn");
+
+  if (mode === "detail") {
+    chart.style.display = "block";
+    inlineHand.style.display = "none";
+
+    detailBtn.classList.add("active");
+    detailBtn.classList.remove("inactive");
+
+    handBtn.classList.add("inactive");
+    handBtn.classList.remove("active");
+  } else {
+    chart.style.display = "none";
+    inlineHand.style.display = "block";
+
+    renderInlineHandButtons();
+
+    handBtn.classList.add("active");
+    handBtn.classList.remove("inactive");
+
+    detailBtn.classList.add("inactive");
+    detailBtn.classList.remove("active");
   }
 }
 
