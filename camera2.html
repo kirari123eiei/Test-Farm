@@ -19,17 +19,22 @@
   .point-container { position: absolute; }
   /* Overlay */
   .grid-overlay {
-    position: absolute;
-    top: 130px;
-    right: 85px;
-    width: 350px;
-    background: white;
-    border-radius: 12px;
-    z-index: 10;
-    padding: 20px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-    display: none;
-  }
+  position: fixed;
+  top: 15px;
+  right: 0px;
+  width: 350px;
+
+  max-height: calc(100vh - 30px); /* 🔥 ไม่เกินจอ */
+  overflow-y: auto;                /* 🔥 เลื่อนลงได้ */
+
+  background: white;
+  border-radius: 12px;
+  z-index: 999;
+  padding: 20px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+  display: none;
+}
+
   .grid-back-btn {
     position:absolute;
     display:inline-block;
@@ -913,7 +918,13 @@ async function openGridOverlay(x, y) {
     .eq("point_y", y)
     .order("inserted_at", { ascending: true });
 
-  const labels = vals?.map(d => new Date(d.inserted_at).toLocaleTimeString()) || [];
+  const labels = vals?.map(d => {
+  const date = new Date(d.inserted_at);
+  return [
+    date.toLocaleDateString("th-TH"),  // บรรทัดบน (วันที่)
+    date.toLocaleTimeString("th-TH")   // บรรทัดล่าง (เวลา)
+  ];
+}) || [];
   const values = vals?.map(d => d.soil_moisture) || [];
 
   // กำหนด chart overlay pointChart
