@@ -676,8 +676,6 @@ input:checked + .slider:before {
     </div>
 
 
-
-
       <div style="display:flex; align-items:center; gap:16px;">
         <h2 style="margin:0;">
           สถานะไฟ: <span id="status">---</span>
@@ -699,6 +697,21 @@ input:checked + .slider:before {
           <span class="slider"></span>
         </label>
       </div>
+
+      <!-- ===== ปุ่มรวม (วัดความชื้น / รดน้ำทั้งหมด) ===== -->
+    <div id="allActionArea"
+     style="display:none; margin-top:10px; text-align:center; gap:10px; justify-content:center;">
+
+      <button class="hand one moisture"
+              id="allMoistureBtn">
+        วัดความชื้นทั้งหมด
+      </button>
+
+      <button class="hand one water"
+              id="allWaterBtn">
+        รดน้ำทั้งหมด
+      </button>
+    </div>
 
       
     </div>
@@ -1454,6 +1467,7 @@ function setOverlayMode(mode) {
 
   const chart = document.getElementById("pointChart");
   const inlineHand = document.getElementById("inlineHandArea");
+  const allActionArea = document.getElementById("allActionArea");
 
   const detailBtn = document.getElementById("detailModeBtn");
   const handBtn = document.getElementById("handModeBtn");
@@ -1461,6 +1475,7 @@ function setOverlayMode(mode) {
   if (mode === "detail") {
     chart.style.display = "block";
     inlineHand.style.display = "none";
+    allActionArea.style.display = "none"; // ⬅ ซ่อนแน่นอน
 
     detailBtn.classList.add("active");
     detailBtn.classList.remove("inactive");
@@ -1470,6 +1485,8 @@ function setOverlayMode(mode) {
   } else {
     chart.style.display = "none";
     inlineHand.style.display = "block";
+
+    allActionArea.style.display = "flex"; // ⬅ แสดงตอนนี้เท่านั้น
 
     renderInlineHandButtons();
 
@@ -1481,6 +1498,24 @@ function setOverlayMode(mode) {
   }
 }
 
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const moistureBtn = document.getElementById("allMoistureBtn");
+  const waterBtn = document.getElementById("allWaterBtn");
+
+  if (moistureBtn) {
+    moistureBtn.onclick = (e) => {
+      sendAction("moisture_A_all", e);
+    };
+  }
+
+  if (waterBtn) {
+    waterBtn.onclick = (e) => {
+      sendAction("water_A_all", e);
+    };
+  }
+});
 
 
 

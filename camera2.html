@@ -699,6 +699,22 @@ input:checked + .slider:before {
         </label>
       </div>
 
+      <!-- ===== ปุ่มรวม (วัดความชื้น / รดน้ำทั้งหมด) ===== -->
+      <div id="allActionArea"
+     style="display:none; margin-top:10px; text-align:center; gap:10px; justify-content:center;">
+
+        <button class="hand one moisture"
+                id="allMoistureBtn">
+          วัดความชื้นทั้งหมด
+        </button>
+
+        <button class="hand one water"
+                id="allWaterBtn">
+          รดน้ำทั้งหมด
+        </button>
+      </div>
+
+
       
     </div>
     <div class="grid-container" id="grid"></div>
@@ -1446,6 +1462,7 @@ function setOverlayMode(mode) {
 
   const chart = document.getElementById("pointChart");
   const inlineHand = document.getElementById("inlineHandArea");
+  const allActionArea = document.getElementById("allActionArea");
 
   const detailBtn = document.getElementById("detailModeBtn");
   const handBtn = document.getElementById("handModeBtn");
@@ -1453,6 +1470,7 @@ function setOverlayMode(mode) {
   if (mode === "detail") {
     chart.style.display = "block";
     inlineHand.style.display = "none";
+    allActionArea.style.display = "none"; // ⬅ ซ่อนแน่นอน
 
     detailBtn.classList.add("active");
     detailBtn.classList.remove("inactive");
@@ -1463,6 +1481,8 @@ function setOverlayMode(mode) {
     chart.style.display = "none";
     inlineHand.style.display = "block";
 
+    allActionArea.style.display = "flex"; // ⬅ แสดงตอนนี้เท่านั้น
+
     renderInlineHandButtons();
 
     handBtn.classList.add("active");
@@ -1472,6 +1492,26 @@ function setOverlayMode(mode) {
     detailBtn.classList.remove("active");
   }
 }
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const moistureBtn = document.getElementById("allMoistureBtn");
+  const waterBtn = document.getElementById("allWaterBtn");
+
+  if (moistureBtn) {
+    moistureBtn.onclick = (e) => {
+      sendAction("moisture_B_all", e);
+    };
+  }
+
+  if (waterBtn) {
+    waterBtn.onclick = (e) => {
+      sendAction("water_B_all", e);
+    };
+  }
+});
+
 
 </script>
 </body>
