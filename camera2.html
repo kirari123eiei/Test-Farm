@@ -928,9 +928,9 @@ async function openGridOverlay(x, y) {
   const img = document.getElementById("pointImage");
   if (data?.image_url) { img.src = data.image_url; img.style.display = "block"; } else img.style.display = "none";
 
-  // โหลดค่าความชื้นจาก maintable
+  // โหลดค่าความชื้นจาก paintable
   const { data: vals } = await supabaseClient
-    .from("maintable")
+    .from("paintable")
     .select("soil_moisture, inserted_at")
     .eq("user_id", currentUser.id)
     .eq("point_x", x)
