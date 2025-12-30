@@ -922,7 +922,7 @@ async function openGridOverlay(x, y) {
   
 
   // โหลดชื่อและรูป
-  const { data, error } = await supabaseClient.from("points1").select("*").eq("user_id", currentUser.id).eq("x", x).eq("y", y).single();
+  const { data, error } = await supabaseClient.from("points").select("*").eq("user_id", currentUser.id).eq("x", x).eq("y", y).single();
   const input = document.getElementById("pointNameInput");
   input.value = data?.name || "";
   const img = document.getElementById("pointImage");
