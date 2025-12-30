@@ -711,9 +711,13 @@ input:checked + .slider:before {
               id="allWaterBtn">
         รดน้ำทั้งหมด
       </button>
-    </div>
 
-      
+      <button class="hand one"
+              id="allResetBtn"
+              style="background:#ef4444;color:white;">
+        รีเซตแขนกล
+      </button>
+    </div>
     </div>
     <div class="grid-container" id="grid"></div>
   </div>
@@ -1373,6 +1377,35 @@ function sendAction(action, e) {
   });
 }
 
+function sendAllAction(action, btn){
+  fetch("https://yiaemxmwfxrfrwtogamw.supabase.co/rest/v1/robot_commands", {
+    method: "POST",
+    headers: {
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "Content-Type": "application/json",
+      "Prefer": "return=minimal"
+    },
+    body: JSON.stringify({
+      action: action,
+      status: "pending"
+    })
+  })
+  .then(res => {
+    if (!res.ok) throw new Error("insert failed");
+
+    alert(`ส่งคำสั่ง ${action} แล้ว ✅`);
+
+    btn.disabled = true;
+    setTimeout(() => btn.disabled = false, 20000);
+  })
+  .catch(err => {
+    console.error(err);
+    alert("ส่งไม่สำเร็จ ❌");
+  });
+}
+
+
 
 
 const client = mqtt.connect('wss://broker.hivemq.com:8884/mqtt');
@@ -1516,6 +1549,11 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 });
+
+document.getElementById("allResetBtn").addEventListener("click", () => {
+  sendAllAction("RESET_A", document.getElementById("allResetBtn"));
+});
+
 
 
 

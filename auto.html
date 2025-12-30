@@ -433,21 +433,71 @@ input:checked + .slider:before {
   display: none;
 }
 
-/* ช่องเวลา */
-.time-input {
+/* แถวที่มีเวลา */
+.time-row {
+  gap: 16px;
+}
+
+/* ทำให้เหมือนช่อง "ตั้งเวลา" */
+.same-time {
+  width: 100px;
   padding: 8px 12px;
-  border: 2px solid #d1d5db;
   border-radius: 8px;
+  border: 2px solid #d1d5db;
+  background: #f9fafb;
   font-size: 15px;
-  outline: none;
   transition: 0.2s;
 }
 
-/* ตอนโฟกัส */
-.time-input:focus {
+/* ยังไม่เปิด */
+.same-time:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* เปิดแล้ว */
+.same-time:not(:disabled) {
+  background: #ffffff;
   border-color: #3b82f6;
+}
+
+/* focus */
+.same-time:focus {
+  outline: none;
   box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
 }
+
+/* แถวหลัก */
+.time-row {
+  justify-content: space-between;
+}
+
+/* กลุ่ม สวิตช์ + เวลา */
+.time-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;          /* ⭐ ระยะห่างสวิตช์กับเวลา */
+}
+
+/* ช่องเวลา */
+.same-time {
+  width: 100px;
+}
+
+/* บนจอเล็ก */
+@media (max-width: 640px) {
+  .time-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .time-control {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+
 
 </style>
 </head>
@@ -544,80 +594,116 @@ input:checked + .slider:before {
   <div class="yes">
     <h2>แขนกลฝั่งติดราง</h2>
 
-    <div>
-        <div class="auto-item">
-            <p>วัดความชื้น</p>
-            <label class="switch">
-                <input type="checkbox">
-                <span class="slider"></span>
-            </label>
-            </div>
+    <div class="auto-item time-row">
+      <p>วัดความชื้น</p>
 
-            <div class="auto-item">
-            <p>รดน้ำต้นกล้า</p>
-            <label class="switch">
-                <input type="checkbox">
-                <span class="slider"></span>
-            </label>
-        </div>
+      <div class="time-control">
+        <label class="switch">
+          <input type="checkbox" id="moistureA">
+          <span class="slider"></span>
+        </label>
+
+        <input
+          type="time"
+          id="moistureTimeA"
+          class="time-input same-time"
+          disabled
+        >
+      </div>
     </div>
+
+    <div class="auto-item time-row">
+      <p>รดน้ำต้นกล้า</p>
+
+      <div class="time-control">
+        <label class="switch">
+          <input type="checkbox" id="waterA">
+          <span class="slider"></span>
+        </label>
+
+        <input
+          type="time"
+          id="waterTimeA"
+          class="time-input same-time"
+          disabled
+        >
+      </div>
+    </div>
+
   </div>
 
   <div class="no">
     <h2>แขนกลฝั่งไม่ติดราง</h2>
 
-      <div>
-        <div class="auto-item">
-            <p>วัดความชื้น</p>
-            <label class="switch">
-                <input type="checkbox">
-                <span class="slider"></span>
-            </label>
-        </div>
+    <div class="auto-item time-row">
+      <p>วัดความชื้น</p>
 
-        <div class="auto-item">
-            <p>รดน้ำต้นกล้า</p>
-            <label class="switch">
-                <input type="checkbox">
-                <span class="slider"></span>
-            </label>
-        </div>
+      <div class="time-control">
+        <label class="switch">
+          <input type="checkbox" id="moistureB">
+          <span class="slider"></span>
+        </label>
+
+        <input
+          type="time"
+          id="moistureTimeB"
+          class="time-input same-time"
+          disabled
+        >
       </div>
+    </div>
+
+    <div class="auto-item time-row">
+      <p>รดน้ำต้นกล้า</p>
+
+      <div class="time-control">
+        <label class="switch">
+          <input type="checkbox" id="waterB">
+          <span class="slider"></span>
+        </label>
+
+        <input
+          type="time"
+          id="waterTimeB"
+          class="time-input same-time"
+          disabled
+        >
+      </div>
+    </div>
   </div>
 
   <div class="middle">
     <h2>ฟังก์ชันอื่นๆ</h2>
 
-    <div class="auto-item">
+    <div class="auto-item time-row">
       <p>ควบคุมสถานะไฟ</p>
-      <label class="switch">
-        <input type="checkbox">
-        <span class="slider"></span>
-      </label>
+
+      <div class="time-control">
+        <label class="switch">
+          <input type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+        <input type="time" class="time-input same-time">
+      </div>
     </div>
 
-    <div class="auto-item">
+    <div class="auto-item time-row">
       <p>ควบคุมโซลาร์เซลล์</p>
-      <label class="switch">
-        <input type="checkbox">
-        <span class="slider"></span>
-      </label>
-    </div>
 
-    <div class="auto-item">
-      <p>ถ่ายรูปต้นกล้า</p>
-      <label class="switch">
-        <input type="checkbox">
-        <span class="slider"></span>
-      </label>
-    </div>
+      <div class="time-control">
+        <label class="switch">
+          <input type="checkbox">
+          <span class="slider"></span>
+        </label>
 
-    <div class="auto-item">
-      <p>ตั้งเวลา</p>
-      <input type="time" class="time-input">
+        <input type="time" class="time-input same-time">
+      </div>
     </div>
   </div>
 </div>
+
+
 
 <button id="saveBtn" class="disabled save">Save</button>
 
@@ -626,7 +712,7 @@ input:checked + .slider:before {
 <script>
 const SUPABASE_URL = "https://yiaemxmwfxrfrwtogamw.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw";
-const SupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
 let currentPoint = {x:0,y:0};
@@ -687,15 +773,187 @@ const autoSwitch = document.getElementById("autoSwitch");
 const autoFunctions = document.getElementById("autoFunctions");
 const saveBtn = document.getElementById("saveBtn");
 
-autoSwitch.addEventListener("change", () => {
+/* ===== เปิด / ปิด ระบบ ===== */
+autoSwitch.addEventListener("change", async () => {
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  console.log("AUTO USER =", user);
+
+  if (!user) {
+    alert("ยังไม่ได้ login");
+    autoSwitch.checked = false;
+    return;
+  }
+
   if (autoSwitch.checked) {
     autoFunctions.classList.remove("disabled");
     saveBtn.classList.remove("disabled");
   } else {
     autoFunctions.classList.add("disabled");
     saveBtn.classList.add("disabled");
+
+    // ❗ camera.html style → UPDATE ไม่ใช่ INSERT
+    const { error } = await supabaseClient
+      .from("auto_tasks")
+      .update({ enable: false })
+      .eq("user_id", user.id);
+
+    console.log("DISABLE ERROR =", error);
   }
 });
+
+/* ===== checkbox → เวลา ===== */
+function bindTime(cbId, timeId) {
+  const cb = document.getElementById(cbId);
+  const time = document.getElementById(timeId);
+
+  time.disabled = !cb.checked;
+
+  cb.addEventListener("change", () => {
+    time.disabled = !cb.checked;
+    if (!cb.checked) time.value = "";
+  });
+}
+
+
+bindTime("moistureA", "moistureTimeA");
+bindTime("waterA", "waterTimeA");
+bindTime("moistureB", "moistureTimeB");
+bindTime("waterB", "waterTimeB");
+
+
+/* ===== SAVE (camera.html pattern) ===== */
+saveBtn.addEventListener("click", async () => {
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  console.log("SAVE USER =", user);
+
+  if (!user) {
+    alert("ยังไม่ได้ login");
+    return;
+  }
+
+  const rows = [];
+
+  function addTask(cbId, arm, timeId) {
+    const cb = document.getElementById(cbId);
+    const time = document.getElementById(timeId);
+
+    if (!cb.checked) return;
+    if (!time.value) {
+      alert("กรุณาเลือกเวลาให้ครบ");
+      throw new Error("time missing");
+    }
+
+    const [hour, minute] = time.value.split(":").map(Number);
+
+    rows.push({
+      enable: true,
+      arm,
+      hour,
+      minute,
+      user_id: user.id
+    });
+  }
+
+  try {
+    // แขนกล 1
+    addTask("moistureA", "moisture_A_all", "moistureTimeA");
+    addTask("waterA", "water_A_all", "waterTimeA");
+
+    // แขนกล 2
+    addTask("moistureB", "moisture_B_all", "moistureTimeB");
+    addTask("waterB", "water_B_all", "waterTimeB");
+  } catch {
+    return;
+  }
+
+  if (rows.length === 0) {
+    alert("ยังไม่ได้เลือกฟังก์ชัน");
+    return;
+  }
+
+  /* ===============================
+     🔴 STEP 1: ปิดของเก่าทั้งหมด
+     =============================== */
+  const { error: disableError } = await supabaseClient
+    .from("auto_tasks")
+    .update({ enable: false })
+    .eq("user_id", user.id);
+
+  console.log("DISABLE OLD ERROR =", disableError);
+  if (disableError) {
+    alert("ปิดค่่าเก่าไม่สำเร็จ");
+    return;
+  }
+
+  /* ===============================
+     🟢 STEP 2: insert ค่าใหม่
+     =============================== */
+  const { data, error } = await supabaseClient
+    .from("auto_tasks")
+    .insert(rows)
+    .select();
+
+  console.log("INSERT DATA =", data);
+  console.log("INSERT ERROR =", error);
+
+  if (error) {
+    alert("ส่งไม่สำเร็จ");
+  } else {
+    alert("บันทึกสำเร็จ");
+  }
+});
+
+
+async function loadAutoTasks() {
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  if (!user) return;
+
+  const { data } = await supabaseClient
+    .from("auto_tasks")
+    .select("*")
+    .eq("user_id", user.id)
+    .eq("enable", true);
+
+  if (!data || data.length === 0) return;
+
+  autoSwitch.checked = true;
+  autoFunctions.classList.remove("disabled");
+  saveBtn.classList.remove("disabled");
+
+  data.forEach(task => {
+    const timeValue =
+      String(task.hour).padStart(2, "0") + ":" +
+      String(task.minute).padStart(2, "0");
+
+    switch (task.arm) {
+      case "moisture_A_all":
+        moistureA.checked = true;
+        moistureTimeA.disabled = false;
+        moistureTimeA.value = timeValue;
+        break;
+
+      case "water_A_all":
+        waterA.checked = true;
+        waterTimeA.disabled = false;
+        waterTimeA.value = timeValue;
+        break;
+
+      case "moisture_B_all":
+        moistureB.checked = true;
+        moistureTimeB.disabled = false;
+        moistureTimeB.value = timeValue;
+        break;
+
+      case "water_B_all":
+        waterB.checked = true;
+        waterTimeB.disabled = false;
+        waterTimeB.value = timeValue;
+        break;
+    }
+  });
+}
+
+window.addEventListener("DOMContentLoaded", loadAutoTasks);
 
 
 </script>
