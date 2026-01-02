@@ -1252,7 +1252,7 @@ function renderInlineHandButtons(){
   if(action){
   const btn = document.createElement("button");
   btn.className = "hand one";
-  btn.innerText = `ส่งค่า ${action} และคีบ`;
+  btn.innerText = `คีบต้นกล้า`;
   btn.onclick = (e) => sendAction(action, e);
   area.appendChild(btn);
 }
@@ -1260,7 +1260,7 @@ function renderInlineHandButtons(){
 if(waterAction){
   const btn = document.createElement("button");
   btn.className = "hand one water";
-  btn.innerText = `รดน้ำ`;
+  btn.innerText = `รดน้ำต้นกล้า`;
   btn.onclick = (e) => sendAction(waterAction, e);
   area.appendChild(btn);
 }
@@ -1268,7 +1268,7 @@ if(waterAction){
 if(moistureAction){
   const btn = document.createElement("button");
   btn.className = "hand one moisture";
-  btn.innerText = `วัดความชื้น`;
+  btn.innerText = `วัดความชื้นต้นกล้า`;
   btn.onclick = (e) => sendAction(moistureAction, e);
   area.appendChild(btn);
 }
@@ -1365,7 +1365,7 @@ function sendAction(action, e) {
   .then(res => {
     if (!res.ok) throw new Error("insert failed");
 
-    alert(`ส่งค่า ${action} แล้ว ✅`);
+    alert(`ส่งคำสั่งไปยังแขนกลแล้ว`);
 
     // 🔒 ค่อยล็อกปุ่มหลังส่งสำเร็จ
     btn.disabled = true;
@@ -1379,7 +1379,7 @@ function sendAction(action, e) {
   })
   .catch(err => {
     console.error(err);
-    alert("ส่งไม่สำเร็จ ❌");
+    alert("ส่งไม่สำเร็จ ");
   });
 }
 
@@ -1400,14 +1400,14 @@ function sendAllAction(action, btn){
   .then(res => {
     if (!res.ok) throw new Error("insert failed");
 
-    alert(`ส่งคำสั่ง ${action} แล้ว ✅`);
+    alert(`ส่งคำสั่งไปยังแขนกลแล้ว`);
 
     btn.disabled = true;
     setTimeout(() => btn.disabled = false, 20000);
   })
   .catch(err => {
     console.error(err);
-    alert("ส่งไม่สำเร็จ ❌");
+    alert("ส่งไม่สำเร็จ");
   });
 }
 
