@@ -766,7 +766,10 @@ input:checked + .slider:before {
     <img id="pointImage"
       style="width:100%;display:none;border-radius:6px;margin-bottom:10px;">
 
-      <p style="text-align: center; color:#54575b; margin-top: 10px;">กราฟแสดงค่าความชื้น (%)</p>
+      <p id="chartTitle"
+        style="text-align: center; color:#54575b; margin-top: 10px;">
+        กราฟแสดงค่าความชื้น (%)
+      </p>
 
     <canvas id="pointChart" width="300" height="230"></canvas>
 
@@ -949,12 +952,14 @@ async function openGridOverlay(x, y) {
 
   // กำหนด chart overlay pointChart
   const ctx = document.getElementById("pointChart").getContext("2d");
+  const chartTitle = document.getElementById("chartTitle");
   // สร้างกราฟเฉพาะโหมดดูรายละเอียด
 if (overlayMode === "detail") {
+  chartTitle.style.display = "block";
+
   const canvas = document.getElementById("pointChart");
   canvas.style.display = "block";
 
-  const ctx = canvas.getContext("2d");
   if (chart) chart.destroy();
 
   chart = new Chart(ctx, {
@@ -979,16 +984,20 @@ if (overlayMode === "detail") {
       }
     }
   });
+
 } else {
-  // โหมดสั่งแขนกล → ซ่อนกราฟ + ทำลาย chart
+  // 🔥 โหมดสั่งแขนกล
+  chartTitle.style.display = "none";
+
   if (chart) {
     chart.destroy();
     chart = null;
   }
+
   document.getElementById("pointChart").style.display = "none";
 }
-
 }
+
 
 /* ===============================
    MAP จุด → ACTION แขนกล
