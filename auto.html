@@ -680,24 +680,35 @@ input:checked + .slider:before {
 
       <div class="time-control">
         <label class="switch">
-          <input type="checkbox">
+          <input type="checkbox" id="lightSwitch">
           <span class="slider"></span>
         </label>
 
-        <input type="time" class="time-input same-time">
+        <input
+          type="time"
+          id="lightTime"
+          class="time-input same-time"
+          disabled
+        >
       </div>
     </div>
+
 
     <div class="auto-item time-row">
       <p>ควบคุมโซลาร์เซลล์</p>
 
       <div class="time-control">
         <label class="switch">
-          <input type="checkbox">
+          <input type="checkbox" id="solarSwitch">
           <span class="slider"></span>
         </label>
 
-        <input type="time" class="time-input same-time">
+        <input
+          type="time"
+          id="solarTime"
+          class="time-input same-time"
+          disabled
+        >
       </div>
     </div>
   </div>
@@ -819,6 +830,46 @@ bindTime("moistureA", "moistureTimeA");
 bindTime("waterA", "waterTimeA");
 bindTime("moistureB", "moistureTimeB");
 bindTime("waterB", "waterTimeB");
+bindTime("solarSwitch", "solarTime");
+bindTime("lightSwitch", "lightTime");
+
+
+/* ===== เพิ่มงานโซลาร์เซลล์ ===== */
+function addSolarTask(cbId, timeId, rows, user) {
+  const cb = document.getElementById(cbId);
+  const time = document.getElementById(timeId);
+
+  // 🔴 ปิดสวิตช์ → ส่ง 1023 (ไม่สนเวลา)
+  if (!cb.checked) {
+    rows.push({
+      enable: true,
+      arm: "1023",
+      hour: 0,
+      minute: 0,
+      user_id: user.id
+    });
+    return;
+  }
+
+  // 🟢 เปิดสวิตช์ → ต้องมีเวลา
+  if (!time.value) {
+    alert("กรุณาเลือกเวลาโซลาร์เซลล์");
+    throw new Error("solar time missing");
+  }
+
+  const [hour, minute] = time.value.split(":").map(Number);
+
+  rows.push({
+    enable: true,
+    arm: "900",
+    hour,
+    minute,
+    user_id: user.id
+  });
+}
+
+
+
 
 
 /* ===== SAVE (camera.html pattern) ===== */
@@ -855,16 +906,21 @@ saveBtn.addEventListener("click", async () => {
   }
 
   try {
-    // แขนกล 1
-    addTask("moistureA", "moisture_A_all", "moistureTimeA");
-    addTask("waterA", "water_A_all", "waterTimeA");
+  // แขนกล 1
+  addTask("moistureA", "moisture_A_all", "moistureTimeA");
+  addTask("waterA", "water_A_all", "waterTimeA");
 
-    // แขนกล 2
-    addTask("moistureB", "moisture_B_all", "moistureTimeB");
-    addTask("waterB", "water_B_all", "waterTimeB");
-  } catch {
-    return;
-  }
+  // แขนกล 2
+  addTask("moistureB", "moisture_B_all", "moistureTimeB");
+  addTask("waterB", "water_B_all", "waterTimeB");
+
+  // 🌞 โซลาร์เซลล์ (เปิด/ปิดก็ส่ง)
+  addSolarTask("solarSwitch", "solarTime", rows, user);
+
+} catch {
+  return;
+}
+
 
   if (rows.length === 0) {
     alert("ยังไม่ได้เลือกฟังก์ชัน");

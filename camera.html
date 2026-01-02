@@ -765,6 +765,8 @@ input:checked + .slider:before {
     <img id="pointImage"
       style="width:100%;display:none;border-radius:6px;margin-bottom:10px;">
 
+      <p style="text-align: center; color:#54575b; margin-top: 10px;">กราฟแสดงค่าความชื้น (%)</p>
+
     <canvas id="pointChart" width="300" height="230"></canvas>
 
         <!-- ===== ปุ่มแขนกล (ใช้ในโหมดสั่งแขนกล) ===== -->
@@ -1405,6 +1407,96 @@ function sendAllAction(action, btn){
   });
 }
 
+const solarSwitch = document.getElementById("solarSwitch");
+const solarStatusText = document.getElementById("solarStatus");
+
+solarSwitch.addEventListener("change", () => {
+  if (solarSwitch.checked) {
+    // 🔆 เปิดโซลาร์เซลล์
+    solarStatusText.innerText = "ON";
+    sendSolarAction(900);
+  } else {
+    // 🌑 ปิดโซลาร์เซลล์
+    solarStatusText.innerText = "OFF";
+    sendSolarAction(1023);
+  }
+});
+
+function sendSolarAction(action) {
+  fetch("https://yiaemxmwfxrfrwtogamw.supabase.co/rest/v1/robot_commands", {
+    method: "POST",
+    headers: {
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "Content-Type": "application/json",
+      "Prefer": "return=representation"
+    },
+    body: JSON.stringify({
+      action: String(action), // 🔑 เก็บเป็น string ชัวร์
+      status: "pending"
+    })
+  })
+  .then(async res => {
+    const text = await res.text();
+
+    if (!res.ok) {
+      console.error("SOLAR INSERT FAILED:", text);
+      return;
+    }
+
+    console.log("SOLAR INSERT OK:", text);
+  })
+  .catch(err => {
+    console.error("ส่ง solar ไม่สำเร็จ", err);
+  });
+}
+
+
+function loadSolarStatus() {
+  fetch(
+    "https://yiaemxmwfxrfrwtogamw.supabase.co/rest/v1/robot_commands" +
+    "?select=action,created_at" +
+    "&action=in.(\"900\",\"1023\")" +
+    "&order=created_at.desc" + // ✅ ใช้เวลาจริง
+    "&limit=1",
+    {
+      headers: {
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+      }
+    }
+  )
+  .then(res => res.json())
+  .then(data => {
+    console.log("SOLAR LATEST:", data); // 🧪 debug
+
+    if (!data || data.length === 0) {
+      solarStatusText.innerText = "---";
+      return;
+    }
+
+    const action = data[0].action;
+
+    if (action === "900") {
+      solarSwitch.checked = true;
+      solarStatusText.innerText = "ON";
+    } else if (action === "1023") {
+      solarSwitch.checked = false;
+      solarStatusText.innerText = "OFF";
+    }
+  })
+  .catch(err => {
+    console.error("โหลดสถานะโซลาร์ไม่สำเร็จ", err);
+  });
+}
+
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadSolarStatus();
+});
+
 
 
 
@@ -1438,38 +1530,6 @@ lightSwitch.addEventListener("change", () => {
     client.publish(topicSet, "ON");
   } else {
     client.publish(topicSet, "OFF");
-  }
-});
-
-// 🔹 topic ของ solarcell
-const solarSet = "Klabot/room1/solar/set";
-const solarStatus = "Klabot/room1/solar/status";
-
-const statusText1 = document.getElementById("solarStatus");
-const solarSwitch = document.getElementById("solarSwitch");
-
-// เชื่อมต่อ MQTT
-client.on('connect', () => {
-  client.subscribe(solarStatus);
-});
-
-// รับสถานะจากอุปกรณ์
-client.on('message', (topic, message) => {
-  if (topic === solarStatus) {
-    const state = message.toString();
-    statusText1.innerText = state;
-
-    // sync switch กับสถานะจริง
-    solarSwitch.checked = (state === "ON");
-  }
-});
-
-// เมื่อกด switch
-solarSwitch.addEventListener("change", () => {
-  if (solarSwitch.checked) {
-    client.publish(solarSet, "ON");
-  } else {
-    client.publish(solarSet, "OFF");
   }
 });
 
@@ -1553,10 +1613,6 @@ document.addEventListener("DOMContentLoaded", () => {
 document.getElementById("allResetBtn").addEventListener("click", () => {
   sendAllAction("RESET_A", document.getElementById("allResetBtn"));
 });
-
-
-
-
 
 
 </script>
