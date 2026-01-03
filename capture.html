@@ -223,9 +223,33 @@
       margin: 100px 0;
   }
 
+  #previewOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+#previewOverlay img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 12px;
+}
+
+#closePreview {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: white;
+    font-size: 32px;
+    cursor: pointer;
+}
+
   
-  
-    </style>
+</style>
 </head>
 
 <body>
@@ -318,8 +342,9 @@
     <!-- POPUP PREVIEW -->
     <div id="previewOverlay">
         <span id="closePreview">&times;</span>
-        <img id="previewImage" src="" />
+        <img id="previewImage" src="">
     </div>
+
 
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
@@ -357,60 +382,77 @@
         if (!error) window.location.href = "login.html";
     });
 
+    
+
     // ================= โหลดรูป =================
     async function loadImages() {
-        const empty = document.getElementById("empty");
-        const grid = document.getElementById("grid");
+    const grid = document.getElementById("grid");
+    const empty = document.getElementById("empty");
 
-        if (!currentUser) return;
+    grid.innerHTML = "";
+    empty.style.display = "none";
 
-        const { data: images, error } = await supabaseClient
-            .from("user_images")
-            .select("user_id, image_url, ip_address, created_at")
-            .eq("user_id", currentUser.id)
-            .order("created_at", { ascending: false });
+    // 🔁 ฟังก์ชันดึงไฟล์แบบ recursive
+    async function listAllFiles(path = "") {
+        let results = [];
+
+        const { data, error } = await supabaseClient
+            .storage
+            .from(BUCKET_NAME)
+            .list(path, { limit: 1000 });
 
         if (error) {
-            console.error(error);
-            grid.innerHTML = "";
-            empty.style.display = "block";
-            empty.textContent = "เกิดข้อผิดพลาดขณะโหลดข้อมูล";
-            return;
+            console.error("List error:", error);
+            return results;
         }
 
-        if (!images || images.length === 0) {
-            grid.innerHTML = "";
-            empty.style.display = "block";
-            empty.textContent = "ยังไม่มีภาพในระบบ";
-            return;
+        for (const item of data) {
+            if (item.id === null) {
+                // 📁 เป็น folder → ไล่ต่อ
+                const subFiles = await listAllFiles(
+                    path ? `${path}/${item.name}` : item.name
+                );
+                results = results.concat(subFiles);
+            } else {
+                // 🖼 เป็นไฟล์
+                results.push({
+                    ...item,
+                    fullPath: path ? `${path}/${item.name}` : item.name
+                });
+            }
         }
 
-        empty.style.display = "none";
-        grid.innerHTML = "";
+        return results;
+    }
 
-        images.forEach(item => {
+    // ✅ ดึงไฟล์ทั้งหมดจริง ๆ
+    const files = await listAllFiles();
+
+    if (!files || files.length === 0) {
+        empty.style.display = "block";
+        empty.textContent = "ยังไม่มีภาพในระบบ";
+        return;
+    }
+
+    files
+        .filter(f => f.name.match(/\.(jpg|jpeg|png)$/i))
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .forEach(file => {
+
+            const { data } = supabaseClient
+                .storage
+                .from(BUCKET_NAME)
+                .getPublicUrl(file.fullPath);
+
             const card = document.createElement("div");
             card.className = "card";
 
             const img = document.createElement("img");
             img.className = "thumb";
-
-            let imageUrl = "";
-            if (item.image_url) {
-                if (typeof item.image_url === "object" && item.image_url.path) {
-                    const { data: urlData } = supabaseClient
-                        .storage
-                        .from(BUCKET_NAME)
-                        .getPublicUrl(item.image_url.path);
-                    imageUrl = urlData.publicUrl;
-                } else if (typeof item.image_url === "string") {
-                    imageUrl = item.image_url;
-                }
-            }
-            img.src = imageUrl;
+            img.src = data.publicUrl;
 
             card.addEventListener("click", () => {
-                document.getElementById("previewImage").src = imageUrl;
+                document.getElementById("previewImage").src = data.publicUrl;
                 document.getElementById("previewOverlay").style.display = "flex";
             });
 
@@ -419,59 +461,60 @@
 
             const title = document.createElement("div");
             title.className = "title";
-            title.textContent = "Captured by ESP32-CAM";
+            title.textContent = file.name;
 
             const stats = document.createElement("div");
             stats.className = "stats";
             stats.textContent =
-                `IP: ${item.ip_address || "ไม่ทราบ"} • ${new Date(item.created_at).toLocaleString()}`;
+                `📅 ${new Date(file.created_at).toLocaleString()} • ${(file.metadata?.size / 1024).toFixed(1)} KB`;
 
             meta.appendChild(title);
             meta.appendChild(stats);
+
             card.appendChild(img);
             card.appendChild(meta);
             grid.appendChild(card);
         });
-    }
+}
 
-    document.getElementById("reloadBtn").addEventListener("click", loadImages);
+// ❌ ปิดเมื่อกดกากบาท
+document.getElementById("closePreview").addEventListener("click", () => {
+    document.getElementById("previewOverlay").style.display = "none";
+    document.getElementById("previewImage").src = "";
+});
 
-    document.getElementById("closePreview").addEventListener("click", () => {
+// ❌ ปิดเมื่อกดพื้นหลัง (ไม่ใช่รูป)
+document.getElementById("previewOverlay").addEventListener("click", (e) => {
+    if (e.target.id === "previewOverlay") {
         document.getElementById("previewOverlay").style.display = "none";
-    });
+        document.getElementById("previewImage").src = "";
+    }
+});
 
-    document.getElementById("previewOverlay").addEventListener("click", e => {
-        if (e.target.id === "previewOverlay") {
-            document.getElementById("previewOverlay").style.display = "none";
-        }
-    });
+// ====== Sidebar Open/Close ======
+const menuBtn = document.getElementById("menuBtn");
+const sidebar = document.getElementById("sidebar");
+const overlayBg = document.getElementById("overlayBg");
+const closeSidebarBtn = document.getElementById("closeSidebarBtn");
 
-      /* ===== Sidebar Control ===== */
-    const sidebar = document.getElementById("sidebar");
-    const overlay = document.getElementById("overlayBg");
-    const toggle = document.getElementById("sidebarToggle");
+// เปิด Sidebar
+menuBtn.addEventListener("click", () => {
+    sidebar.classList.add("active");
+    overlayBg.style.display = "block";
+});
 
-    // ปุ่มเปิดเมนู
-    document.getElementById("menuBtn").addEventListener("click", () => {
-        sidebar.classList.add("active");
-        overlay.style.display = "block";
-        toggle.checked = true; // เล่น animation hamburger → X
-    });
+// ปิด Sidebar ด้วยปุ่ม X
+closeSidebarBtn.addEventListener("click", () => {
+    sidebar.classList.remove("active");
+    overlayBg.style.display = "none";
+});
 
-    // กดปุ่ม hamburger เพื่อปิด
-    toggle.addEventListener("change", () => {
-        if (!toggle.checked) {
-            sidebar.classList.remove("active");
-            overlay.style.display = "none";
-        }
-    });
+// ปิด Sidebar เมื่อคลิกที่ overlay
+overlayBg.addEventListener("click", () => {
+    sidebar.classList.remove("active");
+    overlayBg.style.display = "none";
+});
 
-    // กดพื้นหลังปิดเมนู
-    overlay.addEventListener("click", () => {
-        sidebar.classList.remove("active");
-        overlay.style.display = "none";
-        toggle.checked = false;
-    });
 
 </script>
 

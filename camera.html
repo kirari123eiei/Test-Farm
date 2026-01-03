@@ -1418,11 +1418,11 @@ solarSwitch.addEventListener("change", () => {
   if (solarSwitch.checked) {
     // 🔆 เปิดโซลาร์เซลล์
     solarStatusText.innerText = "ON";
-    sendSolarAction(900);
+    sendSolarAction("OPEN");   // เปลี่ยนจาก 900 เป็น "OPEN"
   } else {
     // 🌑 ปิดโซลาร์เซลล์
     solarStatusText.innerText = "OFF";
-    sendSolarAction(1023);
+    sendSolarAction("CLOSE");  // เปลี่ยนจาก 1023 เป็น "CLOSE"
   }
 });
 
@@ -1436,7 +1436,7 @@ function sendSolarAction(action) {
       "Prefer": "return=representation"
     },
     body: JSON.stringify({
-      action: String(action), // 🔑 เก็บเป็น string ชัวร์
+      action: action,  // 🔑 ส่งเป็น "OPEN" หรือ "CLOSE"
       status: "pending"
     })
   })
@@ -1460,8 +1460,8 @@ function loadSolarStatus() {
   fetch(
     "https://yiaemxmwfxrfrwtogamw.supabase.co/rest/v1/robot_commands" +
     "?select=action,created_at" +
-    "&action=in.(\"900\",\"1023\")" +
-    "&order=created_at.desc" + // ✅ ใช้เวลาจริง
+    "&action=in.(\"OPEN\",\"CLOSE\")" +  // เปลี่ยนตัวเลขเป็น OPEN/CLOSE
+    "&order=created_at.desc" +
     "&limit=1",
     {
       headers: {
@@ -1472,7 +1472,7 @@ function loadSolarStatus() {
   )
   .then(res => res.json())
   .then(data => {
-    console.log("SOLAR LATEST:", data); // 🧪 debug
+    console.log("SOLAR LATEST:", data);
 
     if (!data || data.length === 0) {
       solarStatusText.innerText = "---";
@@ -1481,10 +1481,10 @@ function loadSolarStatus() {
 
     const action = data[0].action;
 
-    if (action === "900") {
+    if (action === "OPEN") {
       solarSwitch.checked = true;
       solarStatusText.innerText = "ON";
-    } else if (action === "1023") {
+    } else if (action === "CLOSE") {
       solarSwitch.checked = false;
       solarStatusText.innerText = "OFF";
     }
@@ -1493,8 +1493,6 @@ function loadSolarStatus() {
     console.error("โหลดสถานะโซลาร์ไม่สำเร็จ", err);
   });
 }
-
-
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1511,6 +1509,7 @@ const topicStatus = "Klabot/room1/light/status";
 
 const statusText = document.getElementById("status");
 const lightSwitch = document.getElementById("lightSwitch");
+
 
 // เชื่อมต่อ MQTT
 client.on('connect', () => {

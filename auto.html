@@ -592,7 +592,7 @@ input:checked + .slider:before {
 <!-- ฟังก์ชันข้างล่าง -->
 <div id="autoFunctions" class="disabled">
   <div class="yes">
-    <h2>แขนกลฝั่งติดราง</h2>
+    <h2>แขนกล 1</h2>
 
     <div class="auto-item time-row">
       <p>วัดความชื้น</p>
@@ -633,7 +633,7 @@ input:checked + .slider:before {
   </div>
 
   <div class="no">
-    <h2>แขนกลฝั่งไม่ติดราง</h2>
+    <h2>แขนกล 2</h2>
 
     <div class="auto-item time-row">
       <p>วัดความชื้น</p>
@@ -676,22 +676,34 @@ input:checked + .slider:before {
     <h2>ฟังก์ชันอื่นๆ</h2>
 
     <div class="auto-item time-row">
-      <p>ควบคุมสถานะไฟ</p>
+      <p>เปิดไฟ</p>
 
       <div class="time-control">
         <label class="switch">
-          <input type="checkbox" id="lightSwitch">
+          <input type="checkbox" id="lightOnSwitch">
           <span class="slider"></span>
         </label>
 
+        <!-- เวลาเปิด -->
         <input
           type="time"
-          id="lightTime"
+          id="lightOnTime"
+          class="time-input same-time"
+          disabled
+        >
+
+        <p> ถึง </p>
+
+        <!-- เวลาปิด -->
+        <input
+          type="time"
+          id="lightOffTime"
           class="time-input same-time"
           disabled
         >
       </div>
     </div>
+
 
 
     <div class="auto-item time-row">
@@ -780,14 +792,17 @@ document.getElementById("sidebarLogoutBtn").addEventListener("click", async ()=>
 });
 
 
-const autoSwitch = document.getElementById("autoSwitch");
+
+/***********************
+ * AUTO SYSTEM CONTROL
+ ***********************/
+const autoSwitch    = document.getElementById("autoSwitch");
 const autoFunctions = document.getElementById("autoFunctions");
-const saveBtn = document.getElementById("saveBtn");
+const saveBtn       = document.getElementById("saveBtn");
 
 /* ===== เปิด / ปิด ระบบ ===== */
 autoSwitch.addEventListener("change", async () => {
   const { data: { user } } = await supabaseClient.auth.getUser();
-  console.log("AUTO USER =", user);
 
   if (!user) {
     alert("ยังไม่ได้ login");
@@ -802,20 +817,20 @@ autoSwitch.addEventListener("change", async () => {
     autoFunctions.classList.add("disabled");
     saveBtn.classList.add("disabled");
 
-    // ❗ camera.html style → UPDATE ไม่ใช่ INSERT
-    const { error } = await supabaseClient
+    await supabaseClient
       .from("auto_tasks")
       .update({ enable: false })
       .eq("user_id", user.id);
-
-    console.log("DISABLE ERROR =", error);
   }
 });
 
-/* ===== checkbox → เวลา ===== */
+/***********************
+ * BIND CHECKBOX → TIME
+ ***********************/
 function bindTime(cbId, timeId) {
-  const cb = document.getElementById(cbId);
+  const cb   = document.getElementById(cbId);
   const time = document.getElementById(timeId);
+  if (!cb || !time) return;
 
   time.disabled = !cb.checked;
 
@@ -825,17 +840,35 @@ function bindTime(cbId, timeId) {
   });
 }
 
-
+/* แขนกล / โซลาร์ */
 bindTime("moistureA", "moistureTimeA");
 bindTime("waterA", "waterTimeA");
 bindTime("moistureB", "moistureTimeB");
 bindTime("waterB", "waterTimeB");
 bindTime("solarSwitch", "solarTime");
-bindTime("lightSwitch", "lightTime");
 
+/***********************
+ * LIGHT CONTROL
+ ***********************/
+const lightOnSwitch = document.getElementById("lightOnSwitch");
+const lightOnTime   = document.getElementById("lightOnTime");
+const lightOffTime  = document.getElementById("lightOffTime");
 
+lightOnSwitch.addEventListener("change", () => {
+  const enabled = lightOnSwitch.checked;
 
-/* ===== SAVE (separate rows) ===== */
+  lightOnTime.disabled  = !enabled;
+  lightOffTime.disabled = !enabled;
+
+  if (!enabled) {
+    lightOnTime.value  = "";
+    lightOffTime.value = "";
+  }
+});
+
+/***********************
+ * SAVE DATA
+ ***********************/
 saveBtn.addEventListener("click", async () => {
   const { data: { user } } = await supabaseClient.auth.getUser();
   if (!user) {
@@ -845,115 +878,105 @@ saveBtn.addEventListener("click", async () => {
 
   const rows = [];
 
-  function addTask({ arm, measure, water, solarcell, timeId }) {
-    const time = document.getElementById(timeId);
-
-    if (!time.value) {
-      alert("กรุณาเลือกเวลาให้ครบ");
-      throw new Error("time missing");
-    }
-
-    const [hour, minute] = time.value.split(":").map(Number);
-
+  function addTask({ arm, measure, water, solarcell, hour, minute }) {
     rows.push({
       enable: true,
       arm: arm ?? null,
       measure: measure ?? null,
       water: water ?? null,
       solarcell: solarcell ?? null,
+      light_state: null,
       hour,
       minute,
       user_id: user.id
     });
   }
 
-  try {
-    /* ===== แขนกล A ===== */
-    if (moistureA.checked) {
-      addTask({
-        arm: "A",
-        measure: true,
-        water: null,
-        solarcell: null,
-        timeId: "moistureTimeA"
-      });
+  /* ===== แขนกล A ===== */
+  if (moistureA.checked && moistureTimeA.value) {
+    const [h, m] = moistureTimeA.value.split(":").map(Number);
+    addTask({ arm: "A", measure: true, hour: h, minute: m });
+  }
+
+  if (waterA.checked && waterTimeA.value) {
+    const [h, m] = waterTimeA.value.split(":").map(Number);
+    addTask({ arm: "A", water: true, hour: h, minute: m });
+  }
+
+  /* ===== แขนกล B ===== */
+  if (moistureB.checked && moistureTimeB.value) {
+    const [h, m] = moistureTimeB.value.split(":").map(Number);
+    addTask({ arm: "B", measure: true, hour: h, minute: m });
+  }
+
+  if (waterB.checked && waterTimeB.value) {
+    const [h, m] = waterTimeB.value.split(":").map(Number);
+    addTask({ arm: "B", water: true, hour: h, minute: m });
+  }
+
+  /* ===== โซลาร์เซลล์ ===== */
+  if (solarSwitch.checked && solarTime.value) {
+    const [h, m] = solarTime.value.split(":").map(Number);
+    addTask({ solarcell: true, hour: h, minute: m });
+  }
+
+  /* ===== ไฟ (ON / OFF แยก 2 แถว) ===== */
+  if (lightOnSwitch.checked) {
+
+    if (!lightOnTime.value || !lightOffTime.value) {
+      alert("กรุณาเลือกเวลาเปิดและเวลาปิดไฟ");
+      return;
     }
 
-    if (waterA.checked) {
-      addTask({
-        arm: "A",
-        measure: null,
-        water: true,
-        solarcell: null,
-        timeId: "waterTimeA"
-      });
-    }
+    // 🔆 เปิดไฟ
+    const [onH, onM] = lightOnTime.value.split(":").map(Number);
+    rows.push({
+      enable: true,
+      light_state: "ON",
+      hour: onH,
+      minute: onM,
+      user_id: user.id
+    });
 
-    /* ===== แขนกล B ===== */
-    if (moistureB.checked) {
-      addTask({
-        arm: "B",
-        measure: true,
-        water: null,
-        solarcell: null,
-        timeId: "moistureTimeB"
-      });
-    }
-
-    if (waterB.checked) {
-      addTask({
-        arm: "B",
-        measure: null,
-        water: true,
-        solarcell: null,
-        timeId: "waterTimeB"
-      });
-    }
-
-    /* ===== โซลาร์เซลล์ ===== */
-    if (solarSwitch.checked) {
-      addTask({
-        arm: null,
-        measure: null,
-        water: null,
-        solarcell: 900,   // ⭐ เปิด = 900
-        timeId: "solarTime"
-      });
-    }
-
-
-  } catch {
-    return;
+    // 🌙 ปิดไฟ
+    const [offH, offM] = lightOffTime.value.split(":").map(Number);
+    rows.push({
+      enable: true,
+      light_state: "OFF",
+      hour: offH,
+      minute: offM,
+      user_id: user.id
+    });
   }
 
   if (rows.length === 0) {
-    alert("ยังไม่ได้เลือกฟังก์ชัน");
+    alert("ยังไม่ได้ตั้งค่าอะไร");
     return;
   }
 
-  /* ===== ปิดของเก่า ===== */
+  /* ปิดของเก่า */
   await supabaseClient
     .from("auto_tasks")
     .update({ enable: false })
     .eq("user_id", user.id);
 
-  /* ===== insert ใหม่ ===== */
-  const { data, error } = await supabaseClient
-  .from("auto_tasks")
-  .insert(rows)
-  .select();
+  /* insert ใหม่ */
+  const { error } = await supabaseClient
+    .from("auto_tasks")
+    .insert(rows);
 
   if (error) {
-    console.error("INSERT ERROR =", error);
-    alert("ส่งไม่สำเร็จ\n" + error.message);
+    console.error(error);
+    alert("บันทึกไม่สำเร็จ");
     return;
   }
 
-  console.log("INSERT DATA =", data);
   alert("บันทึกสำเร็จ");
-
 });
 
+/***********************
+ * LOAD DATA
+ ***********************/
 async function loadAutoTasks() {
   const { data: { user } } = await supabaseClient.auth.getUser();
   if (!user) return;
@@ -964,77 +987,60 @@ async function loadAutoTasks() {
     .eq("user_id", user.id)
     .eq("enable", true);
 
-  if (error) {
-    console.error("LOAD ERROR =", error);
-    return;
-  }
+  if (error || !data || data.length === 0) return;
 
-  if (!data || data.length === 0) return;
-
-  // เปิดระบบอัตโนมัติ
   autoSwitch.checked = true;
   autoFunctions.classList.remove("disabled");
   saveBtn.classList.remove("disabled");
-
-  // reset ค่าเดิม
-  [moistureA, waterA, moistureB, waterB, solarSwitch]
-    .forEach(cb => cb.checked = false);
-
-  [
-    moistureTimeA, waterTimeA,
-    moistureTimeB, waterTimeB,
-    solarTime
-  ].forEach(t => {
-    t.value = "";
-    t.disabled = true;
-  });
 
   data.forEach(task => {
     const timeValue =
       String(task.hour).padStart(2, "0") + ":" +
       String(task.minute).padStart(2, "0");
 
-    if (task.arm === "A" && task.measure === true) {
+    if (task.arm === "A" && task.measure) {
       moistureA.checked = true;
       moistureTimeA.disabled = false;
       moistureTimeA.value = timeValue;
     }
 
-    if (task.arm === "A" && task.water === true) {
+    if (task.arm === "A" && task.water) {
       waterA.checked = true;
       waterTimeA.disabled = false;
       waterTimeA.value = timeValue;
     }
 
-    if (task.arm === "B" && task.measure === true) {
+    if (task.arm === "B" && task.measure) {
       moistureB.checked = true;
       moistureTimeB.disabled = false;
       moistureTimeB.value = timeValue;
     }
 
-    if (task.arm === "B" && task.water === true) {
+    if (task.arm === "B" && task.water) {
       waterB.checked = true;
       waterTimeB.disabled = false;
       waterTimeB.value = timeValue;
     }
 
-    if (task.solarcell === true) {
-  solarSwitch.checked = true;
+    if (task.solarcell) {
+      solarSwitch.checked = true;
+      solarTime.disabled = false;
+      solarTime.value = timeValue;
+    }
 
-  // ⭐ บังคับให้ bindTime ทำงาน
-  solarSwitch.dispatchEvent(new Event("change"));
+    if (task.light_state === "ON") {
+      lightOnSwitch.checked = true;
+      lightOnSwitch.dispatchEvent(new Event("change"));
+      lightOnTime.value = timeValue;
+    }
 
-  solarTime.value = timeValue;
-  }
-
+    if (task.light_state === "OFF") {
+      lightOffTime.value = timeValue;
+    }
   });
 }
 
-
-
-
 window.addEventListener("DOMContentLoaded", loadAutoTasks);
-
 
 </script>
 </body>
