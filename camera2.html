@@ -39,7 +39,7 @@
 
   /* --- Grid Styling --- */
   .grid-wrapper {
-    overflow-x: auto;
+    overflow: hidden;
     padding: 10px;
     border-radius: 16px;
     background: white;
@@ -436,7 +436,7 @@
       <!-- Right Column: Grid Map (Fixed Width) -->
       <div class="lg:col-span-6">
         <!-- เปลี่ยน class เป็น w-max และลบ max-w-full ออก -->
-        <div class="bg-white p-4 md:p-6 rounded-3xl shadow-lg border border-slate-100 w-max mx-auto">          
+        <div class="bg-white p-4 md:p-6 rounded-3xl shadow-lg border border-slate-100 w-full mx-auto">      
           <div class="flex items-center justify-between mb-4">
              <h3 class="font-bold text-lg text-slate-700">แผนผังแปลงปลูก 2</h3>
              <span class="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded-md">6 x 11 Grid</span>
@@ -544,7 +544,14 @@
 
       const cols = 6;
       const rows = 11;
-      const cellSize = 60;
+
+      // ✅ สูตรคำนวณ Responsive (เหมือน Camera 1)
+      let cellSize = 60; 
+      if (window.innerWidth < 768) {
+         const availableWidth = window.innerWidth - 60; 
+         cellSize = Math.floor(availableWidth / (cols + 1));
+      }
+      if (cellSize < 35) cellSize = 35; 
 
       grid.style.width  = `${cellSize * (cols + 1)}px`;
       grid.style.height = `${cellSize * (rows + 1)}px`;
@@ -580,12 +587,14 @@
           seed.className = "seed";
           seed.textContent = "🌱";
 
-          // tooltip
+          // ✅ เพิ่มบรรทัดนี้: ปรับขนาดไอคอนตามช่อง
+          seed.style.fontSize = `${cellSize * 0.5}px`; 
+
+          // Tooltip
           const tooltip = document.createElement("div");
           tooltip.className = "point-tooltip";
           tooltip.textContent = `(${x}, ${y})`;
 
-          // โหลดชื่อจุด
           pointContainer.addEventListener("mouseenter", async () => {
             const { data } = await supabaseClient
               .from("points")
@@ -594,16 +603,11 @@
               .eq("x", x)
               .eq("y", y)
               .single();
-
-            tooltip.innerHTML = `
-              ตำแหน่ง: (${x},${y})<br>
-              ชื่อ: ${data?.name || "-"}
-            `;
+            tooltip.innerHTML = `ตำแหน่ง: (${x},${y})<br>ชื่อ: ${data?.name || "-"}`;
           });
 
-          // ===== 🔥 กำหนดช่วง disable (Specific to Camera 2) 🔥 =====
-          const disabled = (x >= 1 && x <= 3); 
-          if (disabled) {
+          // ✅ แก้ไขเงื่อนไข: ห้ามกดแถว 4-6 (x >= 4)
+          if (x >= 4 && x <= 6) {
             seed.style.opacity = "0.3";
             seed.style.cursor = "not-allowed";
           } else {

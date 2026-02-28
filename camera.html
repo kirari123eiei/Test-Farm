@@ -39,7 +39,7 @@
 
   /* --- Grid Styling --- */
   .grid-wrapper {
-    overflow-x: auto; /* เลื่อนแนวนอนได้ในมือถือ */
+    overflow: hidden; /* เลื่อนแนวนอนได้ในมือถือ */
     padding: 10px;
     border-radius: 16px;
     background: white;
@@ -437,7 +437,7 @@
       <!-- Right Column: Grid Map -->
       <div class="lg:col-span-6">
         <!-- ✅ แก้บรรทัดนี้: เพิ่ม w-fit mx-auto max-w-full -->
-        <div class="bg-white p-4 md:p-6 rounded-3xl shadow-lg border border-slate-100 w-max mx-auto">
+        <div class="bg-white p-4 md:p-6 rounded-3xl shadow-lg border border-slate-100 w-full mx-auto">
            <div class="flex items-center justify-between mb-4">
              <h3 class="font-bold text-lg text-slate-700">แผนผังแปลงปลูก</h3>
              <span class="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded-md">6 x 11 Grid</span>
@@ -553,13 +553,11 @@
       let cellSize = 60; // ค่าปกติสำหรับ Desktop
 
       // ตรวจสอบความกว้างหน้าจอ (ถ้าเป็นมือถือ < 768px)
+      /* ✅ แก้เป็น (ใช้ window.innerWidth - 60 เพื่อเผื่อขอบซ้ายขวาให้พอดีสวยงาม) */
       if (window.innerWidth < 768) {
-         const wrapper = document.querySelector('.grid-wrapper');
-         // หาความกว้างจริงของพื้นที่แสดงผล ลบ padding ออกนิดหน่อย
-         const availableWidth = wrapper ? wrapper.clientWidth - 20 : window.innerWidth - 40;
-         
-         // สูตร: ความกว้าง / (จำนวนคอลัมน์ + 1 ช่องสำหรับขอบซ้าย)
-         cellSize = Math.floor(availableWidth / (cols + 1));
+        // ใช้ความกว้างหน้าจอโดยตรง ลบ padding ซ้ายขวาของ Container (ประมาณ 48-60px)
+        const availableWidth = window.innerWidth - 60; 
+        cellSize = Math.floor(availableWidth / (cols + 1));
       }
       
       // ป้องกันไม่ให้เล็กจนเกินไป (ขั้นต่ำ 40px เพื่อให้จิ้มง่าย)
