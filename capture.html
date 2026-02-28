@@ -1,522 +1,234 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="th">
-
 <head>
-    <meta charset="utf-8" />
-    <title>ESP32 Images</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <style>
-        body { background:#f3f4f6; padding:24px; font-family: Arial;}
-        h1 { font-size:24px; font-weight:700; color:#1e40af; text-align:center; margin-bottom:50px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Gallery - ESP32 Images</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-        .grid {
-            display:grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap:20px;
-            max-width:1400px;
-            margin:0 auto;
-        }
-        .card { background:white; border-radius:12px; overflow:hidden; box-shadow:0 6px 18px rgba(0,0,0,0.06); cursor:pointer; }
-        .thumb { width:100%; aspect-ratio:16/9; object-fit:cover; background:#ddd; }
-        .meta { padding:10px 14px; }
-        .title { font-weight:600; font-size:15px; }
-        .stats { font-size:12px; color:#64748b; margin-top:4px; }
-
-        /* Popup preview */
-        #previewOverlay {
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center; z-index:50;
-        }
-        #previewOverlay img { max-width:90%; max-height:90%; border-radius:12px; }
-        #previewOverlay span { position:absolute; top:20px; right:30px; color:white; font-size:30px; cursor:pointer; }
-
-  /* Sidebar */
-  #sidebar {
-    position: fixed;
-    top: 0;
-    left: -260px;
-    width: 260px;
-    height: 100%;
-    background: white;
-    box-shadow: 3px 0 12px rgba(0,0,0,0.15);
-    padding: 20px;
-    z-index: 60;
-    transition: left 0.3s ease;
-  }
-
-  .sidebar-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 10px;
-}
-
-.sidebar-header h2 {
-  font-size: 24px;
-  font-weight: bold;
-  margin: 0;
-}
-
-.hamburger-btn {
-  position: absolute;
-  left: 1.25rem; /* left-5 */
-  top: 1.25rem;  /* top-5 */
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-}
-
-.hamburger-btn svg {
-  width: 3em;
-  height: 3em;
-}
-
-.hamburger-btn path {
-  fill: none;
-  stroke: rgb(0, 0, 0);
-  stroke-width: 3;
-  stroke-linecap: round;
-  transition: stroke 0.2s ease;
-}
-
-/* hamburger */
-.hamburger {
-  cursor: pointer;
-}
-
-.hamburger input {
-  display: none;
-}
-
-.hamburger svg {
-  height: 2.5em;
-  transition: transform 600ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* hover แล้วสีจางลง */
-.hamburger-btn:hover path {
-  stroke: #1e40af;
-}
-
-.line {
-  fill: none;
-  stroke: #333;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 3;
-  transition: stroke-dasharray 600ms cubic-bezier(0.4, 0, 0.2, 1),
-              stroke-dashoffset 600ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.line-top-bottom {
-  stroke-dasharray: 12 63;
-}
-
-.hamburger input:hover + svg {
-  transform: rotate(-45deg);
-}
-
-.hamburger input:hover+ svg .line-top-bottom {
-  stroke-dasharray: 20 300;
-  stroke-dashoffset: -32.42;
-}
-
-#closeSidebarX {
-  font-size: 32px;
-  cursor: pointer;
-  color: #333;
-  font-weight: bold;
-}
-
-#sidebar.active { left: 0; }
-
-
-#overlayBg {
-      position: fixed;
-      top:0; left:0;
-      width:100%; height:100%;
-      background: rgba(0,0,0,0.4);
-      display:none;
-      z-index:55;
-  }
-
-/* ลิงก์ใน Sidebar */
-#sidebar a {
-    display: block;
-    padding: 12px 16px;
-    border-radius: 999px;
-    text-decoration: none;
-    width: 100%;
-    color: #1e40af;
-
-    /* เอฟเฟกต์ */
-    transition: 
-        background 0.3s ease,
-        color 0.3s ease,
-        box-shadow 0.3s ease,
-        transform 0.3s ease;
-}
-
-/* effect กลาง ใช้ร่วมกัน */
-#sidebar a.menu {
-    display: block;
-    padding: 10px 14px;
-    border-radius: 999px;
-    transition: all 0.3s ease;
-}
-
-/* หน้าแรก */
-#sidebar a.home:hover {
-    background: #487bdb;
-    color: #fff;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    transform: translateY(-5px);
-}
-
-/* กล้อง */
-#sidebar a.camera:hover {
-    background: #10b981; /* เขียว */
-    color: #fff;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    transform: translateY(-5px);
-}
-
-/* กล้อง2 */
-#sidebar a.camera2:hover {
-    background: #e6d308; /* เขียว */
-    color: #fff;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    transform: translateY(-5px);
-}
-
-/* อัตโนมัติ */
-#sidebar a.auto:hover {
-    background: #eb9e05; /* เขียว */
-    color: #fff;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    transform: translateY(-5px);
-}
-
-/* รูปภาพ */
-#sidebar a.image:hover {
-    background: #f50b0b; /* ส้ม */
-    color: #fff;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    transform: translateY(-5px);
-}
-
-/* FAQ */
-#sidebar a.faq:hover {
-    background: #ef348e; /* แดง */
-    color: #fff;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    transform: translateY(-5px);
-}
-
-
-
-  .sidebar-divider {
-      width: 90%;
-      height: 1px;
-      background: #e5e7eb;
-      margin: 100px 0;
-  }
-
-  #previewOverlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.8);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-}
-
-#previewOverlay img {
-    max-width: 90%;
-    max-height: 90%;
-    border-radius: 12px;
-}
-
-#closePreview {
-    position: absolute;
-    top: 20px;
-    right: 30px;
-    color: white;
-    font-size: 32px;
-    cursor: pointer;
-}
-
+<style>
+  body { font-family: 'Prompt', sans-serif; background-color: #f1f5f9; color: #334155; }
   
+  /* Sidebar & Overlay */
+  #sidebar {
+    position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
+    background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.05); z-index: 60;
+    transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 24px; display: flex; flex-direction: column;
+  }
+  #sidebar.active { left: 0; }
+  
+  .sidebar-link {
+    display: flex; align-items: center; padding: 12px 16px; margin-bottom: 8px;
+    border-radius: 12px; color: #475569; font-weight: 500; transition: all 0.2s;
+  }
+  .sidebar-link:hover { background: #eff6ff; color: #2563eb; transform: translateX(4px); }
+  
+  #overlayBg {
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.3); backdrop-filter: blur(2px); display:none; z-index:55;
+  }
+
+  /* Image Card */
+  .img-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .img-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Preview Overlay */
+  #previewOverlay {
+    backdrop-filter: blur(5px);
+  }
 </style>
 </head>
+<body class="bg-slate-50 min-h-screen">
 
-<body>
-<!-- 🔵 ปุ่มสามขีด -->
-    <button id="menuBtn" class="hamburger-btn">
-    <svg viewBox="0 0 32 32">
-        <path d="M7 10 27 10"></path>
-        <path d="M7 16 27 16"></path>
-        <path d="M7 22 27 22"></path>
-    </svg>
-    </button>
-<!-- 🔵 SIDEBAR -->
-<div id="sidebar">
-
-    <div class="sidebar-header">
-      <h2>Menu</h2>
-      <label class="hamburger" id="closeSidebarBtn">
-      <input type="checkbox" id="sidebarToggle">
-      <svg viewBox="0 0 32 32">
-        <path class="line line-top-bottom"
-          d="M27 10 13 10C10.8 10 9 8.2 9 6
-            9 3.5 10.8 2 13 2
-            15.2 2 17 3.8 17 6
-            L17 26C17 28.2 18.8 30
-            21 30 23.2 30 25 28.2
-            25 26 25 23.8 23.2 22
-            21 22L7 22"></path>
-        <path class="line" d="M7 16 27 16"></path>
-      </svg>
-    </label>
+    <!-- 🔵 Hamburger Button -->
+    <div id="menuBtn" class="fixed top-5 left-5 z-50 bg-white p-3 rounded-full shadow-md cursor-pointer hover:scale-105 transition">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1e293b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
     </div>
 
-    <ul class="space-y-3 margin-top-4">
-        <li><a href="index.html" class="menu home text-blue-600">หน้าแรก</a></li>
-        <div class="sidebar-divider"></div>
-
-        <li><a href="camera.html" class="menu camera text-blue-600">แขนกล 1</a></li>
-        <div class="sidebar-divider"></div>
-
-        <li><a href="camera2.html" class="menu camera2 text-blue-600">แขนกล 2</a></li>
-        <div class="sidebar-divider"></div>
-
-        <li><a href="auto.html" class="menu auto text-blue-600">ระบบอัตโนมัติ</a></li>
-        <div class="sidebar-divider"></div>
-
-        <li><a href="capture.html" class="menu image text-blue-600">รูปภาพ</a></li>
-        <div class="sidebar-divider"></div>
-
-        <li><a href="FAQ.html" class="menu faq text-blue-600">ฟังก์ชันอื่นๆ</a></li>
-        <div class="sidebar-divider"></div>
-    </ul>
-
-
-    <!-- ⭐ ผู้ใช้ + Logout ย้ายมาไว้ที่นี่ ⭐ -->
-    <div id="sidebarUserBox" style="
-        position: absolute;
-        bottom: 20px;
-        left: 20px;
-        right: 20px;
-    ">
-        <div id="sidebarUsername"
-            class="font-bold text-blue-700 mb-2">
-            ผู้ใช้: -
+    <!-- 🔵 Sidebar -->
+    <div id="sidebar">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-bold text-slate-800">Menu</h2>
+            <label class="cursor-pointer" id="closeSidebarBtn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </label>
         </div>
+        <nav class="flex-1 space-y-1">
+            <a href="index.html" class="sidebar-link home">🏠 หน้าแรก</a>
+            <a href="camera.html" class="sidebar-link camera">🤖 แขนกล 1</a>
+            <a href="camera2.html" class="sidebar-link camera2">🤖 แขนกล 2</a>
+            <a href="auto.html" class="sidebar-link auto">⚡ ระบบอัตโนมัติ</a>
+            <a href="capture.html" class="sidebar-link image bg-blue-50 text-blue-600">📷 รูปภาพ</a>
+            <a href="FAQ.html" class="sidebar-link faq">❓ ฟังก์ชันอื่นๆ</a>
+        </nav>
+        <div class="mt-auto pt-6 border-t border-slate-200">
+            <div id="sidebarUsername" class="text-sm font-semibold text-slate-600 mb-3 truncate">ผู้ใช้: -</div>
+            <button id="sidebarLogoutBtn" class="w-full bg-red-50 hover:bg-red-100 text-red-600 py-2.5 rounded-xl font-semibold transition text-sm">ออกจากระบบ</button>
+        </div>
+    </div>
+    <div id="overlayBg"></div>
 
-        <button id="sidebarLogoutBtn"
-            class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-bold transition">
-            ออกจากระบบ
-        </button>
+    <!-- 🔵 Main Content -->
+    <div class="w-full max-w-7xl mx-auto px-4 py-12 pb-24">
+        <header class="text-center mb-10 mt-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-800 mb-2">แกลเลอรีรูปภาพ</h1>
+            <p class="text-slate-500 text-sm">ภาพถ่ายจากกล้อง ESP32-CAM</p>
+        </header>
+
+        <!-- Image Grid -->
+        <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- JS will populate images here -->
+        </div>
+        
+        <div id="empty" class="text-center py-20 hidden">
+            <div class="inline-block p-4 bg-slate-100 rounded-full text-slate-400 mb-3">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            </div>
+            <p class="text-slate-500 font-medium">ยังไม่มีภาพในระบบ</p>
+        </div>
     </div>
 
-</div>
-
-<div id="overlayBg"></div>
-
-
-    <!-- TITLE -->
-    <h1>ภาพจาก ESP32-CAM</h1>
-
-    <!-- IMAGE GRID -->
-    <div id="grid" class="grid"></div>
-    <div id="empty" class="text-center text-gray-500 mt-10" style="display:none;">ยังไม่มีภาพในระบบ</div>
-
-    <!-- RELOAD BUTTON -->
-    <button id="reloadBtn"
-        class="fixed bottom-4 left-4 bg-blue-500 text-white px-5 py-3 rounded-full shadow-lg hover:bg-blue-600 transition">
-        &#8635; โหลดใหม่
+    <!-- 🔵 Reload Button (Floating) -->
+    <button id="reloadBtn" class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-xl transition transform hover:scale-110 flex items-center gap-2 z-40">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        <span class="hidden md:inline font-bold">โหลดใหม่</span>
     </button>
 
-    <!-- POPUP PREVIEW -->
-    <div id="previewOverlay">
-        <span id="closePreview">&times;</span>
-        <img id="previewImage" src="">
+    <!-- 🔵 Popup Preview -->
+    <div id="previewOverlay" class="fixed inset-0 bg-black/90 z-[100] hidden items-center justify-center p-4">
+        <button id="closePreview" class="absolute top-6 right-6 text-white/70 hover:text-white transition">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+        <img id="previewImage" src="" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain">
     </div>
 
+    <footer class="text-center py-6 text-slate-400 text-xs">
+    &copy; 2025 Klabot Dev Team. All rights reserved.
+    </footer>
 
-    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
     <script>
-    const SUPABASE_URL = "https://yiaemxmwfxrfrwtogamw.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw";
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_URL = "https://yiaemxmwfxrfrwtogamw.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw";
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const BUCKET_NAME = 'esp32-images';
+        let currentUser = null;
 
-    const BUCKET_NAME = 'esp32-images';
-    let currentUser = null;
-
-    // ================= ตรวจสอบผู้ใช้ =================
-    async function checkUser() {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-
-        if (!session || !session.user) {
-            window.location.href = "login.html";
-            return;
+        async function checkUser() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session || !session.user) { window.location.href = "login.html"; return; }
+            currentUser = session.user;
+            document.getElementById("sidebarUsername").textContent = `ผู้ใช้: ${currentUser.email}`;
+            loadImages();
         }
+        checkUser();
 
-        currentUser = session.user;
-
-        // ✅ แสดงชื่อผู้ใช้ใน Sidebar
-        document.getElementById("sidebarUsername").textContent =
-            `ผู้ใช้: ${currentUser.email}`;
-
-        loadImages();
-    }
-    checkUser();
-
-    // ================= Logout (Sidebar) =================
-    document.getElementById("sidebarLogoutBtn").addEventListener("click", async () => {
-        const { error } = await supabaseClient.auth.signOut();
-        if (!error) window.location.href = "login.html";
-    });
-
-    
-
-    // ================= โหลดรูป =================
-    async function loadImages() {
-    const grid = document.getElementById("grid");
-    const empty = document.getElementById("empty");
-
-    grid.innerHTML = "";
-    empty.style.display = "none";
-
-    // 🔁 ฟังก์ชันดึงไฟล์แบบ recursive
-    async function listAllFiles(path = "") {
-        let results = [];
-
-        const { data, error } = await supabaseClient
-            .storage
-            .from(BUCKET_NAME)
-            .list(path, { limit: 1000 });
-
-        if (error) {
-            console.error("List error:", error);
-            return results;
-        }
-
-        for (const item of data) {
-            if (item.id === null) {
-                // 📁 เป็น folder → ไล่ต่อ
-                const subFiles = await listAllFiles(
-                    path ? `${path}/${item.name}` : item.name
-                );
-                results = results.concat(subFiles);
-            } else {
-                // 🖼 เป็นไฟล์
-                results.push({
-                    ...item,
-                    fullPath: path ? `${path}/${item.name}` : item.name
-                });
-            }
-        }
-
-        return results;
-    }
-
-    // ✅ ดึงไฟล์ทั้งหมดจริง ๆ
-    const files = await listAllFiles();
-
-    if (!files || files.length === 0) {
-        empty.style.display = "block";
-        empty.textContent = "ยังไม่มีภาพในระบบ";
-        return;
-    }
-
-    files
-        .filter(f => f.name.match(/\.(jpg|jpeg|png)$/i))
-        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-        .forEach(file => {
-
-            const { data } = supabaseClient
-                .storage
-                .from(BUCKET_NAME)
-                .getPublicUrl(file.fullPath);
-
-            const card = document.createElement("div");
-            card.className = "card";
-
-            const img = document.createElement("img");
-            img.className = "thumb";
-            img.src = data.publicUrl;
-
-            card.addEventListener("click", () => {
-                document.getElementById("previewImage").src = data.publicUrl;
-                document.getElementById("previewOverlay").style.display = "flex";
-            });
-
-            const meta = document.createElement("div");
-            meta.className = "meta";
-
-            const title = document.createElement("div");
-            title.className = "title";
-            title.textContent = file.name;
-
-            const stats = document.createElement("div");
-            stats.className = "stats";
-            stats.textContent =
-                `📅 ${new Date(file.created_at).toLocaleString()} • ${(file.metadata?.size / 1024).toFixed(1)} KB`;
-
-            meta.appendChild(title);
-            meta.appendChild(stats);
-
-            card.appendChild(img);
-            card.appendChild(meta);
-            grid.appendChild(card);
+        document.getElementById("sidebarLogoutBtn").addEventListener("click", async () => {
+            await supabaseClient.auth.signOut(); window.location.href = "login.html";
         });
-}
 
-// ❌ ปิดเมื่อกดกากบาท
-document.getElementById("closePreview").addEventListener("click", () => {
-    document.getElementById("previewOverlay").style.display = "none";
-    document.getElementById("previewImage").src = "";
-});
+        async function loadImages() {
+            const grid = document.getElementById("grid");
+            const empty = document.getElementById("empty");
+            const reloadBtn = document.getElementById("reloadBtn");
+            
+            // Animation start
+            reloadBtn.classList.add("animate-spin"); 
+            grid.innerHTML = "";
+            empty.classList.add("hidden");
 
-// ❌ ปิดเมื่อกดพื้นหลัง (ไม่ใช่รูป)
-document.getElementById("previewOverlay").addEventListener("click", (e) => {
-    if (e.target.id === "previewOverlay") {
-        document.getElementById("previewOverlay").style.display = "none";
-        document.getElementById("previewImage").src = "";
-    }
-});
+            async function listAllFiles(path = "") {
+                let results = [];
+                const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).list(path, { limit: 1000 });
+                if (error) return results;
+                for (const item of data) {
+                    if (item.id === null) {
+                        const subFiles = await listAllFiles(path ? `${path}/${item.name}` : item.name);
+                        results = results.concat(subFiles);
+                    } else {
+                        results.push({ ...item, fullPath: path ? `${path}/${item.name}` : item.name });
+                    }
+                }
+                return results;
+            }
 
-// ====== Sidebar Open/Close ======
-const menuBtn = document.getElementById("menuBtn");
-const sidebar = document.getElementById("sidebar");
-const overlayBg = document.getElementById("overlayBg");
-const closeSidebarBtn = document.getElementById("closeSidebarBtn");
+            const files = await listAllFiles();
+            reloadBtn.classList.remove("animate-spin");
 
-// เปิด Sidebar
-menuBtn.addEventListener("click", () => {
-    sidebar.classList.add("active");
-    overlayBg.style.display = "block";
-});
+            if (!files || files.length === 0) {
+                empty.classList.remove("hidden");
+                return;
+            }
 
-// ปิด Sidebar ด้วยปุ่ม X
-closeSidebarBtn.addEventListener("click", () => {
-    sidebar.classList.remove("active");
-    overlayBg.style.display = "none";
-});
+            files.filter(f => f.name.match(/\.(jpg|jpeg|png)$/i))
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .forEach(file => {
+                    const { data } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(file.fullPath);
+                    
+                    const card = document.createElement("div");
+                    card.className = "img-card bg-white rounded-2xl overflow-hidden cursor-pointer border border-slate-100";
+                    card.innerHTML = `
+                        <div class="relative aspect-video bg-slate-200 overflow-hidden">
+                            <img src="${data.publicUrl}" class="w-full h-full object-cover transition duration-500 hover:scale-110" loading="lazy">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-slate-700 text-sm truncate mb-1">${file.name}</h3>
+                            <div class="flex justify-between items-center text-xs text-slate-400">
+                                <span>📅 ${new Date(file.created_at).toLocaleString('th-TH')}</span>
+                                <span class="bg-slate-100 px-2 py-1 rounded">${(file.metadata?.size / 1024).toFixed(1)} KB</span>
+                            </div>
+                        </div>
+                    `;
+                    card.addEventListener("click", () => {
+                        document.getElementById("previewImage").src = data.publicUrl;
+                        document.getElementById("previewOverlay").classList.remove("hidden");
+                        document.getElementById("previewOverlay").classList.add("flex");
+                    });
+                    grid.appendChild(card);
+                });
+        }
 
-// ปิด Sidebar เมื่อคลิกที่ overlay
-overlayBg.addEventListener("click", () => {
-    sidebar.classList.remove("active");
-    overlayBg.style.display = "none";
-});
+        document.getElementById("reloadBtn").addEventListener("click", loadImages);
 
+        // Preview Logic
+        const closePreview = () => {
+            const overlay = document.getElementById("previewOverlay");
+            overlay.classList.add("hidden");
+            overlay.classList.remove("flex");
+            document.getElementById("previewImage").src = "";
+        };
+        document.getElementById("closePreview").addEventListener("click", closePreview);
+        document.getElementById("previewOverlay").addEventListener("click", (e) => {
+            if(e.target.id === "previewOverlay") closePreview();
+        });
 
-</script>
+        // Sidebar Logic
+        const sidebar = document.getElementById("sidebar");
+        const overlayBg = document.getElementById("overlayBg");
+        const toggle = document.getElementById("sidebarToggle");
 
+        document.getElementById("menuBtn").addEventListener("click", () => {
+            sidebar.classList.add("active");
+            overlayBg.style.display = "block";
+        });
+        document.getElementById("closeSidebarBtn").addEventListener("click", () => {
+            sidebar.classList.remove("active");
+            overlayBg.style.display = "none";
+        });
+        overlayBg.addEventListener("click", () => {
+            sidebar.classList.remove("active");
+            overlayBg.style.display = "none";
+        });
+    </script>
 </body>
 </html>

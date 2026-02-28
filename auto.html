@@ -2,1046 +2,683 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ระบบควบคุมอัตโนมัติ</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Auto Control</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+
 <style>
-    body { font-family: Arial; margin: 0; padding: 30px; background: #f3f4f6; display: flex; flex-direction: column; align-items: center; }
-    h1 { font-size:24px; font-weight:700; color:#1e40af; text-align:left;}
-    p { font-size: 15px; color:#adb5bd;}
-.divide {
-    width: 95%;
-    height: 1px;
-    background: #e5e7eb;
-    margin: 20px 0;
+  body {
+    font-family: 'Prompt', sans-serif;
+    background-color: #f1f5f9; /* Slate-100 */
+    color: #334155; /* Slate-700 */
+    overflow-x: hidden;
   }
-  /* Sidebar */
+
+  /* --- Sidebar --- */
   #sidebar {
     position: fixed;
     top: 0;
-    left: -260px;
-    width: 260px;
+    left: -280px;
+    width: 280px;
     height: 100%;
-    background: white;
-    box-shadow: 3px 0 12px rgba(0,0,0,0.15);
-    padding: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.05);
     z-index: 60;
-    transition: left 0.3s ease;
-  }
-
-  .sidebar-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 10px;
-}
-
-.sidebar-header h2 {
-  font-size: 24px;
-  font-weight: bold;
-  margin: 0;
-}
-
-.hamburger-btn {
-  position: absolute;
-  left: 1.25rem; /* left-5 */
-  top: 1.25rem;  /* top-5 */
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-}
-
-.hamburger-btn svg {
-  width: 3em;
-  height: 3em;
-}
-
-.hamburger-btn path {
-  fill: none;
-  stroke: rgb(0, 0, 0);
-  stroke-width: 3;
-  stroke-linecap: round;
-  transition: stroke 0.2s ease;
-}
-
-/* hamburger */
-.hamburger {
-  cursor: pointer;
-}
-
-.hamburger input {
-  display: none;
-}
-
-.hamburger svg {
-  height: 2.5em;
-  transition: transform 600ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* hover แล้วสีจางลง */
-.hamburger-btn:hover path {
-  stroke: #1e40af;
-}
-
-.line {
-  fill: none;
-  stroke: #333;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 3;
-  transition: stroke-dasharray 600ms cubic-bezier(0.4, 0, 0.2, 1),
-              stroke-dashoffset 600ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.line-top-bottom {
-  stroke-dasharray: 12 63;
-}
-
-.hamburger input:hover + svg {
-  transform: rotate(-45deg);
-}
-
-.hamburger input:hover+ svg .line-top-bottom {
-  stroke-dasharray: 20 300;
-  stroke-dashoffset: -32.42;
-}
-
-#closeSidebarX {
-  font-size: 32px;
-  cursor: pointer;
-  color: #333;
-  font-weight: bold;
-}
-
-#sidebar.active { left: 0; }
-
-
-#overlayBg {
-      position: fixed;
-      top:0; left:0;
-      width:100%; height:100%;
-      background: rgba(0,0,0,0.4);
-      display:none;
-      z-index:55;
-  }
-
-/* ลิงก์ใน Sidebar */
-#sidebar a {
-    display: block;
-    padding: 12px 16px;
-    border-radius: 999px;
-    text-decoration: none;
-    width: 100%;
-    color: #1e40af;
-
-    /* เอฟเฟกต์ */
-    transition: 
-        background 0.3s ease,
-        color 0.3s ease,
-        box-shadow 0.3s ease,
-        transform 0.3s ease;
-}
-
-/* effect กลาง ใช้ร่วมกัน */
-#sidebar a.menu {
-    display: block;
-    padding: 10px 14px;
-    border-radius: 999px;
-    transition: all 0.3s ease;
-}
-
-/* หน้าแรก */
-#sidebar a.home:hover {
-    background: #487bdb;
-    color: #fff;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    transform: translateY(-5px);
-}
-
-/* กล้อง */
-#sidebar a.camera:hover {
-    background: #10b981; /* เขียว */
-    color: #fff;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    transform: translateY(-5px);
-}
-
-/* กล้อง2 */
-#sidebar a.camera2:hover {
-    background: #e6d308; /* เขียว */
-    color: #fff;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    transform: translateY(-5px);
-}
-
-/* อัตโนมัติ */
-#sidebar a.auto:hover {
-    background: #eb9e05; /* เขียว */
-    color: #fff;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    transform: translateY(-5px);
-}
-
-/* รูปภาพ */
-#sidebar a.image:hover {
-    background: #f50b0b; /* ส้ม */
-    color: #fff;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    transform: translateY(-5px);
-}
-
-/* FAQ */
-#sidebar a.faq:hover {
-    background: #ef348e; /* แดง */
-    color: #fff;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    transform: translateY(-5px);
-}
-
-
-  .sidebar-divider {
-      width: 90%;
-      height: 1px;
-      background: #e5e7eb;
-      margin: 100px 0;
-  }
-
-    /* The switch - the box around the slider */
-.switch {
-  font-size: 17px;
-  position: relative;
-  display: inline-block;
-  width: 3.5em;
-  height: 2em;
-}
-
-/* Hide default HTML checkbox */
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-/* The slider */
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #fff;
-  border: 1px solid #adb5bd;
-  transition: .4s;
-  border-radius: 30px;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 1.4em;
-  width: 1.4em;
-  border-radius: 20px;
-  left: 0.27em;
-  bottom: 0.25em;
-  background-color: #adb5bd;
-  transition: .4s;
-}
-
-input:checked + .slider {
-  background-color: #007bff;
-  border: 1px solid #007bff;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #007bff;
-}
-
-input:checked + .slider:before {
-  transform: translateX(1.4em);
-  background-color: #fff;
-}
-
-.auto-row {
-  display: flex;
-  align-items: center;      /* กลางแนวตั้ง */
-  justify-content: center;  /* กลางแนวนอน */
-  gap: 30px;                /* ระยะห่างข้อความกับสวิตช์ */
-  width: 100%;
-  margin-bottom: 30px;
-}
-
-/* กล่องฟังก์ชัน */
-#autoFunctions {
-  color:#1e40af;
-  width: 100%;
-  margin-top: 30px;
-  margin-left: 30px;
-  margin-right: 30px;
-  display: flex;
-  gap: 50px;
-  flex-wrap: wrap;   /* ⭐ สำคัญ */
-  transition: opacity 0.3s;
-}
-
-
-#autoFunctions h2 {
-    text-align: center;
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 25px;
-}
-
-/* สถานะปิด (จาง + กดไม่ได้) */
-#autoFunctions.disabled {
-  opacity: 0.4;
-  pointer-events: none; /* ห้ามคลิก */
-  transition: opacity 0.3s;
-}
-
-.auto-item {
-  display: flex;
-  align-items: center;      /* จัดให้อยู่กึ่งกลางแนวตั้ง */
-  justify-content: space-between;
-  margin-bottom: 15px;
-}
-
-.auto-item p {
-  color: black;
-  margin: 0;
-  font-size: 18px;
-}
-
-
-
-.yes, .no, .middle {
-  flex: 1 1 400px;   /* ⭐ จอเล็กจะไหลลง */
-  max-width: 100%;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-  border-radius: 10px;
-  background-color: white;
-  padding: 30px;
-}
-
-
-.yes {
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    border-radius: 10px;
-    background-color: white;
-}
-
-.no {
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    border-radius: 10px;
-    background-color: white;
-}
-
-.middle {
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    border-radius: 10px;
-    background-color: white;
-}
-
-.save {
-  display: inline-block;
-  transition: all 0.2s ease-in;
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-  color: #ffffff;
-  padding: 10px 20px;
-  margin-top: 50px;
-  cursor: pointer;
-  font-size: 18px;
-  font-weight: bold;
-  border-radius: 0.5em;
-  background: #007bff;
-  border: 1px solid #007bff;
-  box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
-}
-
-.save:active {
-  color: #666;
-  box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
-}
-
-.save:before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%) scaleY(1) scaleX(1.25);
-  top: 100%;
-  width: 140%;
-  height: 180%;
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 50%;
-  display: block;
-  transition: all 0.5s 0.1s cubic-bezier(0.55, 0, 0.1, 1);
-  z-index: -1;
-}
-
-.save:after {
-  content: "";
-  position: absolute;
-  left: 55%;
-  transform: translateX(-50%) scaleY(1) scaleX(1.45);
-  top: 180%;
-  width: 160%;
-  height: 190%;
-  background-color: #007bff;
-  border-radius: 50%;
-  display: block;
-  transition: all 0.5s 0.1s cubic-bezier(0.55, 0, 0.1, 1);
-  z-index: -1;
-}
-
-.save:hover {
-  color: #ffffff;
-  border: 1px solid #007bff;
-}
-
-.save:hover:before {
-  top: -35%;
-  background-color: black;
-  transform: translateX(-50%) scaleY(1.3) scaleX(0.8);
-}
-
-.save:hover:after {
-  top: -45%;
-  background-color: black;
-  transform: translateX(-50%) scaleY(1.3) scaleX(0.8);
-}
-
-.save.disabled {
-  opacity: 0.4;
-  pointer-events: none;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-/* ❌ ปิดเอฟเฟค hover เมื่อ disabled */
-.save.disabled:hover {
-  color: #ffffff;
-  border: 1px solid #007bff;
-}
-
-/* ❌ ปิดเอฟเฟคคลื่น */
-.save.disabled::before,
-.save.disabled::after {
-  display: none;
-}
-
-/* แถวที่มีเวลา */
-.time-row {
-  gap: 16px;
-}
-
-/* ทำให้เหมือนช่อง "ตั้งเวลา" */
-.same-time {
-  width: 100px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 2px solid #d1d5db;
-  background: #f9fafb;
-  font-size: 15px;
-  transition: 0.2s;
-}
-
-/* ยังไม่เปิด */
-.same-time:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* เปิดแล้ว */
-.same-time:not(:disabled) {
-  background: #ffffff;
-  border-color: #3b82f6;
-}
-
-/* focus */
-.same-time:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
-}
-
-/* แถวหลัก */
-.time-row {
-  justify-content: space-between;
-}
-
-/* กลุ่ม สวิตช์ + เวลา */
-.time-control {
-  display: flex;
-  align-items: center;
-  gap: 10px;          /* ⭐ ระยะห่างสวิตช์กับเวลา */
-}
-
-/* ช่องเวลา */
-.same-time {
-  width: 100px;
-}
-
-/* บนจอเล็ก */
-@media (max-width: 640px) {
-  .time-row {
+    transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 24px;
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
+  }
+  #sidebar.active { left: 0; }
+  
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    color: #475569;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .sidebar-link:hover {
+    background: #eff6ff;
+    color: #2563eb;
+    transform: translateX(4px);
   }
 
-  .time-control {
+  /* --- Hamburger --- */
+  .hamburger-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 50;
+    background: white;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .hamburger-btn:hover { transform: scale(1.05); }
+
+  /* Overlay Background */
+  #overlayBg {
+    position: fixed;
+    top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(2px);
+    display:none;
+    z-index:55;
+  }
+
+  /* --- Toggle Switch --- */
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+  }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #e2e8f0;
+    transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 34px;
+  }
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  input:checked + .slider { background-color: #10b981; }
+  input:checked + .slider:before { transform: translateX(22px); }
+
+  /* --- Time Input Styling --- */
+  .time-input {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-size: 14px;
+    color: #334155;
+    outline: none;
+    transition: all 0.2s;
     width: 100%;
-    justify-content: flex-end;
+    text-align: center;
   }
-}
+  .time-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  }
+  .time-input:disabled {
+    background: #e2e8f0;
+    color: #94a3b8;
+    cursor: not-allowed;
+  }
 
+  /* --- Cards --- */
+  .control-card {
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f1f5f9;
+    height: 100%;
+    transition: transform 0.2s, opacity 0.3s;
+  }
+  
+  .function-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .function-row:last-child { border-bottom: none; }
 
+  /* Disabled State for Container */
+  .disabled-zone {
+    opacity: 0.5;
+    pointer-events: none;
+    filter: grayscale(0.5);
+  }
+
+  /* Save Button */
+  .save-btn {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    padding: 14px 40px;
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 16px;
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    max-width: 300px;
+  }
+  .save-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(37, 99, 235, 0.3);
+  }
+  .save-btn:active { transform: scale(0.98); }
+  .save-btn.disabled {
+    background: #94a3b8;
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+  }
 
 </style>
 </head>
-<body>
+<body class="bg-slate-50">
 
-  <!-- 🔵 ปุ่มสามขีด -->
-    <button id="menuBtn" class="hamburger-btn">
-    <svg viewBox="0 0 32 32">
-        <path d="M7 10 27 10"></path>
-        <path d="M7 16 27 16"></path>
-        <path d="M7 22 27 22"></path>
+  <!-- 🔵 ปุ่มเมนู (Hamburger) -->
+  <div id="menuBtn" class="hamburger-btn">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1e293b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
     </svg>
-    </button>
+  </div>
 
-<!-- 🔵 SIDEBAR -->
-<div id="sidebar">
-
-    <div class="sidebar-header">
-      <h2>Menu</h2>
-      <label class="hamburger" id="closeSidebarBtn">
-      <input type="checkbox" id="sidebarToggle">
-      <svg viewBox="0 0 32 32">
-        <path class="line line-top-bottom"
-          d="M27 10 13 10C10.8 10 9 8.2 9 6
-            9 3.5 10.8 2 13 2
-            15.2 2 17 3.8 17 6
-            L17 26C17 28.2 18.8 30
-            21 30 23.2 30 25 28.2
-            25 26 25 23.8 23.2 22
-            21 22L7 22"></path>
-        <path class="line" d="M7 16 27 16"></path>
-      </svg>
-    </label>
+  <!-- 🔵 SIDEBAR -->
+  <div id="sidebar">
+    <div class="flex justify-between items-center mb-8">
+      <h2 class="text-2xl font-bold text-slate-800">Menu</h2>
+      <label class="cursor-pointer" id="closeSidebarBtn">
+        <input type="checkbox" id="sidebarToggle" class="hidden">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </label>
     </div>
 
-    <ul class="space-y-3 margin-top-4">
-        <li><a href="index.html" class="menu home text-blue-600">หน้าแรก</a></li>
-        <div class="sidebar-divider"></div>
+    <nav class="flex-1 space-y-1">
+      <a href="index.html" class="sidebar-link home">🏠 หน้าแรก</a>
+      <a href="camera.html" class="sidebar-link camera">🤖 แขนกล 1</a>
+      <a href="camera2.html" class="sidebar-link camera2">🤖 แขนกล 2</a>
+      <a href="auto.html" class="sidebar-link auto bg-blue-50 text-blue-600">⚡ ระบบอัตโนมัติ</a>
+      <a href="capture.html" class="sidebar-link image">📷 รูปภาพ</a>
+      <a href="FAQ.html" class="sidebar-link faq">❓ ฟังก์ชันอื่นๆ</a>
+    </nav>
 
-        <li><a href="camera.html" class="menu camera text-blue-600">แขนกล 1</a></li>
-        <div class="sidebar-divider"></div>
+    <div class="mt-auto pt-6 border-t border-slate-200">
+      <div id="sidebarUsername" class="text-sm font-semibold text-slate-600 mb-3 truncate">
+        ผู้ใช้: -
+      </div>
+      <button id="sidebarLogoutBtn" class="w-full bg-red-50 hover:bg-red-100 text-red-600 py-2.5 rounded-xl font-semibold transition text-sm">
+        ออกจากระบบ
+      </button>
+    </div>
+  </div>
 
-        <li><a href="camera2.html" class="menu camera2 text-blue-600">แขนกล 2</a></li>
-        <div class="sidebar-divider"></div>
+  <div id="overlayBg"></div>
 
-        <li><a href="auto.html" class="menu auto text-blue-600">ระบบอัตโนมัติ</a></li>
-        <div class="sidebar-divider"></div>
+  <!-- 🔵 MAIN CONTENT -->
+  <div id="app" class="w-full max-w-5xl mx-auto px-4 py-8 md:py-12 pb-20">
+    
+    <header class="text-center mb-10 mt-8 md:mt-0">
+      <h1 class="text-3xl md:text-4xl font-bold text-slate-800 mb-2">ระบบควบคุมอัตโนมัติ</h1>
+      <p class="text-slate-500 text-sm md:text-base">ตั้งเวลาการทำงานของอุปกรณ์ (Scheduler)</p>
+    </header>
 
-        <li><a href="capture.html" class="menu image text-blue-600">รูปภาพ</a></li>
-        <div class="sidebar-divider"></div>
+    <!-- Master Switch Card -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 mb-8 flex items-center justify-between max-w-3xl mx-auto">
+      <div>
+        <h2 class="text-lg font-bold text-slate-700">เปิดใช้งานระบบอัตโนมัติ</h2>
+        <p class="text-xs text-slate-400">Master Switch Control</p>
+      </div>
+      <label class="switch scale-110">
+        <input type="checkbox" id="autoSwitch">
+        <span class="slider"></span>
+      </label>
+    </div>
 
-        <li><a href="FAQ.html" class="menu faq text-blue-600">ฟังก์ชันอื่นๆ</a></li>
-        <div class="sidebar-divider"></div>
-    </ul>
+    <!-- Functions Grid -->
+    <div id="autoFunctions" class="grid grid-cols-1 lg:grid-cols-3 gap-6 disabled-zone transition-all duration-300">
+      
+      <!-- Card 1: Robot A -->
+      <div class="control-card">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="p-2 bg-green-100 text-green-600 rounded-lg">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          </div>
+          <h3 class="font-bold text-slate-700 text-lg">แขนกล 1 (Zone A)</h3>
+        </div>
+        
+        <div class="space-y-4">
+          <!-- Moisture A -->
+          <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-medium text-slate-600">💧 วัดความชื้น</span>
+              <label class="switch">
+                <input type="checkbox" id="moistureA">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <input type="time" id="moistureTimeA" class="time-input" disabled>
+          </div>
 
-    <!-- ⭐ ผู้ใช้ + Logout ย้ายมาไว้ที่นี่ ⭐ -->
-    <div id="sidebarUserBox" style="
-        position: absolute;
-        bottom: 20px;
-        left: 20px;
-        right: 20px;
-    ">
-        <div id="sidebarUsername"
-            class="font-bold text-blue-700 mb-2">
-            ผู้ใช้: -
+          <div class="border-b border-slate-100 my-2"></div>
+
+          <!-- Water A -->
+          <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-medium text-slate-600">🚿 รดน้ำต้นกล้า</span>
+              <label class="switch">
+                <input type="checkbox" id="waterA">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <input type="time" id="waterTimeA" class="time-input" disabled>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Robot B -->
+      <div class="control-card">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="p-2 bg-blue-100 text-blue-600 rounded-lg">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+          </div>
+          <h3 class="font-bold text-slate-700 text-lg">แขนกล 2 (Zone B)</h3>
         </div>
 
-        <button id="sidebarLogoutBtn"
-            class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-bold transition">
-            ออกจากระบบ
-        </button>
-    </div>
+        <div class="space-y-4">
+          <!-- Moisture B -->
+          <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-medium text-slate-600">💧 วัดความชื้น</span>
+              <label class="switch">
+                <input type="checkbox" id="moistureB">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <input type="time" id="moistureTimeB" class="time-input" disabled>
+          </div>
 
-</div>
+          <div class="border-b border-slate-100 my-2"></div>
 
-<div id="overlayBg"></div>
-
-
-<div class="auto-row">
-  <h1>ระบบควบคุมอัตโนมัติ</h1>
-
-  <label class="switch">
-    <input type="checkbox" id="autoSwitch">
-    <span class="slider"></span>
-  </label>
-</div>
-
-<p>เปิดเพื่อเลือกฟังก์ชันการทำงาน</p>
-
-<div class="divide"></div>
-
-<!-- ฟังก์ชันข้างล่าง -->
-<div id="autoFunctions" class="disabled">
-  <div class="yes">
-    <h2>แขนกล 1</h2>
-
-    <div class="auto-item time-row">
-      <p>วัดความชื้น</p>
-
-      <div class="time-control">
-        <label class="switch">
-          <input type="checkbox" id="moistureA">
-          <span class="slider"></span>
-        </label>
-
-        <input
-          type="time"
-          id="moistureTimeA"
-          class="time-input same-time"
-          disabled
-        >
+          <!-- Water B -->
+          <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-medium text-slate-600">🚿 รดน้ำต้นกล้า</span>
+              <label class="switch">
+                <input type="checkbox" id="waterB">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <input type="time" id="waterTimeB" class="time-input" disabled>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div class="auto-item time-row">
-      <p>รดน้ำต้นกล้า</p>
+      <!-- Card 3: Others -->
+      <div class="control-card">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="p-2 bg-purple-100 text-purple-600 rounded-lg">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </div>
+          <h3 class="font-bold text-slate-700 text-lg">ฟังก์ชันอื่นๆ</h3>
+        </div>
 
-      <div class="time-control">
-        <label class="switch">
-          <input type="checkbox" id="waterA">
-          <span class="slider"></span>
-        </label>
+        <div class="space-y-4">
+          <!-- Light -->
+          <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-medium text-slate-600">💡 เปิดไฟส่องสว่าง</span>
+              <label class="switch">
+                <input type="checkbox" id="lightOnSwitch">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="time" id="lightOnTime" class="time-input" disabled>
+              <span class="text-xs text-slate-400">ถึง</span>
+              <input type="time" id="lightOffTime" class="time-input" disabled>
+            </div>
+          </div>
 
-        <input
-          type="time"
-          id="waterTimeA"
-          class="time-input same-time"
-          disabled
-        >
-      </div>
+          <div class="border-b border-slate-100 my-2"></div>
+
+          
+          <!-- ... ส่วนจบของ Card 3 (Solar) ... -->
+          <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-medium text-slate-600">☀️ ควบคุมโซลาร์เซลล์</span>
+              <label class="switch">
+                <input type="checkbox" id="solarSwitch">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="time" id="solarOnTime" class="time-input" disabled>
+              <span class="text-xs text-slate-400">ถึง</span>
+              <input type="time" id="solarOffTime" class="time-input" disabled>
+            </div>
+          </div>
+        </div> <!-- ปิด space-y-4 -->
+      </div> <!-- ปิด control-card -->
+
+    </div> <!-- 🔴🔴 เพิ่มตัวนี้ครับ! (เพื่อปิด autoFunctions Grid) 🔴🔴 -->
+
+    <!-- Save Button -->
+    <div class="mt-10 flex justify-center w-full">
+      <button id="saveBtn" class="save-btn disabled">
+        บันทึกการตั้งค่า
+      </button>
     </div>
 
   </div>
 
-  <div class="no">
-    <h2>แขนกล 2</h2>
+  <footer class="text-center py-6 text-slate-400 text-xs">
+    &copy; 2025 Klabot Dev Team. All rights reserved.
+  </footer>
 
-    <div class="auto-item time-row">
-      <p>วัดความชื้น</p>
-
-      <div class="time-control">
-        <label class="switch">
-          <input type="checkbox" id="moistureB">
-          <span class="slider"></span>
-        </label>
-
-        <input
-          type="time"
-          id="moistureTimeB"
-          class="time-input same-time"
-          disabled
-        >
-      </div>
-    </div>
-
-    <div class="auto-item time-row">
-      <p>รดน้ำต้นกล้า</p>
-
-      <div class="time-control">
-        <label class="switch">
-          <input type="checkbox" id="waterB">
-          <span class="slider"></span>
-        </label>
-
-        <input
-          type="time"
-          id="waterTimeB"
-          class="time-input same-time"
-          disabled
-        >
-      </div>
-    </div>
-  </div>
-
-  <div class="middle">
-    <h2>ฟังก์ชันอื่นๆ</h2>
-
-    <div class="auto-item time-row">
-      <p>เปิดไฟ</p>
-
-      <div class="time-control">
-        <label class="switch">
-          <input type="checkbox" id="lightOnSwitch">
-          <span class="slider"></span>
-        </label>
-
-        <!-- เวลาเปิด -->
-        <input
-          type="time"
-          id="lightOnTime"
-          class="time-input same-time"
-          disabled
-        >
-
-        <p> ถึง </p>
-
-        <!-- เวลาปิด -->
-        <input
-          type="time"
-          id="lightOffTime"
-          class="time-input same-time"
-          disabled
-        >
-      </div>
-    </div>
-
-
-
-    <div class="auto-item time-row">
-      <p>ควบคุมโซลาร์เซลล์</p>
-
-      <div class="time-control">
-        <label class="switch">
-          <input type="checkbox" id="solarSwitch">
-          <span class="slider"></span>
-        </label>
-
-        <input
-          type="time"
-          id="solarTime"
-          class="time-input same-time"
-          disabled
-        >
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
-<button id="saveBtn" class="disabled save">Save</button>
-
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL = "https://yiaemxmwfxrfrwtogamw.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw";
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const SUPABASE_URL = "https://yiaemxmwfxrfrwtogamw.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let currentUser = null;
-let currentPoint = {x:0,y:0};
-let chart = null;
+    let currentUser = null;
 
-// เช็ค user
-async function checkUser(){
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  if(!session || !session.user){ window.location.href="login.html"; return; }
-  currentUser = session.user;
-  document.getElementById("sidebarUsername").textContent = `ผู้ใช้: ${currentUser.email}`;
-  document.getElementById("app").style.display="block";
-  initGrid();
-}
-checkUser();
+    // เช็ค user
+    async function checkUser(){
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if(!session || !session.user){ window.location.href="login.html"; return; }
+      currentUser = session.user;
+      document.getElementById("sidebarUsername").textContent = `ผู้ใช้: ${currentUser.email}`;
+      document.getElementById("app").style.display="block";
+      loadAutoTasks();
+    }
+    checkUser();
 
-// logout
-document.getElementById("sidebarLogoutBtn").addEventListener("click", async ()=>{
-  const {error} = await supabaseClient.auth.signOut();
-  if(error) console.error(error.message); else window.location.href="login.html";
-});
+    // logout
+    document.getElementById("sidebarLogoutBtn").addEventListener("click", async ()=>{
+      const {error} = await supabaseClient.auth.signOut();
+      if(error) console.error(error.message); else window.location.href="login.html";
+    });
 
-  document.addEventListener("DOMContentLoaded", () => {
-  const sidebar = document.getElementById("sidebar");
-  const overlay = document.getElementById("overlayBg");
-  const toggle = document.getElementById("sidebarToggle");
-  const menuBtn = document.getElementById("menuBtn");
+    /* ===== Sidebar Control ===== */
+    const sidebar = document.getElementById("sidebar");
+    const overlayBg = document.getElementById("overlayBg");
+    const toggle = document.getElementById("sidebarToggle");
 
-  if (!sidebar || !overlay || !menuBtn) return;
+    document.getElementById("menuBtn").addEventListener("click", () => {
+        sidebar.classList.add("active");
+        overlayBg.style.display = "block";
+        toggle.checked = true;
+    });
 
-  // เปิด sidebar
-  menuBtn.addEventListener("click", () => {
-    sidebar.classList.add("active");
-    overlay.style.display = "block";
-    if (toggle) toggle.checked = true;
-  });
-
-  // กด hamburger ปิด
-  if (toggle) {
     toggle.addEventListener("change", () => {
-      if (!toggle.checked) {
+        if (!toggle.checked) {
+            sidebar.classList.remove("active");
+            overlayBg.style.display = "none";
+        }
+    });
+
+    overlayBg.addEventListener("click", () => {
         sidebar.classList.remove("active");
-        overlay.style.display = "none";
+        overlayBg.style.display = "none";
+        toggle.checked = false;
+    });
+
+    /***********************
+     * AUTO SYSTEM CONTROL
+     ***********************/
+    const autoSwitch    = document.getElementById("autoSwitch");
+    const autoFunctions = document.getElementById("autoFunctions");
+    const saveBtn       = document.getElementById("saveBtn");
+
+    /* ===== เปิด / ปิด ระบบ ===== */
+    autoSwitch.addEventListener("change", async () => {
+      if (!currentUser) {
+        alert("ยังไม่ได้ login");
+        autoSwitch.checked = false;
+        return;
+      }
+
+      if (autoSwitch.checked) {
+        autoFunctions.classList.remove("disabled-zone");
+        saveBtn.classList.remove("disabled");
+      } else {
+        autoFunctions.classList.add("disabled-zone");
+        saveBtn.classList.add("disabled");
+
+        await supabaseClient
+          .from("auto_tasks")
+          .update({ enable: false })
+          .eq("user_id", currentUser.id);
       }
     });
-  }
 
-  // คลิก overlay ปิด
-  overlay.addEventListener("click", () => {
-    sidebar.classList.remove("active");
-    overlay.style.display = "none";
-    if (toggle) toggle.checked = false;
-  });
-});
+    /***********************
+     * BIND CHECKBOX → TIME
+     ***********************/
+    function bindTime(cbId, timeId) {
+      const cb   = document.getElementById(cbId);
+      const time = document.getElementById(timeId);
+      if (!cb || !time) return;
 
+      time.disabled = !cb.checked;
 
-
-/***********************
- * AUTO SYSTEM CONTROL
- ***********************/
-const autoSwitch    = document.getElementById("autoSwitch");
-const autoFunctions = document.getElementById("autoFunctions");
-const saveBtn       = document.getElementById("saveBtn");
-
-/* ===== เปิด / ปิด ระบบ ===== */
-autoSwitch.addEventListener("change", async () => {
-  const { data: { user } } = await supabaseClient.auth.getUser();
-
-  if (!user) {
-    alert("ยังไม่ได้ login");
-    autoSwitch.checked = false;
-    return;
-  }
-
-  if (autoSwitch.checked) {
-    autoFunctions.classList.remove("disabled");
-    saveBtn.classList.remove("disabled");
-  } else {
-    autoFunctions.classList.add("disabled");
-    saveBtn.classList.add("disabled");
-
-    await supabaseClient
-      .from("auto_tasks")
-      .update({ enable: false })
-      .eq("user_id", user.id);
-  }
-});
-
-/***********************
- * BIND CHECKBOX → TIME
- ***********************/
-function bindTime(cbId, timeId) {
-  const cb   = document.getElementById(cbId);
-  const time = document.getElementById(timeId);
-  if (!cb || !time) return;
-
-  time.disabled = !cb.checked;
-
-  cb.addEventListener("change", () => {
-    time.disabled = !cb.checked;
-    if (!cb.checked) time.value = "";
-  });
-}
-
-/* แขนกล / โซลาร์ */
-bindTime("moistureA", "moistureTimeA");
-bindTime("waterA", "waterTimeA");
-bindTime("moistureB", "moistureTimeB");
-bindTime("waterB", "waterTimeB");
-bindTime("solarSwitch", "solarTime");
-
-/***********************
- * LIGHT CONTROL
- ***********************/
-const lightOnSwitch = document.getElementById("lightOnSwitch");
-const lightOnTime   = document.getElementById("lightOnTime");
-const lightOffTime  = document.getElementById("lightOffTime");
-
-lightOnSwitch.addEventListener("change", () => {
-  const enabled = lightOnSwitch.checked;
-
-  lightOnTime.disabled  = !enabled;
-  lightOffTime.disabled = !enabled;
-
-  if (!enabled) {
-    lightOnTime.value  = "";
-    lightOffTime.value = "";
-  }
-});
-
-/***********************
- * SAVE DATA
- ***********************/
-saveBtn.addEventListener("click", async () => {
-  const { data: { user } } = await supabaseClient.auth.getUser();
-  if (!user) {
-    alert("ยังไม่ได้ login");
-    return;
-  }
-
-  const rows = [];
-
-  function addTask({ arm, measure, water, solarcell, hour, minute }) {
-    rows.push({
-      enable: true,
-      arm: arm ?? null,
-      measure: measure ?? null,
-      water: water ?? null,
-      solarcell: solarcell ?? null,
-      light_state: null,
-      hour,
-      minute,
-      user_id: user.id
-    });
-  }
-
-  /* ===== แขนกล A ===== */
-  if (moistureA.checked && moistureTimeA.value) {
-    const [h, m] = moistureTimeA.value.split(":").map(Number);
-    addTask({ arm: "A", measure: true, hour: h, minute: m });
-  }
-
-  if (waterA.checked && waterTimeA.value) {
-    const [h, m] = waterTimeA.value.split(":").map(Number);
-    addTask({ arm: "A", water: true, hour: h, minute: m });
-  }
-
-  /* ===== แขนกล B ===== */
-  if (moistureB.checked && moistureTimeB.value) {
-    const [h, m] = moistureTimeB.value.split(":").map(Number);
-    addTask({ arm: "B", measure: true, hour: h, minute: m });
-  }
-
-  if (waterB.checked && waterTimeB.value) {
-    const [h, m] = waterTimeB.value.split(":").map(Number);
-    addTask({ arm: "B", water: true, hour: h, minute: m });
-  }
-
-  /* ===== โซลาร์เซลล์ ===== */
-  if (solarSwitch.checked && solarTime.value) {
-    const [h, m] = solarTime.value.split(":").map(Number);
-    addTask({ solarcell: true, hour: h, minute: m });
-  }
-
-  /* ===== ไฟ (ON / OFF แยก 2 แถว) ===== */
-  if (lightOnSwitch.checked) {
-
-    if (!lightOnTime.value || !lightOffTime.value) {
-      alert("กรุณาเลือกเวลาเปิดและเวลาปิดไฟ");
-      return;
+      cb.addEventListener("change", () => {
+        time.disabled = !cb.checked;
+        if (!cb.checked) time.value = "";
+      });
     }
 
-    // 🔆 เปิดไฟ
-    const [onH, onM] = lightOnTime.value.split(":").map(Number);
-    rows.push({
-      enable: true,
-      light_state: "ON",
-      hour: onH,
-      minute: onM,
-      user_id: user.id
+    bindTime("moistureA", "moistureTimeA");
+    bindTime("waterA", "waterTimeA");
+    bindTime("moistureB", "moistureTimeB");
+    bindTime("waterB", "waterTimeB");
+    // bindTime("solarSwitch", "solarTime"); // ❌ อันเก่าลบออก
+
+    /* Light Control */
+    const lightOnSwitch = document.getElementById("lightOnSwitch");
+    const lightOnTime   = document.getElementById("lightOnTime");
+    const lightOffTime  = document.getElementById("lightOffTime");
+
+    lightOnSwitch.addEventListener("change", () => {
+      const enabled = lightOnSwitch.checked;
+      lightOnTime.disabled  = !enabled;
+      lightOffTime.disabled = !enabled;
+      if (!enabled) {
+        lightOnTime.value  = "";
+        lightOffTime.value = "";
+      }
     });
 
-    // 🌙 ปิดไฟ
-    const [offH, offM] = lightOffTime.value.split(":").map(Number);
-    rows.push({
-      enable: true,
-      light_state: "OFF",
-      hour: offH,
-      minute: offM,
-      user_id: user.id
+    /* Solar Control (NEW ✅) */
+    const solarSwitch  = document.getElementById("solarSwitch");
+    const solarOnTime  = document.getElementById("solarOnTime");
+    const solarOffTime = document.getElementById("solarOffTime");
+
+    solarSwitch.addEventListener("change", () => {
+      const enabled = solarSwitch.checked;
+      solarOnTime.disabled  = !enabled;
+      solarOffTime.disabled = !enabled;
+      if (!enabled) {
+        solarOnTime.value  = "";
+        solarOffTime.value = "";
+      }
     });
-  }
 
-  if (rows.length === 0) {
-    alert("ยังไม่ได้ตั้งค่าอะไร");
-    return;
-  }
+    /***********************
+     * SAVE DATA
+     ***********************/
+    saveBtn.addEventListener("click", async () => {
+      if (!currentUser) { alert("ยังไม่ได้ login"); return; }
+      if (saveBtn.classList.contains('disabled')) return;
 
-  /* ปิดของเก่า */
-  await supabaseClient
-    .from("auto_tasks")
-    .update({ enable: false })
-    .eq("user_id", user.id);
+      const rows = [];
 
-  /* insert ใหม่ */
-  const { error } = await supabaseClient
-    .from("auto_tasks")
-    .insert(rows);
+      // เพิ่ม parameter solar_state และ light_state
+      function addTask({ arm, measure, water, solarcell, solar_state, light_state, hour, minute }) {
+        rows.push({
+          enable: true,
+          arm: arm ?? null,
+          measure: measure ?? null,
+          water: water ?? null,
+          solarcell: solarcell ?? null,
+          solar_state: solar_state ?? null, // เพิ่ม column นี้ใน DB ถ้ายังไม่มี
+          light_state: light_state ?? null,
+          hour,
+          minute,
+          user_id: currentUser.id
+        });
+      }
 
-  if (error) {
-    console.error(error);
-    alert("บันทึกไม่สำเร็จ");
-    return;
-  }
+      /* แขนกล A */
+      if (moistureA.checked && moistureTimeA.value) {
+        const [h, m] = moistureTimeA.value.split(":").map(Number);
+        addTask({ arm: "A", measure: true, hour: h, minute: m });
+      }
+      if (waterA.checked && waterTimeA.value) {
+        const [h, m] = waterTimeA.value.split(":").map(Number);
+        addTask({ arm: "A", water: true, hour: h, minute: m });
+      }
 
-  alert("บันทึกสำเร็จ");
-});
+      /* แขนกล B */
+      if (moistureB.checked && moistureTimeB.value) {
+        const [h, m] = moistureTimeB.value.split(":").map(Number);
+        addTask({ arm: "B", measure: true, hour: h, minute: m });
+      }
+      if (waterB.checked && waterTimeB.value) {
+        const [h, m] = waterTimeB.value.split(":").map(Number);
+        addTask({ arm: "B", water: true, hour: h, minute: m });
+      }
 
-/***********************
- * LOAD DATA
- ***********************/
-async function loadAutoTasks() {
-  const { data: { user } } = await supabaseClient.auth.getUser();
-  if (!user) return;
+      /* ไฟ */
+      if (lightOnSwitch.checked) {
+        if (!lightOnTime.value || !lightOffTime.value) {
+          alert("กรุณาเลือกเวลาเปิดและปิดไฟ");
+          return;
+        }
+        const [onH, onM] = lightOnTime.value.split(":").map(Number);
+        addTask({ light_state: "ON", hour: onH, minute: onM });
 
-  const { data, error } = await supabaseClient
-    .from("auto_tasks")
-    .select("*")
-    .eq("user_id", user.id)
-    .eq("enable", true);
+        const [offH, offM] = lightOffTime.value.split(":").map(Number);
+        addTask({ light_state: "OFF", hour: offH, minute: offM });
+      }
 
-  if (error || !data || data.length === 0) return;
+      /* โซลาร์เซลล์ (NEW ✅) */
+      if (solarSwitch.checked) {
+        if (!solarOnTime.value || !solarOffTime.value) {
+          alert("กรุณาเลือกเวลาเปิดและปิดโซลาร์เซลล์");
+          return;
+        }
+        // เปิด (OPEN)
+        const [onH, onM] = solarOnTime.value.split(":").map(Number);
+        addTask({ solarcell: true, solar_state: "OPEN", hour: onH, minute: onM });
 
-  autoSwitch.checked = true;
-  autoFunctions.classList.remove("disabled");
-  saveBtn.classList.remove("disabled");
+        // ปิด (CLOSE)
+        const [offH, offM] = solarOffTime.value.split(":").map(Number);
+        addTask({ solarcell: true, solar_state: "CLOSE", hour: offH, minute: offM });
+      }
 
-  data.forEach(task => {
-    const timeValue =
-      String(task.hour).padStart(2, "0") + ":" +
-      String(task.minute).padStart(2, "0");
+      if (rows.length === 0) {
+        alert("ยังไม่ได้ตั้งค่าอะไร");
+        return;
+      }
 
-    if (task.arm === "A" && task.measure) {
-      moistureA.checked = true;
-      moistureTimeA.disabled = false;
-      moistureTimeA.value = timeValue;
+      /* ปิดของเก่า */
+      await supabaseClient.from("auto_tasks").update({ enable: false }).eq("user_id", currentUser.id);
+
+      /* Insert ใหม่ */
+      const { error } = await supabaseClient.from("auto_tasks").insert(rows);
+      if (error) { 
+        console.error(error); 
+        // เช็คว่า Error เพราะไม่มี column solar_state หรือไม่
+        alert("บันทึกไม่สำเร็จ (ตรวจสอบโครงสร้าง Database)"); 
+        return; 
+      }
+
+      alert("บันทึกสำเร็จ");
+    });
+
+    /***********************
+     * LOAD DATA
+     ***********************/
+    async function loadAutoTasks() {
+      if (!currentUser) return;
+
+      const { data, error } = await supabaseClient
+        .from("auto_tasks")
+        .select("*")
+        .eq("user_id", currentUser.id)
+        .eq("enable", true);
+
+      if (error || !data || data.length === 0) return;
+
+      autoSwitch.checked = true;
+      autoFunctions.classList.remove("disabled-zone");
+      saveBtn.classList.remove("disabled");
+
+      data.forEach(task => {
+        const timeValue = String(task.hour).padStart(2, "0") + ":" + String(task.minute).padStart(2, "0");
+
+        if (task.arm === "A" && task.measure) {
+          moistureA.checked = true; moistureTimeA.disabled = false; moistureTimeA.value = timeValue;
+        }
+        if (task.arm === "A" && task.water) {
+          waterA.checked = true; waterTimeA.disabled = false; waterTimeA.value = timeValue;
+        }
+        if (task.arm === "B" && task.measure) {
+          moistureB.checked = true; moistureTimeB.disabled = false; moistureTimeB.value = timeValue;
+        }
+        if (task.arm === "B" && task.water) {
+          waterB.checked = true; waterTimeB.disabled = false; waterTimeB.value = timeValue;
+        }
+
+        // Light
+        if (task.light_state === "ON") {
+          lightOnSwitch.checked = true;
+          lightOnSwitch.dispatchEvent(new Event("change"));
+          lightOnTime.value = timeValue;
+        }
+        if (task.light_state === "OFF") {
+          lightOffTime.value = timeValue;
+        }
+
+        // Solar (NEW ✅)
+        if (task.solarcell) {
+          solarSwitch.checked = true;
+          solarSwitch.dispatchEvent(new Event("change"));
+          
+          if (task.solar_state === "OPEN") {
+            solarOnTime.value = timeValue;
+          }
+          if (task.solar_state === "CLOSE") {
+            solarOffTime.value = timeValue;
+          }
+        }
+      });
     }
-
-    if (task.arm === "A" && task.water) {
-      waterA.checked = true;
-      waterTimeA.disabled = false;
-      waterTimeA.value = timeValue;
-    }
-
-    if (task.arm === "B" && task.measure) {
-      moistureB.checked = true;
-      moistureTimeB.disabled = false;
-      moistureTimeB.value = timeValue;
-    }
-
-    if (task.arm === "B" && task.water) {
-      waterB.checked = true;
-      waterTimeB.disabled = false;
-      waterTimeB.value = timeValue;
-    }
-
-    if (task.solarcell) {
-      solarSwitch.checked = true;
-      solarTime.disabled = false;
-      solarTime.value = timeValue;
-    }
-
-    if (task.light_state === "ON") {
-      lightOnSwitch.checked = true;
-      lightOnSwitch.dispatchEvent(new Event("change"));
-      lightOnTime.value = timeValue;
-    }
-
-    if (task.light_state === "OFF") {
-      lightOffTime.value = timeValue;
-    }
-  });
-}
-
-window.addEventListener("DOMContentLoaded", loadAutoTasks);
-
 </script>
+
+  </script>
 </body>
 </html>

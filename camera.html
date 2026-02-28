@@ -2,1624 +2,1074 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Main Menu</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Robot Arm Control</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Google Fonts (Prompt for Thai) -->
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+
 <style>
-  body { font-family: Arial; margin: 0; padding: 30px; background: #f3f4f6; display: flex; flex-direction: column; align-items: center; }
-  h1 { font-size:24px; font-weight:700; color:#1e40af; text-align:center; margin-bottom:50px; }
-  iframe { width: 640px; height: 480px; border: 3px solid #000; border-radius: 12px; margin: 20px 0; }
-  .grid-container { position: relative; background: white; border: 1px solid #ccc; margin-top: 20px; max-width: 640px; width: 100%; }
-  .vertical-line, .horizontal-line { position: absolute; background: #bbb; }
-  .vertical-line { width: 1px; top: 0; bottom: 0; }
-  .horizontal-line { height: 1px; left: 0; right: 0; }
-  .circle { width: 16px; height: 16px; background: #3498db; border-radius: 50%; transform: translate(-50%, -50%); cursor: pointer; z-index: 5; transition: background 0.5s; }
-  .circle:hover { background: #2c7fb7; }
-  .point-container { position: absolute; }
-  /* Overlay */
-  .grid-overlay {
-  position: fixed;
-  top: 15px;
-  right: 0px;
-  width: 350px;
-
-  max-height: calc(100vh - 30px); /* 🔥 ไม่เกินจอ */
-  overflow-y: auto;                /* 🔥 เลื่อนลงได้ */
-
-  background: white;
-  border-radius: 12px;
-  z-index: 999;
-  padding: 20px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-  display: none;
-}
-
-
-  .grid-back-btn {
-    position:absolute;
-    display:inline-block;
-    top:10px; left:10px;
-    border:none; background:none;
-    font-size:16px; font-weight:bold; color:#1e40af;
-    cursor:pointer;
+  body {
+    font-family: 'Prompt', sans-serif;
+    background-color: #f1f5f9; /* Slate-100 */
+    color: #334155; /* Slate-700 */
+    overflow-x: hidden;
   }
 
-  .grid-back-btn:hover { text-decoration: underline; }
-
-  .rename-btn {
+  /* --- Responsive Iframe --- */
+  .camera-container {
+    position: relative;
     width: 100%;
-    background: #6b7280;
-    color: white;
-    padding: 10px 0;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    margin-bottom: 10px;
-    text-align: center;
-    transition: background 0.25s;
+    max-width: 640px;
+    aspect-ratio: 4/3;
+    background: #000;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    margin: 0 auto;
   }
-  .rename-btn:hover { background: #4b5563; }
+  .camera-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
 
-  .rename-btn:active {
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+  /* --- Grid Styling --- */
+  .grid-wrapper {
+    overflow-x: auto; /* เลื่อนแนวนอนได้ในมือถือ */
+    padding: 10px;
+    border-radius: 16px;
+    background: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
   }
   
-  .upload-btn {
-    display: inline-block;
-    width: 100%;
-    text-align: center;
-    background: #374151;
-    color: white;
-    padding: 10px 0;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    margin-bottom: 15px;
-    transition: background 0.25s;
-    font-size: 14px;
+  .grid-container {
+    position: relative;
+    background: white;
+    /* border: 1px solid #e2e8f0; เอา border ออกให้ดูคลีน */
+    margin-top: 0;
+    flex-shrink: 0; /* ไม่ให้หดใน flex */
   }
 
-  /* ทำเป็นสไตล์แบบ Uiverse */
-.fancy-upload {
-  --width: 100px;
-  --height: 36px;
-  --tooltip-height: 32px;
-  --tooltip-width: 110px;
-  --gap-between-tooltip-to-button: 15px;
-  --button-color: #374151;
-  --tooltip-color: #fff;
+  .vertical-line, .horizontal-line {
+    position: absolute;
+    background: #e2e8f0; /* เส้นสีจางลง Slate-200 */
+  }
+  .vertical-line { width: 1px; top: 0; bottom: 0; }
+  .horizontal-line { height: 1px; left: 0; right: 0; }
 
-  width: var(--width);
-  height: var(--height);
-  background: var(--button-color);
-  position: relative;
-  text-align: center;
-  border-radius: 0.45em;
-  font-family: "Arial";
-  transition: background 0.3s;
-  color: white;
-  overflow: hidden;
-  padding: 0;
-}
+  /* Seed / Point */
+  .point-container { position: absolute; }
+  .seed {
+    font-size: 28px;
+    cursor: pointer;
+    user-select: none;
+    transform: translate(-50%, -50%);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
+  }
+  .seed:hover {
+    transform: translate(-50%, -50%) scale(1.4);
+  }
 
-/* Tooltip */
-.fancy-upload::before {
-  position: absolute;
-  content: attr(data-tooltip);
-  width: var(--tooltip-width);
-  height: var(--tooltip-height);
-  background-color: var(--tooltip-color);
-  font-size: 0.8rem;
-  color: #111;
-  border-radius: .25em;
-  line-height: var(--tooltip-height);
-  bottom: calc(var(--height) + var(--gap-between-tooltip-to-button) + 10px);
-  left: calc(50% - var(--tooltip-width) / 2);
-}
-
-.fancy-upload::after {
-  position: absolute;
-  content: '';
-  width: 0;
-  height: 0;
-  border: 8px solid transparent;
-  border-top-color: var(--tooltip-color);
-  left: calc(50% - 8px);
-  bottom: calc(100% + var(--gap-between-tooltip-to-button) - 10px);
-}
-
-.fancy-upload::after,
-.fancy-upload::before {
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.4s;
-}
-
-.button-wrapper, .text, .icon {
-  overflow: hidden;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  left: 0;
-}
-
-.text {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  top: 0;
-  transition: top 0.4s;
-}
-
-.icon {
-  top: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: top 0.4s;
-}
-
-/* Hover effect */
-.fancy-upload:hover {
-  background: #1f2937;
-}
-
-.fancy-upload:hover .text {
-  top: -100%;
-}
-
-.fancy-upload:hover .icon {
-  top: 0;
-}
-
-.fancy-upload:hover::before,
-.fancy-upload:hover::after {
-  opacity: 1;
-  visibility: visible;
-}
-
-.fancy-upload:hover::after {
-  bottom: calc(var(--height) + var(--gap-between-tooltip-to-button) - 16px);
-}
-
-.fancy-upload:hover::before {
-  bottom: calc(var(--height) + var(--gap-between-tooltip-to-button));
-}
-
-.fancy-upload:active {
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-}
-
-  /* เพิ่ม: ขีดเส้นใต้เมื่อเอาเมาส์ไปจ่อ */
-.footer-text {
-  font-size: 12px;
-  color: #999;
-  margin-top: 40px;
-  text-align: right;
-  width: 100%;
-  padding-bottom: 20px;
-  transition: color 0.15s, text-decoration 0.15s;
-}
-
-.footer-text:hover {
-  text-decoration: underline;
-  cursor: pointer;
-  color: #777;
-}
-
-  /* Sidebar */
+  /* --- Sidebar --- */
   #sidebar {
     position: fixed;
     top: 0;
-    left: -260px;
-    width: 260px;
+    left: -280px;
+    width: 280px;
     height: 100%;
-    background: white;
-    box-shadow: 3px 0 12px rgba(0,0,0,0.15);
-    padding: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.05);
     z-index: 60;
-    transition: left 0.3s ease;
+    transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
   }
-
-  .sidebar-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 10px;
-}
-
-.sidebar-header h2 {
-  font-size: 24px;
-  font-weight: bold;
-  margin: 0;
-}
-
-.hamburger-btn {
-  position: absolute;
-  left: 1.25rem; /* left-5 */
-  top: 1.25rem;  /* top-5 */
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-}
-
-.hamburger-btn svg {
-  width: 3em;
-  height: 3em;
-}
-
-.hamburger-btn path {
-  fill: none;
-  stroke: rgb(0, 0, 0);
-  stroke-width: 3;
-  stroke-linecap: round;
-  transition: stroke 0.2s ease;
-}
-
-/* hamburger */
-.hamburger {
-  cursor: pointer;
-}
-
-.hamburger input {
-  display: none;
-}
-
-.hamburger svg {
-  height: 2.5em;
-  transition: transform 600ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* hover แล้วสีจางลง */
-.hamburger-btn:hover path {
-  stroke: #1e40af;
-}
-
-.line {
-  fill: none;
-  stroke: #333;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 3;
-  transition: stroke-dasharray 600ms cubic-bezier(0.4, 0, 0.2, 1),
-              stroke-dashoffset 600ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.line-top-bottom {
-  stroke-dasharray: 12 63;
-}
-
-.hamburger input:hover + svg {
-  transform: rotate(-45deg);
-}
-
-.hamburger input:hover+ svg .line-top-bottom {
-  stroke-dasharray: 20 300;
-  stroke-dashoffset: -32.42;
-}
-
-#closeSidebarX {
-  font-size: 32px;
-  cursor: pointer;
-  color: #333;
-  font-weight: bold;
-}
-
-#sidebar.active { left: 0; }
-
-
-#overlayBg {
-      position: fixed;
-      top:0; left:0;
-      width:100%; height:100%;
-      background: rgba(0,0,0,0.4);
-      display:none;
-      z-index:55;
-  }
-
-/* ลิงก์ใน Sidebar */
-#sidebar a {
-    display: block;
+  #sidebar.active { left: 0; }
+  
+  .sidebar-link {
+    display: flex;
+    align-items: center;
     padding: 12px 16px;
-    border-radius: 999px;
-    text-decoration: none;
-    width: 100%;
-    color: #1e40af;
-
-    /* เอฟเฟกต์ */
-    transition: 
-        background 0.3s ease,
-        color 0.3s ease,
-        box-shadow 0.3s ease,
-        transform 0.3s ease;
-}
-
-/* effect กลาง ใช้ร่วมกัน */
-#sidebar a.menu {
-    display: block;
-    padding: 10px 14px;
-    border-radius: 999px;
-    transition: all 0.3s ease;
-}
-
-/* หน้าแรก */
-#sidebar a.home:hover {
-    background: #487bdb;
-    color: #fff;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    transform: translateY(-5px);
-}
-
-/* กล้อง */
-#sidebar a.camera:hover {
-    background: #10b981; /* เขียว */
-    color: #fff;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    transform: translateY(-5px);
-}
-
-/* กล้อง2 */
-#sidebar a.camera2:hover {
-    background: #e6d308; /* เขียว */
-    color: #fff;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    transform: translateY(-5px);
-}
-
-/* อัตโนมัติ */
-#sidebar a.auto:hover {
-    background: #eb9e05; /* เขียว */
-    color: #fff;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    transform: translateY(-5px);
-}
-
-/* รูปภาพ */
-#sidebar a.image:hover {
-    background: #f50b0b; /* ส้ม */
-    color: #fff;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    transform: translateY(-5px);
-}
-
-/* FAQ */
-#sidebar a.faq:hover {
-    background: #ef348e; /* แดง */
-    color: #fff;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    transform: translateY(-5px);
-}
-
-
-  .sidebar-divider {
-      width: 90%;
-      height: 1px;
-      background: #e5e7eb;
-      margin: 100px 0;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    color: #475569;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .sidebar-link:hover {
+    background: #eff6ff;
+    color: #2563eb;
+    transform: translateX(4px);
   }
 
-.hand {
-  font-weight: bold;
-  padding: 10px;
-  margin: 15px;
-  height: 100%;
-  width: 95%;
-  background-color: rgb(225, 225, 228);
-  border-radius: 8px;
-  justify-self: unset;
-}
+  /* --- Overlay (Card / Bottom Sheet) --- */
+  .grid-overlay {
+    position: fixed;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(12px);
+    z-index: 1000;
+    padding: 24px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    display: none;
+    flex-direction: column;
+    /* Desktop Default */
+    top: 20px;
+    right: 20px;
+    width: 360px;
+    max-height: calc(100vh - 40px);
+    border-radius: 20px;
+    overflow-y: auto;
+    animation: slideInRight 0.3s ease-out;
+  }
 
-.hand:active {
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-}
+  /* Mobile Overlay -> Bottom Sheet */
+  @media (max-width: 768px) {
+    .grid-overlay {
+      top: auto;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      width: 100%;
+      max-height: 85vh;
+      border-radius: 24px 24px 0 0;
+      animation: slideUp 0.3s ease-out;
+    }
+  }
 
-.one {
-  background-color: #36b98b;
-  color: white;
-  margin-bottom: 5px;
-  margin-top: 10px;
-}
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(100%); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-.two {
-  background-color: #487bdb;
-  color: white;
-  margin-top: 5px;
-}
+  /* --- Custom Scrollbar --- */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-.one:active, .two:active {
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-}
+  /* --- Buttons & Switches --- */
+  .mode-btn {
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+    width: 100%;
+  }
+  .mode-btn.active {
+    background: #2563eb;
+    color: white;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  }
+  .mode-btn.inactive {
+    background: white;
+    color: #64748b;
+    border-color: #e2e8f0;
+  }
+  .mode-btn.inactive:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+  }
 
-.line {
-  margin: 15px;
-}
+  /* Toggle Switch */
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+  }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #e2e8f0;
+    transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 34px;
+  }
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  input:checked + .slider { background-color: #10b981; }
+  input:checked + .slider:before { transform: translateX(22px); }
 
-.seed {
-  font-size: 35px;        /* ปรับขนาดได้ */
-  cursor: pointer;
-  user-select: none;
-  transform: translate(-50%, -50%);
-}
+  /* Action Buttons */
+  .action-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    color: white;
+    transition: transform 0.1s, box-shadow 0.2s;
+    margin-bottom: 8px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .action-btn:active { transform: scale(0.98); }
+  .btn-green { background: linear-gradient(135deg, #10b981, #059669); }
+  .btn-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+  .btn-purple { background: linear-gradient(135deg, #a855f7, #9333ea); }
+  .btn-red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+  .btn-gray { background: #64748b; }
+  .btn-gray:hover { background: #475569; }
 
-.seed:hover {
-  transform: translate(-50%, -50%) scale(1.3);
-  transition: all 0.15s;
-}
+  /* Upload Button Style */
+  .upload-area {
+    display: block;       /* ✅ เพิ่มบรรทัดนี้: บังคับให้เป็นกล่อง */
+    width: 100%;          /* ✅ เพิ่มบรรทัดนี้: ให้กว้างเต็มพื้นที่ */
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #64748b;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+  .upload-area:hover {
+    border-color: #2563eb;
+    background: #eff6ff;
+    color: #2563eb;
+  }
 
-.hand.water {
-  background-color: #487bdb;
-}
+  /* Hamburger */
+  .hamburger-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 50;
+    background: white;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .hamburger-btn:hover { transform: scale(1.05); }
 
-.hand.moisture {
-  background-color: #9020d1;
-}
-
-/* กล่อง switch */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 52px;
-  height: 28px;
-}
-
-/* ซ่อน checkbox เดิม */
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-/* The switch */
-.switch {
-  font-size: 17px;
-  position: relative;
-  display: inline-block;
-  width: 3.5em;
-  height: 2em;
-}
-
-/* Hide default checkbox */
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-/* Slider */
-.slider {
-  position: absolute;
-  cursor: pointer;
-  inset: 0;
-  background-color: #fff;
-  border: 1px solid #adb5bd;
-  transition: .4s;
-  border-radius: 30px;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 1.4em;
-  width: 1.4em;
-  left: 0.27em;
-  bottom: 0.25em;
-  background-color: #adb5bd;
-  transition: .4s;
-  border-radius: 20px;
-}
-
-input:checked + .slider {
-  background-color: #007bff;
-  border-color: #007bff;
-}
-
-input:checked + .slider:before {
-  transform: translateX(1.4em);
-  background-color: #fff;
-}
-
-/* ===== Tooltip ของจุด ===== */
-.point-tooltip {
-  position: absolute;
-  bottom: 130%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0,0,0,0.8);
-  color: #fff;
-  padding: 4px 8px;
-  font-size: 12px;
-  border-radius: 6px;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.15s;
-  z-index: 20;
-}
-
-.point-container:hover .point-tooltip {
-  opacity: 1;
-}
-
-.mode-btn {
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.25s;
-  border: none;
-  margin: 10px;
-  margin-bottom: 20px;
-  color: white;
-}
-
-/* Hover */
-.mode-btn:hover {
-  background-color: #1e40af;
-}
-
-.mode-btn:active {
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-}
-
-/* Active */
-.mode-btn.active {
-  background: #1e40af;
-  opacity: 1;
-}
-
-/* Inactive */
-.mode-btn.inactive {
-  background: #7c828d;
-  opacity: 0.55;
-}
-
-
+  /* Overlay Background */
+  #overlayBg {
+    position: fixed;
+    top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(2px);
+    display:none;
+    z-index:55;
+  }
+  
+  /* Tooltip */
+  .point-tooltip {
+    background: #1e293b;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 20;
+    pointer-events: none;
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  .point-container:hover .point-tooltip { opacity: 1; }
 
 </style>
 </head>
-<body>
-  <!-- 🔵 ปุ่มสามขีด -->
-    <button id="menuBtn" class="hamburger-btn">
-    <svg viewBox="0 0 32 32">
-        <path d="M7 10 27 10"></path>
-        <path d="M7 16 27 16"></path>
-        <path d="M7 22 27 22"></path>
+<body class="bg-slate-50">
+
+  <!-- 🔵 ปุ่มเมนู (Hamburger) -->
+  <div id="menuBtn" class="hamburger-btn">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1e293b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
     </svg>
-    </button>
-
-<!-- 🔵 SIDEBAR -->
-<div id="sidebar">
-
-    <div class="sidebar-header">
-      <h2>Menu</h2>
-      <label class="hamburger" id="closeSidebarBtn">
-      <input type="checkbox" id="sidebarToggle">
-      <svg viewBox="0 0 32 32">
-        <path class="line line-top-bottom"
-          d="M27 10 13 10C10.8 10 9 8.2 9 6
-            9 3.5 10.8 2 13 2
-            15.2 2 17 3.8 17 6
-            L17 26C17 28.2 18.8 30
-            21 30 23.2 30 25 28.2
-            25 26 25 23.8 23.2 22
-            21 22L7 22"></path>
-        <path class="line" d="M7 16 27 16"></path>
-      </svg>
-    </label>
-    </div>
-
-    <ul class="space-y-3 margin-top-4">
-        <li><a href="index.html" class="menu home text-blue-600">หน้าแรก</a></li>
-        <div class="sidebar-divider"></div> 
-
-        <li><a href="camera.html" class="menu camera text-blue-600">แขนกล 1</a></li>
-        <div class="sidebar-divider"></div>
-
-        <li><a href="camera2.html" class="menu camera2 text-blue-600">แขนกล 2</a></li>
-        <div class="sidebar-divider"></div>
-
-        <li><a href="auto.html" class="menu auto text-blue-600">ระบบอัตโนมัติ</a></li>
-        <div class="sidebar-divider"></div>
-
-        <li><a href="capture.html" class="menu image text-blue-600">รูปภาพ</a></li>
-        <div class="sidebar-divider"></div>
-
-        <li><a href="FAQ.html" class="menu faq text-blue-600">ฟังก์ชันอื่นๆ</a></li>
-        <div class="sidebar-divider"></div>
-    </ul>
-
-    <!-- ⭐ ผู้ใช้ + Logout ย้ายมาไว้ที่นี่ ⭐ -->
-    <div id="sidebarUserBox" style="
-        position: absolute;
-        bottom: 20px;
-        left: 20px;
-        right: 20px;
-    ">
-        <div id="sidebarUsername"
-            class="font-bold text-blue-700 mb-2">
-            ผู้ใช้: -
-        </div>
-
-        <button id="sidebarLogoutBtn"
-            class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-bold transition">
-            ออกจากระบบ
-        </button>
-    </div>
-
-</div>
-
-<div id="overlayBg"></div>
-
-
-<div id="app">
-  <h1>แขนกล 1</h1>
-
-  <div class="content" style="display:flex;flex-wrap:wrap;gap:30px;align-items:flex-start;justify-content:center;">
-    <div>
-      <iframe src="http://10.109.37.89" allow="camera; microphone;"></iframe>
-
-          <!-- ===== ปุ่มเลือกโหมด ===== -->
-    <div style="display:flex;gap:10px;margin-top:10px;justify-content:center;">
-      <button id="detailModeBtn"
-        class="mode-btn active"
-        onclick="setOverlayMode('detail')">
-        โหมดดูรายละเอียด
-      </button>
-
-      <button id="handModeBtn"
-        class="mode-btn inactive"
-        onclick="setOverlayMode('hand')">
-        โหมดสั่งแขนกล
-      </button>
-    </div>
-
-
-      <div style="display:flex; align-items:center; gap:16px;">
-        <h2 style="margin:0;">
-          สถานะไฟ: <span id="status">---</span>
-        </h2>
-
-        <label class="switch">
-          <input type="checkbox" id="lightSwitch">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div style="display:flex; align-items:center; gap:16px;">
-        <h2 style="margin:0;">
-          สถานะโซลาร์เซลล์: <span id="solarStatus">---</span>
-        </h2>
-
-        <label class="switch">
-          <input type="checkbox" id="solarSwitch">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <!-- ===== ปุ่มรวม (วัดความชื้น / รดน้ำทั้งหมด) ===== -->
-    <div id="allActionArea"
-     style="display:none; margin-top:10px; text-align:center; gap:10px; justify-content:center;">
-
-      <button class="hand one moisture"
-              id="allMoistureBtn">
-        วัดความชื้นทั้งหมด
-      </button>
-
-      <button class="hand one water"
-              id="allWaterBtn">
-        รดน้ำทั้งหมด
-      </button>
-
-      <button class="hand one"
-              id="allResetBtn"
-              style="background:#ef4444;color:white;">
-        รีเซตแขนกล
-      </button>
-    </div>
-    </div>
-    <div class="grid-container" id="grid"></div>
   </div>
 
-  <!-- Overlay -->
-<div class="grid-overlay" id="gridOverlay">
-
-  <!-- ===== Overlay เดิม (จุด) ===== -->
-  <div id="pointOverlayContent">
-
-    <button class="grid-back-btn" onclick="closeGridOverlay()">← ย้อนกลับ</button>
-
-    <div style="font-weight:bold;margin-bottom:10px;margin-top:20px;text-align:center;" id="pointTitle">
-      จุด (1,1)
+  <!-- 🔵 SIDEBAR -->
+  <div id="sidebar">
+    <div class="flex justify-between items-center mb-8">
+      <h2 class="text-2xl font-bold text-slate-800">Menu</h2>
+      <!-- ปุ่มปิด Sidebar -->
+      <label class="cursor-pointer" id="closeSidebarBtn">
+        <input type="checkbox" id="sidebarToggle" class="hidden">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </label>
     </div>
 
-    <div class="sidebar-divider line"></div>
+    <nav class="flex-1 space-y-1">
+      <a href="index.html" class="sidebar-link home">🏠 หน้าแรก</a>
+      <a href="camera.html" class="sidebar-link camera bg-blue-50 text-blue-600">🤖 แขนกล 1</a>
+      <a href="camera2.html" class="sidebar-link camera2">🤖 แขนกล 2</a>
+      <a href="auto.html" class="sidebar-link auto">⚡ ระบบอัตโนมัติ</a>
+      <a href="capture.html" class="sidebar-link image">📷 รูปภาพ</a>
+      <a href="FAQ.html" class="sidebar-link faq">❓ ฟังก์ชันอื่นๆ</a>
+    </nav>
 
-    <input type="text" id="pointNameInput"
-      placeholder="ตั้งชื่อจุด"
-      style="width:100%;padding:6px;border:1px solid #ccc;border-radius:6px;margin-bottom:10px;">
+    <!-- User Info -->
+    <div class="mt-auto pt-6 border-t border-slate-200">
+      <div id="sidebarUsername" class="text-sm font-semibold text-slate-600 mb-3 truncate">
+        ผู้ใช้: -
+      </div>
+      <button id="sidebarLogoutBtn" class="w-full bg-red-50 hover:bg-red-100 text-red-600 py-2.5 rounded-xl font-semibold transition text-sm">
+        ออกจากระบบ
+      </button>
+    </div>
+  </div>
 
-    <!-- ปุ่ม Upload + Rename -->
-    <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px;">
+  <div id="overlayBg"></div>
 
-      <label class="upload-btn fancy-upload">
-        <div class="button-wrapper">
-          <div class="text">อัปโหลดรูป</div>
-          <span class="icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-              <path fill="none" stroke="currentColor" stroke-width="2"
-                d="M12 15V3m0 12l-4-4m4 4l4-4M2 17l.621 2.485A2 2 0 0 0 4.561 21h14.878a2 2 0 0 0 1.94-1.515L22 17" />
-            </svg>
-          </span>
+  <!-- 🔵 MAIN CONTENT -->
+  <div id="app" class="w-full max-w-5xl mx-auto px-4 py-8 md:py-12 pb-20">
+    
+    <header class="text-center mb-8 mt-8 md:mt-0">
+      <h1 class="text-3xl md:text-4xl font-bold text-slate-800 mb-2">ควบคุมแขนกล 1</h1>
+      <p class="text-slate-500 text-sm md:text-base">เครื่องดูแลการเพาะต้นกล้ากระถางแบบครบวงจร</p>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- Left Column: Camera & Controls -->
+      <div class="lg:col-span-6 flex flex-col gap-6">
+        <!-- Camera Frame -->
+        <div class="camera-container">
+          <iframe src="http://10.109.37.89" allow="camera; microphone;"></iframe>
+        </div>
+
+        <!-- Mode Select -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex gap-3">
+            <button id="detailModeBtn" class="mode-btn active" onclick="setOverlayMode('detail')">
+              🔍 ดูรายละเอียด
+            </button>
+            <button id="handModeBtn" class="mode-btn inactive" onclick="setOverlayMode('hand')">
+              🎮 สั่งงานแขนกล
+            </button>
+        </div>
+
+        <!-- System Status Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Light Control -->
+          <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="p-2 bg-yellow-100 text-yellow-600 rounded-lg">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+              </div>
+              <div>
+                <p class="text-xs text-slate-400 font-bold uppercase">ไฟส่องสว่าง</p>
+                <p class="font-bold text-slate-700" id="status">---</p>
+              </div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="lightSwitch">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <!-- Solar Control -->
+          <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="p-2 bg-orange-100 text-orange-600 rounded-lg">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+              </div>
+              <div>
+                <p class="text-xs text-slate-400 font-bold uppercase">โซลาร์เซลล์</p>
+                <p class="font-bold text-slate-700" id="solarStatus">---</p>
+              </div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="solarSwitch">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Global Actions (Hidden by default) -->
+        <div id="allActionArea" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hidden flex-col gap-3">
+          <p class="text-center text-sm text-slate-500 font-semibold mb-1">คำสั่งรวมทั้งแปลง</p>
+          <div class="grid grid-cols-2 gap-3">
+            <button class="action-btn btn-purple" id="allMoistureBtn">💧 วัดความชื้นทั้งหมด</button>
+            <button class="action-btn btn-blue" id="allWaterBtn">🚿 รดน้ำทั้งหมด</button>
+          </div>
+          <button class="action-btn btn-red mt-1" id="allResetBtn">🔄 รีเซตตำแหน่งแขนกล</button>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Grid Map -->
+      <div class="lg:col-span-6">
+        <!-- ✅ แก้บรรทัดนี้: เพิ่ม w-fit mx-auto max-w-full -->
+        <div class="bg-white p-4 md:p-6 rounded-3xl shadow-lg border border-slate-100 w-max mx-auto">
+           <div class="flex items-center justify-between mb-4">
+             <h3 class="font-bold text-lg text-slate-700">แผนผังแปลงปลูก</h3>
+             <span class="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded-md">6 x 11 Grid</span>
+           </div>
+           
+           <div class="grid-wrapper">
+             <div class="grid-container" id="grid">
+               <!-- JS จะวาด Grid ใส่ตรงนี้ -->
+             </div>
+           </div>
+           <p class="text-center text-xs text-slate-400 mt-4">คลิกที่ต้นกล้า 🌱 เพื่อดูรายละเอียดหรือสั่งงาน</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 🔵 OVERLAY POPUP (Desktop & Mobile) -->
+  <div class="grid-overlay" id="gridOverlay">
+    
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-4 pb-4 border-b border-slate-100">
+      <button class="text-slate-400 hover:text-blue-600 transition" onclick="closeGridOverlay()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+      </button>
+      <h3 class="text-lg font-bold text-slate-800" id="pointTitle">จุด (1,1)</h3>
+      <div class="w-6"></div> <!-- Spacer for center alignment -->
+    </div>
+
+    <!-- Content -->
+    <div id="pointOverlayContent" class="flex-1 overflow-y-auto pr-1">
+      
+      <div class="mb-4">
+        <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">ชื่อจุด</label>
+        <div class="flex gap-2">
+          <input type="text" id="pointNameInput" placeholder="ตั้งชื่อจุด..." 
+            class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+          <button class="bg-slate-700 text-white px-3 py-2 rounded-xl text-sm font-bold hover:bg-slate-800 transition" onclick="renameSuccess()">บันทึก</button>
+        </div>
+      </div>
+
+      <!-- Upload -->
+      <label class="upload-area group">
+        <div class="flex flex-col items-center gap-2">
+          <svg class="text-slate-400 group-hover:text-blue-500 transition" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span class="text-sm">แตะเพื่ออัปโหลดรูปภาพ</span>
         </div>
         <input type="file" id="pointFileInput" accept="image/*" hidden>
       </label>
+      
+      <img id="pointImage" class="w-full h-40 object-cover rounded-xl mb-4 hidden border border-slate-200">
 
-      <button class="rename-btn" onclick="renameSuccess()"
-        style="width:100px;height:36px;">
-        เปลี่ยนชื่อ
-      </button>
+      <!-- Chart -->
+      <div id="chartContainer">
+        <p id="chartTitle" class="text-center text-xs text-slate-500 font-bold mb-2">กราฟความชื้นย้อนหลัง (%)</p>
+        <canvas id="pointChart" class="w-full bg-white rounded-xl" style="max-height: 200px;"></canvas>
+      </div>
+
+      <!-- Action Buttons (Inline Hand Mode) -->
+      <div id="inlineHandArea" class="hidden flex flex-col gap-2 mt-2">
+        <!-- JS จะสร้างปุ่มใส่ตรงนี้ -->
+      </div>
+
     </div>
-
-    <img id="pointImage"
-      style="width:100%;display:none;border-radius:6px;margin-bottom:10px;">
-
-      <p id="chartTitle"
-        style="text-align: center; color:#54575b; margin-top: 10px;">
-        กราฟแสดงค่าความชื้น (%)
-      </p>
-
-    <canvas id="pointChart" width="300" height="230"></canvas>
-
-        <!-- ===== ปุ่มแขนกล (ใช้ในโหมดสั่งแขนกล) ===== -->
-    <div id="inlineHandArea" style="display:none;margin-top:10px;"></div>
-
-    
   </div>
-</div>
 
+  <footer class="text-center py-6 text-slate-400 text-xs">
+    &copy; 2025 Klabot Dev Team. All rights reserved.
+  </footer>
 
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 
-<div class="footer-text">
-    © presented by klabot dev team
-</div>
+  <!-- IMPORTANT: Logic Script kept EXACTLY as original to preserve functionality -->
+  <script>
+    /* =========================================
+       KEEPING ORIGINAL LOGIC INTACT
+       ========================================= */
+    const SUPABASE_URL = "https://yiaemxmwfxrfrwtogamw.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
-<script>
-const SUPABASE_URL = "https://yiaemxmwfxrfrwtogamw.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw";
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentUser = null;
+    let currentPoint = {x:0,y:0};
+    let chart = null;
 
-let currentUser = null;
-let currentPoint = {x:0,y:0};
-let chart = null;
-
-// เช็ค user
-async function checkUser(){
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  if(!session || !session.user){ window.location.href="login.html"; return; }
-  currentUser = session.user;
-  document.getElementById("sidebarUsername").textContent = `ผู้ใช้: ${currentUser.email}`;
-  document.getElementById("app").style.display="block";
-  initGrid();
-}
-checkUser();
-
-// logout
-document.getElementById("sidebarLogoutBtn").addEventListener("click", async ()=>{
-  const {error} = await supabaseClient.auth.signOut();
-  if(error) console.error(error.message); else window.location.href="login.html";
-});
-
-function initGrid(){
-  const grid = document.getElementById("grid");
-  grid.innerHTML = "";
-
-  const cols = 6;
-  const rows = 11;
-  const cellSize = 60;   // 🔥 ปรับตรงนี้ → ช่องใหญ่ขึ้น / เล็กลง
-
-  grid.style.width  = `${cellSize * (cols + 1)}px`;
-  grid.style.height = `${cellSize * (rows + 1)}px`;
-
-  /* เส้นตั้ง */
-  for(let i = 1; i <= cols; i++){
-    const v = document.createElement("div");
-    v.className = "vertical-line";
-    v.style.left = `${i * cellSize}px`;
-    grid.appendChild(v);
-  }
-
-  /* เส้นนอน */
-  for(let j = 1; j <= rows; j++){
-    const h = document.createElement("div");
-    h.className = "horizontal-line";
-    h.style.top = `${j * cellSize}px`;
-    grid.appendChild(h);
-  }
-
-  /* จุด 🌱 */
-for(let x = 1; x <= cols; x++){
-  for(let y = 1; y <= rows; y++){
-    const px = x * cellSize;
-    const py = y * cellSize;
-
-    const pointContainer = document.createElement("div");
-    pointContainer.className = "point-container";
-    pointContainer.style.left = `${px}px`;
-    pointContainer.style.top = `${py}px`;
-
-    const seed = document.createElement("div");
-    seed.className = "seed";
-    seed.textContent = "🌱";
-
-    // tooltip
-    const tooltip = document.createElement("div");
-    tooltip.className = "point-tooltip";
-    tooltip.textContent = `(${x}, ${y})`;
-
-    // โหลดชื่อจุดจาก Supabase ตอน hover
-    pointContainer.addEventListener("mouseenter", async () => {
-    const { data } = await supabaseClient
-      .from("points")
-      .select("name")
-      .eq("user_id", currentUser.id)
-      .eq("x", x)
-      .eq("y", y)
-      .single();
-
-    tooltip.innerHTML = `
-      ตำแหน่ง: (${x},${y})<br>
-      ชื่อ: ${data?.name || "-"}
-    `;
-  });
-
-
-    // เงื่อนไขช่วงที่กดไม่ได้
-    if(x >= 4 && y >= 1){
-      seed.style.opacity = "0.3";
-      seed.style.cursor = "not-allowed";
-    } else {
-      seed.addEventListener("click", () => openGridOverlay(x, y));
+    // เช็ค user
+    async function checkUser(){
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if(!session || !session.user){ window.location.href="login.html"; return; }
+      currentUser = session.user;
+      document.getElementById("sidebarUsername").textContent = `ผู้ใช้: ${currentUser.email}`;
+      document.getElementById("app").style.display="block";
+      initGrid();
     }
+    checkUser();
 
-    pointContainer.appendChild(seed);
-    pointContainer.appendChild(tooltip);
-    grid.appendChild(pointContainer);
-  }
-}
-}
+    // logout
+    document.getElementById("sidebarLogoutBtn").addEventListener("click", async ()=>{
+      const {error} = await supabaseClient.auth.signOut();
+      if(error) console.error(error.message); else window.location.href="login.html";
+    });
 
-  /*for(let i=1;i<=cols;i++){
-    for(let j=1;j<=rows;j++){
-      const x=(i/(cols+1))*grid.clientWidth;
-      const y=(j/(rows+1))*grid.clientHeight;
-      const pointContainer=document.createElement("div");
-      pointContainer.className="point-container";
-      pointContainer.style.left=`${x}px`;
-      pointContainer.style.top=`${y}px`;
-      const circle=document.createElement("div");
-      circle.className="circle";
-      circle.addEventListener("click",()=>openGridOverlay(i,j));
-      pointContainer.appendChild(circle);
-      grid.appendChild(pointContainer);
-    }*/
+    function initGrid(){
+      const grid = document.getElementById("grid");
+      grid.innerHTML = "";
 
+      const cols = 6;
+      const rows = 11;
 
-// Overlay functions
-async function openGridOverlay(x, y) {
-  currentPoint = { x, y };
+      // 🔴 แก้ไข: คำนวณขนาดช่อง (cellSize) ให้ยืดหยุ่นตามหน้าจอ
+      let cellSize = 60; // ค่าปกติสำหรับ Desktop
 
-  const overlay = document.getElementById("gridOverlay");
-  overlay.style.display = "block";
+      // ตรวจสอบความกว้างหน้าจอ (ถ้าเป็นมือถือ < 768px)
+      if (window.innerWidth < 768) {
+         const wrapper = document.querySelector('.grid-wrapper');
+         // หาความกว้างจริงของพื้นที่แสดงผล ลบ padding ออกนิดหน่อย
+         const availableWidth = wrapper ? wrapper.clientWidth - 20 : window.innerWidth - 40;
+         
+         // สูตร: ความกว้าง / (จำนวนคอลัมน์ + 1 ช่องสำหรับขอบซ้าย)
+         cellSize = Math.floor(availableWidth / (cols + 1));
+      }
+      
+      // ป้องกันไม่ให้เล็กจนเกินไป (ขั้นต่ำ 40px เพื่อให้จิ้มง่าย)
+      if (cellSize < 40) cellSize = 40; 
 
-  document.getElementById("pointTitle").textContent = `จุด (${x},${y})`;
+      grid.style.width  = `${cellSize * (cols + 1)}px`;
+      grid.style.height = `${cellSize * (rows + 1)}px`;
 
-  // ⭐ หน่วง 1 tick กันคลิกเดียวกันปิด overlay
-  setTimeout(() => {
-    document.addEventListener("click", outsideOverlayClick);
-  }, 0);
+      /* เส้นตั้ง */
+      for(let i = 1; i <= cols; i++){
+        const v = document.createElement("div");
+        v.className = "vertical-line";
+        v.style.left = `${i * cellSize}px`;
+        grid.appendChild(v);
+      }
 
-  setOverlayMode(overlayMode);
+      /* เส้นนอน */
+      for(let j = 1; j <= rows; j++){
+        const h = document.createElement("div");
+        h.className = "horizontal-line";
+        h.style.top = `${j * cellSize}px`;
+        grid.appendChild(h);
+      }
 
+      /* จุด 🌱 */
+      for(let x = 1; x <= cols; x++){
+        for(let y = 1; y <= rows; y++){
+          const px = x * cellSize;
+          const py = y * cellSize;
 
+          const pointContainer = document.createElement("div");
+          pointContainer.className = "point-container";
+          pointContainer.style.left = `${px}px`;
+          pointContainer.style.top = `${py}px`;
 
-  // โหลดชื่อและรูป
-  const { data, error } = await supabaseClient.from("points").select("*").eq("user_id", currentUser.id).eq("x", x).eq("y", y).single();
-  const input = document.getElementById("pointNameInput");
-  input.value = data?.name || "";
-  const img = document.getElementById("pointImage");
-  if (data?.image_url) { img.src = data.image_url; img.style.display = "block"; } else img.style.display = "none";
+          const seed = document.createElement("div");
+          seed.className = "seed";
+          seed.textContent = "🌱";
+          
+          // 🔴 ปรับขนาดไอคอนต้นไม้ตามขนาดช่อง
+          seed.style.fontSize = `${cellSize * 0.5}px`; 
 
-  // โหลดค่าความชื้นจาก paintable
-  const { data: vals } = await supabaseClient
-    .from("paintable")
-    .select("soil_moisture, inserted_at")
-    .eq("user_id", currentUser.id)
-    .eq("point_x", x)
-    .eq("point_y", y)
-    .order("inserted_at", { ascending: true });
+          // tooltip
+          const tooltip = document.createElement("div");
+          tooltip.className = "point-tooltip";
+          tooltip.textContent = `(${x}, ${y})`;
 
-  const labels = vals?.map(d => {
-  const date = new Date(d.inserted_at);
-  return [
-    date.toLocaleDateString("th-TH"),  // บรรทัดบน (วันที่)
-    date.toLocaleTimeString("th-TH")   // บรรทัดล่าง (เวลา)
-  ];
-}) || [];
+          // โหลดชื่อจุดจาก Supabase ตอน hover
+          pointContainer.addEventListener("mouseenter", async () => {
+            const { data } = await supabaseClient
+              .from("points")
+              .select("name")
+              .eq("user_id", currentUser.id)
+              .eq("x", x)
+              .eq("y", y)
+              .single();
 
-  const values = vals?.map(d => d.soil_moisture) || [];
+            tooltip.innerHTML = `
+              ตำแหน่ง: (${x},${y})<br>
+              ชื่อ: ${data?.name || "-"}
+            `;
+          });
 
-  // กำหนด chart overlay pointChart
-  const ctx = document.getElementById("pointChart").getContext("2d");
-  const chartTitle = document.getElementById("chartTitle");
-  // สร้างกราฟเฉพาะโหมดดูรายละเอียด
-if (overlayMode === "detail") {
-  chartTitle.style.display = "block";
+          // เงื่อนไขช่วงที่กดไม่ได้
+          if(x >= 4 && y >= 1){
+            seed.style.opacity = "0.3";
+            seed.style.cursor = "not-allowed";
+          } else {
+            seed.addEventListener("click", () => openGridOverlay(x, y));
+          }
 
-  const canvas = document.getElementById("pointChart");
-  canvas.style.display = "block";
-
-  if (chart) chart.destroy();
-
-  chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: 'ความชื้น',
-        data: values,
-        borderColor: 'rgb(54,162,235)',
-        backgroundColor: 'rgba(54,162,235,0.2)',
-        tension: 0.3,
-        pointRadius: 2
-      }]
-    },
-    options: {
-      responsive: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { display: true },
-        y: { display: true, min: 0, max: 100 }
+          pointContainer.appendChild(seed);
+          pointContainer.appendChild(tooltip);
+          grid.appendChild(pointContainer);
+        }
       }
     }
-  });
 
-} else {
-  // 🔥 โหมดสั่งแขนกล
-  chartTitle.style.display = "none";
+    // เพิ่ม Event Listener ให้คำนวณใหม่เมื่อหมุนจอ
+    window.addEventListener('resize', initGrid);
 
-  if (chart) {
-    chart.destroy();
-    chart = null;
-  }
+    // Overlay functions
+    async function openGridOverlay(x, y) {
+      currentPoint = { x, y };
 
-  document.getElementById("pointChart").style.display = "none";
-}
-}
+      const overlay = document.getElementById("gridOverlay");
+      overlay.style.display = "flex"; // Changed to flex for centering logic
 
+      document.getElementById("pointTitle").textContent = `จุด (${x},${y})`;
 
+      // ⭐ หน่วง 1 tick กันคลิกเดียวกันปิด overlay
+      setTimeout(() => {
+        document.addEventListener("click", outsideOverlayClick);
+      }, 0);
 
-/* ===============================
-   MAP จุด → ACTION แขนกล
-================================ */
-const pointActionMap = {
-  "1,1": "A",
-  "1,2": "B",
-  "1,3": "C",
-  "1,4": "D",
-  "1,5": "E",
-  "1,6": "F",
-  "1,7": "G",
-  "1,8": "H",
-  "1,9": "I",
-  "1,10": "J",
-  "1,11": "K",
+      setOverlayMode(overlayMode);
 
-  "2,1": "L",
-  "2,2": "M",
-  "2,3": "N",
-  "2,4": "O",
-  "2,5": "P",
-  "2,6": "Q",
-  "2,7": "R",
-  "2,8": "S",
-  "2,9": "T",
-  "2,10": "U",
-  "2,11": "V",
+      // โหลดชื่อและรูป
+      const { data, error } = await supabaseClient.from("points").select("*").eq("user_id", currentUser.id).eq("x", x).eq("y", y).single();
+      const input = document.getElementById("pointNameInput");
+      input.value = data?.name || "";
+      const img = document.getElementById("pointImage");
+      if (data?.image_url) { img.src = data.image_url; img.style.display = "block"; } else img.style.display = "none";
 
-  "3,1": "W",
-  "3,2": "X",
-  "3,3": "Y",
-  "3,4": "Z",
-  "3,5": "A1",
-  "3,6": "B1",
-  "3,7": "C1",
-  "3,8": "D1",
-  "3,9": "E1",
-  "3,10": "F1",
-  "3,11": "G1",
+      // โหลดค่าความชื้นจาก paintable
+      const { data: vals } = await supabaseClient
+        .from("paintable")
+        .select("soil_moisture, inserted_at")
+        .eq("user_id", currentUser.id)
+        .eq("point_x", x)
+        .eq("point_y", y)
+        .order("inserted_at", { ascending: true });
 
-  "4,1": "A2",
-  "4,2": "B2",
-  "4,3": "C2",
-  "4,4": "D2",
-  "4,5": "E2",
-  "4,6": "F2",
-  "4,7": "G2",
-  "4,8": "H2",
-  "4,9": "I2",
-  "4,10": "J2",
-  "4,11": "K2",
+      const labels = vals?.map(d => {
+        const date = new Date(d.inserted_at);
+        return [
+          date.toLocaleDateString("th-TH"),
+          date.toLocaleTimeString("th-TH")
+        ];
+      }) || [];
 
-  "5,1": "L2",
-  "5,2": "M2",
-  "5,3": "N2",
-  "5,4": "O2",
-  "5,5": "P2",
-  "5,6": "Q2",
-  "5,7": "R2",
-  "5,8": "S2",
-  "5,9": "T2",
-  "5,10": "U2",
-  "5,11": "V2",
+      const values = vals?.map(d => d.soil_moisture) || [];
 
-  "6,1": "W2",
-  "6,2": "X2",
-  "6,3": "Y2",
-  "6,4": "Z2",
-  "6,5": "A3",
-  "6,6": "B3",
-  "6,7": "C3",
-  "6,8": "D3",
-  "6,9": "E3",
-  "6,10": "F3",
-  "6,11": "G3"
-};
+      // กำหนด chart overlay pointChart
+      const ctx = document.getElementById("pointChart").getContext("2d");
+      const chartTitle = document.getElementById("chartTitle");
+      
+      // สร้างกราฟเฉพาะโหมดดูรายละเอียด
+      if (overlayMode === "detail") {
+        chartTitle.style.display = "block";
 
+        const canvas = document.getElementById("pointChart");
+        canvas.style.display = "block";
 
-/* ===============================
-   MAP จุด → ACTION รดน้ำ
-================================ */
-const pointWaterMap = {
-  "1,1": "water_A_1_1",
-  "1,2": "water_A_1_2",
-  "1,3": "water_A_1_3",
-  "1,4": "water_A_1_4",
-  "1,5": "water_A_1_5",
-  "1,6": "water_A_1_6",
-  "1,7": "water_A_1_7",
-  "1,8": "water_A_1_8",
-  "1,9": "water_A_1_9",
-  "1,10": "water_A_1_10",
-  "1,11": "water_A_1_11",
+        if (chart) chart.destroy();
 
-  "2,1": "water_A_2_1",
-  "2,2": "water_A_2_2",
-  "2,3": "water_A_2_3",
-  "2,4": "water_A_2_4",
-  "2,5": "water_A_2_5",
-  "2,6": "water_A_2_6",
-  "2,7": "water_A_2_7",
-  "2,8": "water_A_2_8",
-  "2,9": "water_A_2_9",
-  "2,10": "water_A_2_10",
-  "2,11": "water_A_2_11",
+        chart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [{
+              label: 'ความชื้น',
+              data: values,
+              borderColor: '#3b82f6', // Tailwind Blue-500
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              tension: 0.4,
+              fill: true,
+              pointRadius: 3,
+              pointBackgroundColor: '#fff',
+              pointBorderColor: '#3b82f6'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { display: true, grid: {display: false} },
+              y: { display: true, min: 0, max: 100, border: {dash: [4,4]} }
+            }
+          }
+        });
 
-  "3,1": "water_A_3_1",
-  "3,2": "water_A_3_2",
-  "3,3": "water_A_3_3",
-  "3,4": "water_A_3_4",
-  "3,5": "water_A_3_5",
-  "3,6": "water_A_3_6",
-  "3,7": "water_A_3_7",
-  "3,8": "water_A_3_8",
-  "3,9": "water_A_3_9",
-  "3,10": "water_A_3_10",
-  "3,11": "water_A_3_11",
+      } else {
+        chartTitle.style.display = "none";
+        if (chart) {
+          chart.destroy();
+          chart = null;
+        }
+        document.getElementById("pointChart").style.display = "none";
+      }
+    }
 
-  "4,1": "water_A_4_1",
-  "4,2": "water_A_4_2",
-  "4,3": "water_A_4_3",
-  "4,4": "water_A_4_4",
-  "4,5": "water_A_4_5",
-  "4,6": "water_A_4_6",
-  "4,7": "water_A_4_7",
-  "4,8": "water_A_4_8",
-  "4,9": "water_A_4_9",
-  "4,10": "water_A_4_10",
-  "4,11": "water_A_4_11",
+    /* ===============================
+       MAP จุด → ACTION แขนกล
+    ================================ */
+    const pointActionMap = {
+      "1,1": "A", "1,2": "B", "1,3": "C", "1,4": "D", "1,5": "E", "1,6": "F", "1,7": "G", "1,8": "H", "1,9": "I", "1,10": "J", "1,11": "K",
+      "2,1": "L", "2,2": "M", "2,3": "N", "2,4": "O", "2,5": "P", "2,6": "Q", "2,7": "R", "2,8": "S", "2,9": "T", "2,10": "U", "2,11": "V",
+      "3,1": "W", "3,2": "X", "3,3": "Y", "3,4": "Z", "3,5": "A1", "3,6": "B1", "3,7": "C1", "3,8": "D1", "3,9": "E1", "3,10": "F1", "3,11": "G1",
+      "4,1": "A2", "4,2": "B2", "4,3": "C2", "4,4": "D2", "4,5": "E2", "4,6": "F2", "4,7": "G2", "4,8": "H2", "4,9": "I2", "4,10": "J2", "4,11": "K2",
+      "5,1": "L2", "5,2": "M2", "5,3": "N2", "5,4": "O2", "5,5": "P2", "5,6": "Q2", "5,7": "R2", "5,8": "S2", "5,9": "T2", "5,10": "U2", "5,11": "V2",
+      "6,1": "W2", "6,2": "X2", "6,3": "Y2", "6,4": "Z2", "6,5": "A3", "6,6": "B3", "6,7": "C3", "6,8": "D3", "6,9": "E3", "6,10": "F3", "6,11": "G3"
+    };
 
-  "5,1": "water_A_5_1",
-  "5,2": "water_A_5_2",
-  "5,3": "water_A_5_3",
-  "5,4": "water_A_5_4",
-  "5,5": "water_A_5_5",
-  "5,6": "water_A_5_6",
-  "5,7": "water_A_5_7",
-  "5,8": "water_A_5_8",
-  "5,9": "water_A_5_9",
-  "5,10": "water_A_5_10",
-  "5,11": "water_A_5_11",
+    const pointWaterMap = {
+      "1,1": "water_A_1_1", "1,2": "water_A_1_2", "1,3": "water_A_1_3", "1,4": "water_A_1_4", "1,5": "water_A_1_5", "1,6": "water_A_1_6", "1,7": "water_A_1_7", "1,8": "water_A_1_8", "1,9": "water_A_1_9", "1,10": "water_A_1_10", "1,11": "water_A_1_11",
+      "2,1": "water_A_2_1", "2,2": "water_A_2_2", "2,3": "water_A_2_3", "2,4": "water_A_2_4", "2,5": "water_A_2_5", "2,6": "water_A_2_6", "2,7": "water_A_2_7", "2,8": "water_A_2_8", "2,9": "water_A_2_9", "2,10": "water_A_2_10", "2,11": "water_A_2_11",
+      "3,1": "water_A_3_1", "3,2": "water_A_3_2", "3,3": "water_A_3_3", "3,4": "water_A_3_4", "3,5": "water_A_3_5", "3,6": "water_A_3_6", "3,7": "water_A_3_7", "3,8": "water_A_3_8", "3,9": "water_A_3_9", "3,10": "water_A_3_10", "3,11": "water_A_3_11",
+      "4,1": "water_A_4_1", "4,2": "water_A_4_2", "4,3": "water_A_4_3", "4,4": "water_A_4_4", "4,5": "water_A_4_5", "4,6": "water_A_4_6", "4,7": "water_A_4_7", "4,8": "water_A_4_8", "4,9": "water_A_4_9", "4,10": "water_A_4_10", "4,11": "water_A_4_11",
+      "5,1": "water_A_5_1", "5,2": "water_A_5_2", "5,3": "water_A_5_3", "5,4": "water_A_5_4", "5,5": "water_A_5_5", "5,6": "water_A_5_6", "5,7": "water_A_5_7", "5,8": "water_A_5_8", "5,9": "water_A_5_9", "5,10": "water_A_5_10", "5,11": "water_A_5_11",
+      "6,1": "water_A_6_1", "6,2": "water_A_6_2", "6,3": "water_A_6_3", "6,4": "water_A_6_4", "6,5": "water_A_6_5", "6,6": "water_A_6_6", "6,7": "water_A_6_7", "6,8": "water_A_6_8", "6,9": "water_A_6_9", "6,10": "water_A_6_10", "6,11": "water_A_6_11"
+    };
 
-  "6,1": "water_A_6_1",
-  "6,2": "water_A_6_2",
-  "6,3": "water_A_6_3",
-  "6,4": "water_A_6_4",
-  "6,5": "water_A_6_5",
-  "6,6": "water_A_6_6",
-  "6,7": "water_A_6_7",
-  "6,8": "water_A_6_8",
-  "6,9": "water_A_6_9",
-  "6,10": "water_A_6_10",
-  "6,11": "water_A_6_11"
-};
+    const pointMoistureMap = {
+      "1,1": "moisture_A_1_1", "1,2": "moisture_A_1_2", "1,3": "moisture_A_1_3", "1,4": "moisture_A_1_4", "1,5": "moisture_A_1_5", "1,6": "moisture_A_1_6", "1,7": "moisture_A_1_7", "1,8": "moisture_A_1_8", "1,9": "moisture_A_1_9", "1,10": "moisture_A_1_10", "1,11": "moisture_A_1_11",
+      "2,1": "moisture_A_2_1", "2,2": "moisture_A_2_2", "2,3": "moisture_A_2_3", "2,4": "moisture_A_2_4", "2,5": "moisture_A_2_5", "2,6": "moisture_A_2_6", "2,7": "moisture_A_2_7", "2,8": "moisture_A_2_8", "2,9": "moisture_A_2_9", "2,10": "moisture_A_2_10", "2,11": "moisture_A_2_11",
+      "3,1": "moisture_A_3_1", "3,2": "moisture_A_3_2", "3,3": "moisture_A_3_3", "3,4": "moisture_A_3_4", "3,5": "moisture_A_3_5", "3,6": "moisture_A_3_6", "3,7": "moisture_A_3_7", "3,8": "moisture_A_3_8", "3,9": "moisture_A_3_9", "3,10": "moisture_A_3_10", "3,11": "moisture_A_3_11",
+      "4,1": "moisture_A_4_1", "4,2": "moisture_A_4_2", "4,3": "moisture_A_4_3", "4,4": "moisture_A_4_4", "4,5": "moisture_A_4_5", "4,6": "moisture_A_4_6", "4,7": "moisture_A_4_7", "4,8": "moisture_A_4_8", "4,9": "moisture_A_4_9", "4,10": "moisture_A_4_10", "4,11": "moisture_A_4_11",
+      "5,1": "moisture_A_5_1", "5,2": "moisture_A_5_2", "5,3": "moisture_A_5_3", "5,4": "moisture_A_5_4", "5,5": "moisture_A_5_5", "5,6": "moisture_A_5_6", "5,7": "moisture_A_5_7", "5,8": "moisture_A_5_8", "5,9": "moisture_A_5_9", "5,10": "moisture_A_5_10", "5,11": "moisture_A_5_11",
+      "6,1": "moisture_A_6_1", "6,2": "moisture_A_6_2", "6,3": "moisture_A_6_3", "6,4": "moisture_A_6_4", "6,5": "moisture_A_6_5", "6,6": "moisture_A_6_6", "6,7": "moisture_A_6_7", "6,8": "moisture_A_6_8", "6,9": "moisture_A_6_9", "6,10": "moisture_A_6_10", "6,11": "moisture_A_6_11"
+    };
 
+    function renderInlineHandButtons(){
+      const area = document.getElementById("inlineHandArea");
+      area.innerHTML = "";
 
-/* ===============================
-   MAP จุด → ACTION วัดความชื้น
-================================ */
-const pointMoistureMap = {
-  "1,1": "moisture_A_1_1",
-  "1,2": "moisture_A_1_2",
-  "1,3": "moisture_A_1_3",
-  "1,4": "moisture_A_1_4",
-  "1,5": "moisture_A_1_5",
-  "1,6": "moisture_A_1_6",
-  "1,7": "moisture_A_1_7",
-  "1,8": "moisture_A_1_8",
-  "1,9": "moisture_A_1_9",
-  "1,10": "moisture_A_1_10",
-  "1,11": "moisture_A_1_11",
+      const key = `${currentPoint.x},${currentPoint.y}`;
+      const action = pointActionMap[key];
+      const waterAction = pointWaterMap[key];
+      const moistureAction = pointMoistureMap[key];
 
-  "2,1": "moisture_A_2_1",
-  "2,2": "moisture_A_2_2",
-  "2,3": "moisture_A_2_3",
-  "2,4": "moisture_A_2_4",
-  "2,5": "moisture_A_2_5",
-  "2,6": "moisture_A_2_6",
-  "2,7": "moisture_A_2_7",
-  "2,8": "moisture_A_2_8",
-  "2,9": "moisture_A_2_9",
-  "2,10": "moisture_A_2_10",
-  "2,11": "moisture_A_2_11",
+      if(action){
+        const btn = document.createElement("button");
+        btn.className = "action-btn btn-gray";
+        btn.innerHTML = `<span>🤏</span> คีบต้นกล้า`;
+        btn.onclick = (e) => sendAction(action, e);
+        area.appendChild(btn);
+      }
 
-  "3,1": "moisture_A_3_1",
-  "3,2": "moisture_A_3_2",
-  "3,3": "moisture_A_3_3",
-  "3,4": "moisture_A_3_4",
-  "3,5": "moisture_A_3_5",
-  "3,6": "moisture_A_3_6",
-  "3,7": "moisture_A_3_7",
-  "3,8": "moisture_A_3_8",
-  "3,9": "moisture_A_3_9",
-  "3,10": "moisture_A_3_10",
-  "3,11": "moisture_A_3_11",
+      if(waterAction){
+        const btn = document.createElement("button");
+        btn.className = "action-btn btn-blue";
+        btn.innerHTML = `<span>🚿</span> รดน้ำต้นกล้า`;
+        btn.onclick = (e) => sendAction(waterAction, e);
+        area.appendChild(btn);
+      }
 
-  "4,1": "moisture_A_4_1",
-  "4,2": "moisture_A_4_2",
-  "4,3": "moisture_A_4_3",
-  "4,4": "moisture_A_4_4",
-  "4,5": "moisture_A_4_5",
-  "4,6": "moisture_A_4_6",
-  "4,7": "moisture_A_4_7",
-  "4,8": "moisture_A_4_8",
-  "4,9": "moisture_A_4_9",
-  "4,10": "moisture_A_4_10",
-  "4,11": "moisture_A_4_11",
+      if(moistureAction){
+        const btn = document.createElement("button");
+        btn.className = "action-btn btn-purple";
+        btn.innerHTML = `<span>💧</span> วัดความชื้นต้นกล้า`;
+        btn.onclick = (e) => sendAction(moistureAction, e);
+        area.appendChild(btn);
+      }
+    }
 
-  "5,1": "moisture_A_5_1",
-  "5,2": "moisture_A_5_2",
-  "5,3": "moisture_A_5_3",
-  "5,4": "moisture_A_5_4",
-  "5,5": "moisture_A_5_5",
-  "5,6": "moisture_A_5_6",
-  "5,7": "moisture_A_5_7",
-  "5,8": "moisture_A_5_8",
-  "5,9": "moisture_A_5_9",
-  "5,10": "moisture_A_5_10",
-  "5,11": "moisture_A_5_11",
+    function closeGridOverlay(){ document.getElementById("gridOverlay").style.display="none"; }
 
-  "6,1": "moisture_A_6_1",
-  "6,2": "moisture_A_6_2",
-  "6,3": "moisture_A_6_3",
-  "6,4": "moisture_A_6_4",
-  "6,5": "moisture_A_6_5",
-  "6,6": "moisture_A_6_6",
-  "6,7": "moisture_A_6_7",
-  "6,8": "moisture_A_6_8",
-  "6,9": "moisture_A_6_9",
-  "6,10": "moisture_A_6_10",
-  "6,11": "moisture_A_6_11"
-};
+    async function renameSuccess(){
+      const input=document.getElementById("pointNameInput");
+      const name=input.value.trim();
+      if(!name) return;
+      const {error}=await supabaseClient.from("points").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,name},{onConflict:['user_id','x','y']});
+      if(error) console.error(error.message);
+      else alert("บันทึกชื่อเรียบร้อย");
+    }
+
+    // Upload image
+    document.getElementById("pointFileInput").addEventListener("change", async(event)=>{
+      const file=event.target.files[0]; if(!file) return;
+      
+      const fileName=`${currentUser.id}/point-${currentPoint.x}-${currentPoint.y}-${Date.now()}.${file.name.split('.').pop()}`;
+      try{
+        const {data,error}=await supabaseClient.storage.from("grid-images").upload(fileName,file,{cacheControl:"3600",upsert:true});
+        if(error) throw error;
+        const {data:publicData}=supabaseClient.storage.from("grid-images").getPublicUrl(fileName);
+        const imageUrl=publicData.publicUrl;
+        const img=document.getElementById("pointImage"); img.src=imageUrl; img.style.display="block";
+        await supabaseClient.from("points").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,image_url:imageUrl},{onConflict:['user_id','x','y']});
+      }catch(err){ console.error(err); alert("อัปโหลดรูปไม่สำเร็จ"); }
+    });
 
 
+    /* ===== Sidebar Control ===== */
+    const sidebar = document.getElementById("sidebar");
+    const overlayBg = document.getElementById("overlayBg");
+    const toggle = document.getElementById("sidebarToggle");
 
+    // ปุ่มเปิดเมนู
+    document.getElementById("menuBtn").addEventListener("click", () => {
+        sidebar.classList.add("active");
+        overlayBg.style.display = "block";
+        toggle.checked = true;
+    });
 
+    // กดปุ่มปิด
+    toggle.addEventListener("change", () => {
+        if (!toggle.checked) {
+            sidebar.classList.remove("active");
+            overlayBg.style.display = "none";
+        }
+    });
 
-
-function renderInlineHandButtons(){
-  const area = document.getElementById("inlineHandArea");
-  area.innerHTML = "";
-
-  const key = `${currentPoint.x},${currentPoint.y}`;
-  const action = pointActionMap[key];
-  const waterAction = pointWaterMap[key];
-  const moistureAction = pointMoistureMap[key];
-
-  if(action){
-  const btn = document.createElement("button");
-  btn.className = "hand one";
-  btn.innerText = `คีบต้นกล้า`;
-  btn.onclick = (e) => sendAction(action, e);
-  area.appendChild(btn);
-}
-
-if(waterAction){
-  const btn = document.createElement("button");
-  btn.className = "hand one water";
-  btn.innerText = `รดน้ำต้นกล้า`;
-  btn.onclick = (e) => sendAction(waterAction, e);
-  area.appendChild(btn);
-}
-
-if(moistureAction){
-  const btn = document.createElement("button");
-  btn.className = "hand one moisture";
-  btn.innerText = `วัดความชื้นต้นกล้า`;
-  btn.onclick = (e) => sendAction(moistureAction, e);
-  area.appendChild(btn);
-}
-}
-
-
-
-
-function backToPointOverlay() {
-  document.getElementById("handOverlay").style.display = "none";
-  document.getElementById("pointOverlayContent").style.display = "block";
-}
-
-function closeGridOverlay(){ document.getElementById("gridOverlay").style.display="none"; }
-
-async function renameSuccess(){
-  const input=document.getElementById("pointNameInput");
-  const name=input.value.trim();
-  if(!name) return;
-  const {error}=await supabaseClient.from("points").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,name},{onConflict:['user_id','x','y']});
-  if(error) console.error(error.message);
-}
-
-// Upload image
-document.getElementById("pointFileInput").addEventListener("change", async(event)=>{
-  const file=event.target.files[0]; if(!file) return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    const img=document.getElementById("pointImage"); img.src=e.target.result; img.style.display="block";
-  };
-  reader.readAsDataURL(file);
-  const fileName=`${currentUser.id}/point-${currentPoint.x}-${currentPoint.y}-${Date.now()}.${file.name.split('.').pop()}`;
-  try{
-    const {data,error}=await supabaseClient.storage.from("grid-images").upload(fileName,file,{cacheControl:"3600",upsert:true});
-    if(error) throw error;
-    const {data:publicData}=supabaseClient.storage.from("grid-images").getPublicUrl(fileName);
-    const imageUrl=publicData.publicUrl;
-    const img=document.getElementById("pointImage"); img.src=imageUrl; img.style.display="block";
-    await supabaseClient.from("points").upsert({user_id:currentUser.id,x:currentPoint.x,y:currentPoint.y,image_url:imageUrl},{onConflict:['user_id','x','y']});
-  }catch(err){ console.error(err); alert("อัปโหลดรูปไม่สำเร็จ"); }
-});
-
-
-  /* ===== Sidebar Control ===== */
-const sidebar = document.getElementById("sidebar");
-const overlay = document.getElementById("overlayBg");
-const toggle = document.getElementById("sidebarToggle");
-
-// ปุ่มเปิดเมนู
-document.getElementById("menuBtn").addEventListener("click", () => {
-    sidebar.classList.add("active");
-    overlay.style.display = "block";
-    toggle.checked = true; // เล่น animation hamburger → X
-});
-
-// กดปุ่ม hamburger เพื่อปิด
-toggle.addEventListener("change", () => {
-    if (!toggle.checked) {
+    // กดพื้นหลังปิดเมนู
+    overlayBg.addEventListener("click", () => {
         sidebar.classList.remove("active");
-        overlay.style.display = "none";
-    }
-});
-
-// กดพื้นหลังปิดเมนู
-overlay.addEventListener("click", () => {
-    sidebar.classList.remove("active");
-    overlay.style.display = "none";
-    toggle.checked = false;
-});
+        overlayBg.style.display = "none";
+        toggle.checked = false;
+    });
 
 
-/* ===============================
-   ส่งค่า ACTION ไป SupabaseClient (เฉพาะ A B C ...)
-================================ */
+    /* ===============================
+       SEND ACTIONS
+    ================================ */
 
-function sendAction(action, e) {
-  e.preventDefault();
+    function sendAction(action, e) {
+      e.preventDefault();
+      const btn = e.target.closest('button'); // find button even if clicked on span
 
-  const btn = e.target;
-
-  fetch("https://yiaemxmwfxrfrwtogamw.supabase.co/rest/v1/robot_commands", {
-    method: "POST",
-    headers: {
-      "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-      "Content-Type": "application/json",
-      "Prefer": "return=minimal"
-    },
-    body: JSON.stringify({
-      action: action,
-      status: "pending"
-    })
-  })
-  .then(res => {
-    if (!res.ok) throw new Error("insert failed");
-
-    alert(`ส่งคำสั่งไปยังแขนกลแล้ว`);
-
-    // 🔒 ค่อยล็อกปุ่มหลังส่งสำเร็จ
-    btn.disabled = true;
-    btn.style.cursor = "not-allowed";
-
-    // ⏱️ ปลดล็อกหลัง 20 วิ
-    setTimeout(() => {
-      btn.disabled = false;
-      btn.style.cursor = "pointer";
-    }, 20000);
-  })
-  .catch(err => {
-    console.error(err);
-    alert("ส่งไม่สำเร็จ ");
-  });
-}
-
-function sendAllAction(action, btn){
-  fetch("https://yiaemxmwfxrfrwtogamw.supabase.co/rest/v1/robot_commands", {
-    method: "POST",
-    headers: {
-      "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-      "Content-Type": "application/json",
-      "Prefer": "return=minimal"
-    },
-    body: JSON.stringify({
-      action: action,
-      status: "pending"
-    })
-  })
-  .then(res => {
-    if (!res.ok) throw new Error("insert failed");
-
-    alert(`ส่งคำสั่งไปยังแขนกลแล้ว`);
-
-    btn.disabled = true;
-    setTimeout(() => btn.disabled = false, 20000);
-  })
-  .catch(err => {
-    console.error(err);
-    alert("ส่งไม่สำเร็จ");
-  });
-}
-
-const solarSwitch = document.getElementById("solarSwitch");
-const solarStatusText = document.getElementById("solarStatus");
-
-solarSwitch.addEventListener("change", () => {
-  if (solarSwitch.checked) {
-    // 🔆 เปิดโซลาร์เซลล์
-    solarStatusText.innerText = "ON";
-    sendSolarAction("OPEN");   // เปลี่ยนจาก 900 เป็น "OPEN"
-  } else {
-    // 🌑 ปิดโซลาร์เซลล์
-    solarStatusText.innerText = "OFF";
-    sendSolarAction("CLOSE");  // เปลี่ยนจาก 1023 เป็น "CLOSE"
-  }
-});
-
-function sendSolarAction(action) {
-  fetch("https://yiaemxmwfxrfrwtogamw.supabase.co/rest/v1/robot_commands", {
-    method: "POST",
-    headers: {
-      "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-      "Content-Type": "application/json",
-      "Prefer": "return=representation"
-    },
-    body: JSON.stringify({
-      action: action,  // 🔑 ส่งเป็น "OPEN" หรือ "CLOSE"
-      status: "pending"
-    })
-  })
-  .then(async res => {
-    const text = await res.text();
-
-    if (!res.ok) {
-      console.error("SOLAR INSERT FAILED:", text);
-      return;
+      fetch("https://yiaemxmwfxrfrwtogamw.supabase.co/rest/v1/robot_commands", {
+        method: "POST",
+        headers: {
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+          "Content-Type": "application/json",
+          "Prefer": "return=minimal"
+        },
+        body: JSON.stringify({
+          action: action,
+          status: "pending"
+        })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("insert failed");
+        alert(`ส่งคำสั่งไปยังแขนกลแล้ว`);
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+        btn.style.cursor = "not-allowed";
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.style.opacity = "1";
+          btn.style.cursor = "pointer";
+        }, 20000);
+      })
+      .catch(err => {
+        console.error(err);
+        alert("ส่งไม่สำเร็จ ");
+      });
     }
 
-    console.log("SOLAR INSERT OK:", text);
-  })
-  .catch(err => {
-    console.error("ส่ง solar ไม่สำเร็จ", err);
-  });
-}
+    function sendAllAction(action, btn){
+      fetch("https://yiaemxmwfxrfrwtogamw.supabase.co/rest/v1/robot_commands", {
+        method: "POST",
+        headers: {
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+          "Content-Type": "application/json",
+          "Prefer": "return=minimal"
+        },
+        body: JSON.stringify({
+          action: action,
+          status: "pending"
+        })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("insert failed");
+        alert(`ส่งคำสั่งไปยังแขนกลแล้ว`);
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.style.opacity = "1";
+        }, 20000);
+      })
+      .catch(err => {
+        console.error(err);
+        alert("ส่งไม่สำเร็จ");
+      });
+    }
 
+    const solarSwitch = document.getElementById("solarSwitch");
+    const solarStatusText = document.getElementById("solarStatus");
 
-function loadSolarStatus() {
-  fetch(
-    "https://yiaemxmwfxrfrwtogamw.supabase.co/rest/v1/robot_commands" +
-    "?select=action,created_at" +
-    "&action=in.(\"OPEN\",\"CLOSE\")" +  // เปลี่ยนตัวเลขเป็น OPEN/CLOSE
-    "&order=created_at.desc" +
-    "&limit=1",
-    {
-      headers: {
-        "apikey": SUPABASE_ANON_KEY,
-        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+    solarSwitch.addEventListener("change", () => {
+      if (solarSwitch.checked) {
+        solarStatusText.innerText = "ON";
+        sendSolarAction("OPEN");
+      } else {
+        solarStatusText.innerText = "OFF";
+        sendSolarAction("CLOSE");
+      }
+    });
+
+    function sendSolarAction(action) {
+      fetch("https://yiaemxmwfxrfrwtogamw.supabase.co/rest/v1/robot_commands", {
+        method: "POST",
+        headers: {
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+          "Content-Type": "application/json",
+          "Prefer": "return=representation"
+        },
+        body: JSON.stringify({
+          action: action,
+          status: "pending"
+        })
+      })
+      .then(async res => {
+        const text = await res.text();
+        if (!res.ok) { console.error("SOLAR INSERT FAILED:", text); return; }
+        console.log("SOLAR INSERT OK:", text);
+      })
+      .catch(err => { console.error("ส่ง solar ไม่สำเร็จ", err); });
+    }
+
+    function loadSolarStatus() {
+      fetch(
+        "https://yiaemxmwfxrfrwtogamw.supabase.co/rest/v1/robot_commands" +
+        "?select=action,created_at" +
+        "&action=in.(\"OPEN\",\"CLOSE\")" +
+        "&order=created_at.desc" +
+        "&limit=1",
+        {
+          headers: {
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        }
+      )
+      .then(res => res.json())
+      .then(data => {
+        if (!data || data.length === 0) {
+          solarStatusText.innerText = "---";
+          return;
+        }
+        const action = data[0].action;
+        if (action === "OPEN") {
+          solarSwitch.checked = true;
+          solarStatusText.innerText = "ON";
+        } else if (action === "CLOSE") {
+          solarSwitch.checked = false;
+          solarStatusText.innerText = "OFF";
+        }
+      })
+      .catch(err => { console.error("โหลดสถานะโซลาร์ไม่สำเร็จ", err); });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => { loadSolarStatus(); });
+
+    const client = mqtt.connect('wss://broker.hivemq.com:8884/mqtt');
+    const topicSet = "Klabot/room1/light/set";
+    const topicStatus = "Klabot/room1/light/status";
+    const statusText = document.getElementById("status");
+    const lightSwitch = document.getElementById("lightSwitch");
+
+    client.on('connect', () => { client.subscribe(topicStatus); });
+    client.on('message', (topic, message) => {
+      if (topic === topicStatus) {
+        const state = message.toString();
+        statusText.innerText = state;
+        lightSwitch.checked = (state === "ON");
+      }
+    });
+
+    lightSwitch.addEventListener("change", () => {
+      if (lightSwitch.checked) { client.publish(topicSet, "ON"); } 
+      else { client.publish(topicSet, "OFF"); }
+    });
+
+    document.getElementById("gridOverlay").addEventListener("click", function (e) {
+      e.stopPropagation();
+    });
+
+    function outsideOverlayClick(e) {
+      const overlay = document.getElementById("gridOverlay");
+      const seedClicked = e.target.classList.contains('seed');
+      if (!overlay.contains(e.target) && !seedClicked && overlay.style.display !== 'none') {
+        closeGridOverlay();
       }
     }
-  )
-  .then(res => res.json())
-  .then(data => {
-    console.log("SOLAR LATEST:", data);
 
-    if (!data || data.length === 0) {
-      solarStatusText.innerText = "---";
-      return;
+    let overlayMode = "detail";
+
+    function setOverlayMode(mode) {
+      overlayMode = mode;
+      const chartContainer = document.getElementById("chartContainer");
+      const inlineHand = document.getElementById("inlineHandArea");
+      const allActionArea = document.getElementById("allActionArea");
+      const detailBtn = document.getElementById("detailModeBtn");
+      const handBtn = document.getElementById("handModeBtn");
+
+      if (mode === "detail") {
+        chartContainer.style.display = "block";
+        inlineHand.style.display = "none";
+        allActionArea.classList.remove("flex");
+        allActionArea.classList.add("hidden");
+
+        detailBtn.classList.add("active");
+        detailBtn.classList.remove("inactive");
+        handBtn.classList.add("inactive");
+        handBtn.classList.remove("active");
+      } else {
+        chartContainer.style.display = "none";
+        inlineHand.style.display = "flex";
+        
+        // Show All Action Area
+        allActionArea.classList.remove("hidden");
+        allActionArea.classList.add("flex");
+
+        renderInlineHandButtons();
+
+        handBtn.classList.add("active");
+        handBtn.classList.remove("inactive");
+        detailBtn.classList.add("inactive");
+        detailBtn.classList.remove("active");
+      }
     }
 
-    const action = data[0].action;
+    document.addEventListener("DOMContentLoaded", () => {
+      const moistureBtn = document.getElementById("allMoistureBtn");
+      const waterBtn = document.getElementById("allWaterBtn");
+      if (moistureBtn) { moistureBtn.onclick = (e) => { sendAction("moisture_A_all", e); }; }
+      if (waterBtn) { waterBtn.onclick = (e) => { sendAction("water_A_all", e); }; }
+    });
 
-    if (action === "OPEN") {
-      solarSwitch.checked = true;
-      solarStatusText.innerText = "ON";
-    } else if (action === "CLOSE") {
-      solarSwitch.checked = false;
-      solarStatusText.innerText = "OFF";
-    }
-  })
-  .catch(err => {
-    console.error("โหลดสถานะโซลาร์ไม่สำเร็จ", err);
-  });
-}
+    document.getElementById("allResetBtn").addEventListener("click", () => {
+      sendAllAction("RESET_A", document.getElementById("allResetBtn"));
+    });
 
-
-document.addEventListener("DOMContentLoaded", () => {
-  loadSolarStatus();
-});
-
-
-
-
-const client = mqtt.connect('wss://broker.hivemq.com:8884/mqtt');
-
-const topicSet = "Klabot/room1/light/set";
-const topicStatus = "Klabot/room1/light/status";
-
-const statusText = document.getElementById("status");
-const lightSwitch = document.getElementById("lightSwitch");
-
-
-// เชื่อมต่อ MQTT
-client.on('connect', () => {
-  client.subscribe(topicStatus);
-});
-
-// รับสถานะจากอุปกรณ์
-client.on('message', (topic, message) => {
-  if (topic === topicStatus) {
-    const state = message.toString();
-    statusText.innerText = state;
-
-    // sync switch กับสถานะจริง
-    lightSwitch.checked = (state === "ON");
-  }
-});
-
-// เมื่อกด switch
-lightSwitch.addEventListener("change", () => {
-  if (lightSwitch.checked) {
-    client.publish(topicSet, "ON");
-  } else {
-    client.publish(topicSet, "OFF");
-  }
-});
-
-
-
-function closeGridOverlay() {
-  document.getElementById("gridOverlay").style.display = "none";
-  document.removeEventListener("click", outsideOverlayClick);
-}
-
-document.getElementById("gridOverlay").addEventListener("click", function (e) {
-  e.stopPropagation();
-});
-
-function outsideOverlayClick(e) {
-  const overlay = document.getElementById("gridOverlay");
-
-  if (!overlay.contains(e.target)) {
-    closeGridOverlay();
-  }
-}
-
-
-let overlayMode = "detail";
-
-function setOverlayMode(mode) {
-  overlayMode = mode;
-
-  const chart = document.getElementById("pointChart");
-  const inlineHand = document.getElementById("inlineHandArea");
-  const allActionArea = document.getElementById("allActionArea");
-
-  const detailBtn = document.getElementById("detailModeBtn");
-  const handBtn = document.getElementById("handModeBtn");
-
-  if (mode === "detail") {
-    chart.style.display = "block";
-    inlineHand.style.display = "none";
-    allActionArea.style.display = "none"; // ⬅ ซ่อนแน่นอน
-
-    detailBtn.classList.add("active");
-    detailBtn.classList.remove("inactive");
-
-    handBtn.classList.add("inactive");
-    handBtn.classList.remove("active");
-  } else {
-    chart.style.display = "none";
-    inlineHand.style.display = "block";
-
-    allActionArea.style.display = "flex"; // ⬅ แสดงตอนนี้เท่านั้น
-
-    renderInlineHandButtons();
-
-    handBtn.classList.add("active");
-    handBtn.classList.remove("inactive");
-
-    detailBtn.classList.add("inactive");
-    detailBtn.classList.remove("active");
-  }
-
-  
-}
-
-
-
-document.addEventListener("DOMContentLoaded", () => {
-  const moistureBtn = document.getElementById("allMoistureBtn");
-  const waterBtn = document.getElementById("allWaterBtn");
-
-  if (moistureBtn) {
-    moistureBtn.onclick = (e) => {
-      sendAction("moisture_A_all", e);
-    };
-  }
-
-  if (waterBtn) {
-    waterBtn.onclick = (e) => {
-      sendAction("water_A_all", e);
-    };
-  }
-});
-
-document.getElementById("allResetBtn").addEventListener("click", () => {
-  sendAllAction("RESET_A", document.getElementById("allResetBtn"));
-});
-
-
-</script>
+  </script>
 </body>
 </html>

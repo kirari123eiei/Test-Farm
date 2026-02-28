@@ -2,291 +2,159 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>หน้าเลือกการทำงาน</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Welcome to Klabot</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-h1 { font-size:24px; font-weight:700; color:#1e40af; text-align:center;}
-/* ===== footer ===== */
-.footer-text {
-  position: fixed;
-  bottom: 10px;
-  right: 20px;
-  font-size: 12px;
-  color: #999;
-  transition: color 0.15s, text-decoration 0.15s;
-}
-.footer-text:hover {
-  text-decoration: underline;
-  cursor: pointer;
-  color: #777;
-}
+  body { 
+    font-family: 'Prompt', sans-serif; 
+    background-color: #f8fafc; /* Slate-50 */
+    color: #334155; 
+    overflow-x: hidden;
+  }
 
-/* ===== ปุ่ม ===== */
-.ui-button {
-  position: fixed;
-  overflow: hidden;
-  height: 3rem;
-  padding: 0 2rem;
-  border-radius: 1.5rem;
-  background: #3d3a4e;
-  color: #fff;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-  border: none;
-  cursor: pointer;
+  /* ปุ่ม Enter สไตล์ Modern */
+  .btn-enter {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    transition: all 0.3s ease;
+  }
+  .btn-enter:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+  }
+  .btn-enter:active { transform: scale(0.98); }
 
-  /* 🔥 สำคัญ */
-  display: flex;
-  align-items: center;      /* กลางแนวตั้ง */
-  justify-content: center;  /* กลางแนวนอน */
+  /* Popup Animation */
+  #popup {
+    transition: opacity 0.5s ease, visibility 0.5s;
+    opacity: 0;
+    visibility: hidden;
+  }
+  #popup.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  /* รูปภาพตกแต่ง */
+  .hero-img {
+    border-radius: 20px;
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15);
+    transition: transform 0.5s ease;
+    object-fit: cover;
+  }
+  .hero-img:hover { transform: scale(1.02); }
 
-  bottom: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 40;
-  text-decoration: none;
-}
-
-.ui-button .button-content {
-  position: relative;
-  z-index: 1;
-  line-height: 1;   /* ป้องกันตัวหนังสือลอย */
-}
-
-
-.ui-button::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  transform: scaleX(0);
-  transform-origin: left;
-  background: linear-gradient(
-    82.3deg,
-    rgba(150,93,233,1) 10.8%,
-    rgba(99,88,238,1) 94.3%
-  );
-  transition: 0.4s;
-}
-.ui-button:hover::before {
-  transform: scaleX(1);
-}
-.ui-button span {
-  position: relative;
-  z-index: 1;
-}
-
-/* ===== popup ===== */
-#popup {
-  opacity: 0;
-  pointer-events: none;
-}
-#popup.active {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* ===== toggle ===== */
-.toggle {
-  width: 30px;
-  height: 24px;
-  position: relative;
-  cursor: pointer;
-}
-.bar {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: #fff;
-  border-radius: 2px;
-  transition: 0.35s;
-}
-.bar--top { top: 0; }
-.bar--middle { top: 10px; }
-.bar--bottom { bottom: 0; }
-.toggle:hover .bar--top {
-  transform: rotate(-45deg);
-  top: 10px;
-}
-.toggle:hover .bar--middle {
-  opacity: 0;
-}
-.toggle:hover .bar--bottom {
-  transform: rotate(45deg);
-  bottom: 10px;
-}
-
-/* ===== layout ===== */
-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
-}
-.container {
-  margin: 40px;
-  display: flex;
-  gap: 40px;
-  align-items: stretch;
-}
-.item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.item1, .item2, .item3 {
-  width: 300px;
-}
-.item1 {
-  height: 290px;
-  object-fit: cover;
-  margin-bottom: 15px;
-}
-.item2 {
-  height: 400px;
-  object-fit: cover;
-}
-.item3 {
-  width: 400px;
-  height: 185px;
-}
-.content, .text {
-  width: 300px;
-  text-align: center;
-}
-.content {
-  font-weight: bold;
-  margin-top: 10px;
-}
-.text {
-  font-size: 14px;
-  color: #555;
-}
-.container img {
-  border-radius: 20px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-}
-.bottom-images {
-  display: flex;
-  flex-direction: column;
-  gap: 30px; /* ระยะห่างระหว่างรูป */
-  align-items: center;
-}
-
+  .blob {
+    position: absolute;
+    background: #e0e7ff;
+    border-radius: 50%;
+    filter: blur(40px);
+    z-index: -1;
+  }
 </style>
 </head>
+<body class="flex flex-col min-h-screen">
 
-<body class="bg-gray-200 min-h-screen">
-
-<!-- Popup -->
-<div id="popup" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 transition-opacity duration-500">
-  <div class="relative text-center">
-    <img src="https://github.com/kirari123eiei/Test-Farm/blob/main/public/frame.jpg?raw=true"
-         class="max-w-xs md:max-w-md mx-auto rounded-lg shadow-lg">
-
-    <div id="closePopup" class="absolute left-1/2 -translate-x-1/2 -bottom-12">
-      <div class="toggle">
-        <div class="bar bar--top"></div>
-        <div class="bar bar--middle"></div>
-        <div class="bar bar--bottom"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== content ===== -->
-<div class="flex flex-col gap-[2%] min-h-screen">
-  <div class="w-full text-center pt-6">
-    <h1 class="text-3xl font-bold">Welcome to Klabot</h1>
-  </div>
-
-  <div class="container">
-    <div class="item">
-      <img src="https://github.com/kirari123eiei/Test-Farm/blob/main/public/Klabot.jpg?raw=true" class="item1">
-      <div class="content">Klabot</div>
-      <div class="text">
-        สิ่งประดิษฐ์และนวัตกรรม ด้านการเกษตร<br>
-        โรงเรียนสาธิตมหาวิทยาลัยขอนแก่น ฝ่ายมัธยมศึกษา <br>
-        (มอดินแดง)
-      </div>
+    <!-- 🔵 Popup Overlay -->
+    <div id="popup" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl transform transition-all scale-100 animate-fade-in-up">
+            <!-- รูปใน Popup -->
+            <img src="https://github.com/kirari123eiei/Test-Farm/blob/main/public/frame.jpg?raw=true" class="w-full rounded-xl block">
+            
+            <!-- ปุ่มปิด X -->
+            <button id="closePopup" class="absolute -bottom-14 left-1/2 -translate-x-1/2 bg-white/20 hover:bg-white/40 text-white rounded-full p-3 transition border border-white/30 backdrop-blur-md">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
     </div>
 
-    <div class="item2">
-      <img src="https://github.com/kirari123eiei/Test-Farm/blob/main/public/innovation.jpg?raw=true" class="item2">
-    </div>
+    <!-- 🔵 Main Content -->
+    <main class="flex-grow flex items-center justify-center relative p-6">
+        
+        <!-- Background Blobs -->
+        <div class="blob w-96 h-96 top-0 left-0 -translate-x-1/2 -translate-y-1/2"></div>
+        <div class="blob w-80 h-80 bottom-0 right-0 translate-x-1/3 translate-y-1/3 bg-blue-100"></div>
 
-    <div class="bottom-images">
-    <img src="https://github.com/kirari123eiei/Test-Farm/blob/main/public/hand.jpg?raw=true" class="item3">
-    <img src="https://github.com/kirari123eiei/Test-Farm/blob/main/public/plant.jpg?raw=true" class="item3">
-  </div>
-  </div>
+        <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            
+            <!-- Left: Text Content -->
+            <div class="text-center lg:text-left space-y-6 order-2 lg:order-1">
+                <div class="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-full mb-2 uppercase tracking-wide">
+                    Smart Farming Innovation
+                </div>
+                <h1 class="text-4xl md:text-6xl font-bold text-slate-800 leading-tight">
+                    Welcome to <br>
+                    <span class="text-blue-600">Klabot Project</span>
+                </h1>
+                <p class="text-slate-500 text-lg md:text-xl max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                    สิ่งประดิษฐ์และนวัตกรรมด้านการเกษตรอัจฉริยะ<br>
+                    โรงเรียนสาธิตมหาวิทยาลัยขอนแก่น ฝ่ายมัธยมศึกษา <br> (มอดินแดง)
+                </p>
+                
+                <div class="pt-4">
+                    <a href="camera.html" class="btn-enter inline-flex items-center gap-3 px-8 py-4 rounded-full text-white font-bold text-lg">
+                        <span>เข้าสู่เว็บไซต์</span>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
+                    </a>
+                </div>
+            </div>
 
-    
+            <!-- Right: Image Gallery (Masonry Style) -->
+            <div class="order-1 lg:order-2 relative">
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- รูปใหญ่ซ้าย -->
+                    <div class="space-y-4 pt-12">
+                        <img src="https://github.com/kirari123eiei/Test-Farm/blob/main/public/Klabot.jpg?raw=true" class="hero-img w-full h-64 object-cover">
+                        <img src="https://github.com/kirari123eiei/Test-Farm/blob/main/public/hand.jpg?raw=true" class="hero-img w-full h-40 object-cover">
+                    </div>
+                    <!-- รูปใหญ่ขวา (เยื้องขึ้น) -->
+                    <div class="space-y-4">
+                        <img src="https://github.com/kirari123eiei/Test-Farm/blob/main/public/plant.jpg?raw=true" class="hero-img w-full h-48 object-cover">
+                        <img src="https://github.com/kirari123eiei/Test-Farm/blob/main/public/innovation.jpg?raw=true" class="hero-img w-full h-72 object-cover">
+                    </div>
+                </div>
+            </div>
 
-  <div class="w-full text-center">
-        <a href="camera.html" class="ui-button">
-      <span class="button-content">เข้าสู่เว็บไซต์</span>
-    </a>
-  </div>
-</div>
+        </div>
+    </main>
 
-<div class="footer-text">© presented by klabot dev team</div>
+    <!-- Footer -->
+    <footer class="text-center py-6 text-slate-400 text-xs">
+    &copy; 2025 Klabot Dev Team. All rights reserved.
+    </footer>
 
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase Connection
+        const SUPABASE_URL = "https://yiaemxmwfxrfrwtogamw.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw";
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const SUPABASE_URL = "https://yiaemxmwfxrfrwtogamw.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWVteG13ZnhyZnJ3dG9nYW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzMwOTYsImV4cCI6MjA3NzEwOTA5Nn0.I9MQPD_2LgpyELygjOroGG5qRTcwySM_t7c1o-ZvZpw";
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Check Login
+        async function checkUser(){
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if(!session || !session.user){ 
+                window.location.href="login.html"; 
+                return; 
+            }
+        }
+        checkUser();
 
-let currentUser = null;
-let currentPoint = {x:0,y:0};
-let chart = null;
+        // Popup Logic
+        window.addEventListener("load", () => {
+            // หน่วงเวลาเล็กน้อยเพื่อให้หน้าเว็บโหลดเสร็จก่อนแสดง Popup
+            setTimeout(() => {
+                document.getElementById("popup").classList.add("active");
+            }, 500);
+        });
 
-// เช็ค user
-async function checkUser(){
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  if(!session || !session.user){ window.location.href="login.html"; return; }
-  currentUser = session.user;
-  document.getElementById("sidebarUsername").textContent = `ผู้ใช้: ${currentUser.email}`;
-  document.getElementById("app").style.display="block";
-  initGrid();
-}
-checkUser();
-
-
-window.addEventListener("load", () => {
-  document.getElementById("popup").classList.add("active");
-});
-
-const closePopup = document.getElementById("closePopup");
-if (closePopup) {
-  closePopup.addEventListener("click", () => {
-    const popup = document.getElementById("popup");
-    popup.classList.remove("active");
-    setTimeout(() => popup.style.display = "none", 400);
-  });
-}
-
-/* ===== ป้องกัน error sidebar (ไม่ทำอะไรถ้าไม่มี element) ===== */
-const closeSidebarX = document.getElementById("closeSidebarX");
-const sidebar = document.getElementById("sidebar");
-const overlay = document.getElementById("overlay");
-
-if (closeSidebarX && sidebar && overlay) {
-  closeSidebarX.addEventListener("click", () => {
-    sidebar.classList.remove("active");
-    overlay.style.display = "none";
-  });
-
-  overlay.addEventListener("click", () => {
-    sidebar.classList.remove("active");
-    overlay.style.display = "none";
-  });
-}
-</script>
-
+        document.getElementById("closePopup").addEventListener("click", () => {
+            document.getElementById("popup").classList.remove("active");
+        });
+    </script>
 </body>
 </html>
