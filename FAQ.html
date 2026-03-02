@@ -92,6 +92,80 @@
         left: 16px;
     }
 }
+
+/* --- Mobile Fix for FAQ --- */
+  @media (max-width: 1024px) {
+      /* ขยาย Font */
+      html, body { font-size: 16px; }
+
+      #app, .w-full.max-w-6xl { padding: 20px 16px !important; width: 100% !important; }
+
+      /* หัวข้อคำถาม */
+      .accordion-title {
+          padding: 24px 20px !important; /* พื้นที่กดใหญ่ขึ้น */
+          font-size: 1.1rem !important; /* ตัวหนังสือใหญ่ */
+      }
+      
+      /* เนื้อหาคำตอบ */
+      .accordion-content { font-size: 1rem !important; line-height: 1.7; }
+      
+      /* กล่อง Weather และ Feedback */
+      .weather-card, .bg-white {
+          border-radius: 20px !important;
+          padding: 24px !important;
+      }
+      
+      /* ช่องกรอกข้อความ Feedback */
+      #feedbackInput {
+          height: 120px !important;
+          font-size: 1rem !important;
+          padding: 15px !important;
+      }
+      
+      /* ปุ่มส่ง */
+      #sendFeedback {
+          padding: 16px !important;
+          font-size: 1.1rem !important;
+      }
+  }
+
+  /* --- Global Mobile Fix (วางไว้ล่างสุดของ style) --- */
+@media (max-width: 1024px) {
+    /* บังคับ Base Font ให้ใหญ่ขึ้น */
+    html, body {
+        font-size: 16px !important;
+    }
+
+    /* ขยายหัวข้อต่างๆ */
+    h1 { font-size: 2.2rem !important; line-height: 1.3 !important; }
+    h2 { font-size: 1.8rem !important; }
+    h3 { font-size: 1.5rem !important; }
+    
+    /* ขยาย Container หลักให้เต็มจอ ไม่ให้มีขอบเหลือเยอะเกินไป */
+    #app, 
+    .w-full.max-w-5xl, 
+    .w-full.max-w-6xl, 
+    .w-full.max-w-7xl,
+    .max-w-6xl {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* ปุ่ม Hamburger (เมนู) ใหญ่ขึ้น */
+    .hamburger-btn {
+        width: 50px !important;
+        height: 50px !important;
+        top: 15px !important;
+        left: 15px !important;
+    }
+    
+    /* ขยาย Input และ ปุ่มกด ทั่วไป */
+    input, select, textarea, button {
+        font-size: 16px !important; /* ป้องกัน iOS ซูม */
+    }
+}
 </style>
 </head>
 <body class="bg-slate-50 min-h-screen">

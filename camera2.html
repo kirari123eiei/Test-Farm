@@ -12,14 +12,42 @@
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
+  /* --- Global Font & Base Settings --- */
   body {
     font-family: 'Prompt', sans-serif;
-    background-color: #f1f5f9; /* Slate-100 */
-    color: #334155; /* Slate-700 */
+    background-color: #f1f5f9;
+    color: #334155;
     overflow-x: hidden;
+    /* ✅ เพิ่ม: ขนาดตัวอักษรพื้นฐานให้ใหญ่ขึ้นบนมือถือ */
+    font-size: 16px; 
   }
 
-  /* --- Responsive Iframe --- */
+  /* --- Responsive Fixes (Mobile First) --- */
+  @media (max-width: 1024px) { /* ✅ แก้: ขยายจาก 768px เป็น 1024px ให้ครอบคลุมมือถือจอใหญ่ */
+    html, body {
+      font-size: 17px !important; /* บังคับตัวอักษรใหญ่ขึ้น */
+    }
+    
+    h1 { font-size: 1.8rem !important; }
+    h2 { font-size: 1.5rem !important; }
+    h3 { font-size: 1.3rem !important; }
+
+    /* ปรับ Container ให้ชิดขอบมากขึ้น จะได้มีพื้นที่เหลือ */
+    #app, .w-full.max-w-5xl {
+      padding-left: 12px !important;
+      padding-right: 12px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    /* ปุ่ม Hamburger ใหญ่ขึ้น */
+    .hamburger-btn {
+      width: 56px; height: 56px; top: 16px; left: 16px;
+    }
+    .hamburger-btn svg { width: 32px; height: 32px; }
+  }
+
+  /* --- Camera Iframe --- */
   .camera-container {
     position: relative;
     width: 100%;
@@ -31,87 +59,25 @@
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     margin: 0 auto;
   }
-  .camera-container iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-  }
-
-  /* --- Grid Styling --- */
-  .grid-wrapper {
-    overflow: hidden;
-    padding: 10px;
-    border-radius: 16px;
-    background: white;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: center;
-  }
-  
-  .grid-container {
-    position: relative;
-    background: white;
-    margin-top: 0;
-    flex-shrink: 0;
-  }
-
-  .vertical-line, .horizontal-line {
-    position: absolute;
-    background: #e2e8f0;
-  }
-  .vertical-line { width: 1px; top: 0; bottom: 0; }
-  .horizontal-line { height: 1px; left: 0; right: 0; }
-
-  /* Seed / Point */
-  .point-container { position: absolute; }
-  .seed {
-    font-size: 28px;
-    cursor: pointer;
-    user-select: none;
-    transform: translate(-50%, -50%);
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
-  }
-  .seed:hover {
-    transform: translate(-50%, -50%) scale(1.4);
-  }
+  .camera-container iframe { width: 100%; height: 100%; border: none; }
 
   /* --- Sidebar --- */
   #sidebar {
-    position: fixed;
-    top: 0;
-    left: -280px;
-    width: 280px;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    box-shadow: 4px 0 24px rgba(0,0,0,0.05);
-    z-index: 60;
+    position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
+    background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.05); z-index: 60;
     transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
+    padding: 24px; display: flex; flex-direction: column;
   }
   #sidebar.active { left: 0; }
   
   .sidebar-link {
-    display: flex;
-    align-items: center;
-    padding: 12px 16px;
-    margin-bottom: 8px;
-    border-radius: 12px;
-    color: #475569;
-    font-weight: 500;
-    transition: all 0.2s;
+    display: flex; align-items: center; padding: 12px 16px; margin-bottom: 8px;
+    border-radius: 12px; color: #475569; font-weight: 500; transition: all 0.2s;
   }
-  .sidebar-link:hover {
-    background: #eff6ff;
-    color: #2563eb;
-    transform: translateX(4px);
-  }
+  .sidebar-link:hover { background: #eff6ff; color: #2563eb; transform: translateX(4px); }
 
-  /* --- Overlay (Card / Bottom Sheet) --- */
-  /* --- Overlay (Card / Bottom Sheet) --- */
+  /* --- Grid Overlay (Popup) --- */
   .grid-overlay {
     position: fixed;
     background: rgba(255, 255, 255, 0.98);
@@ -122,232 +88,123 @@
     display: none;
     flex-direction: column;
     
-    /* Desktop Default (ค่าเริ่มต้นของคอม) */
-    top: 20px;
-    right: 20px;
-    width: 360px;
+    /* Default Desktop Style */
+    top: 20px; right: 20px; width: 360px;
     max-height: calc(100vh - 40px);
     border-radius: 20px;
     overflow-y: auto;
-    
-    /* Animation ของคอม */
     animation: slideInRight 0.3s ease-out;
   }
 
-  /* Mobile Overlay -> Bottom Sheet (ค่าของมือถือ) */
-  @media (max-width: 768px) {
+  /* ✅ Mobile Overlay Style (บังคับใช้เมื่อจอเล็กกว่า 1024px) */
+  @media (max-width: 1024px) {
     .grid-overlay {
-      /* บังคับตำแหน่งให้ติดขอบล่าง */
-      top: auto !important; 
-      bottom: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-      
-      /* บังคับขนาดให้เต็มความกว้าง */
-      width: 100% !important;
+      top: auto !important;     /* ยกเลิก top */
+      bottom: 0 !important;     /* บังคับติดล่าง */
+      left: 0 !important;       /* ชิดซ้าย */
+      right: 0 !important;      /* ชิดขวา */
+      width: 100% !important;   /* กว้างเต็มจอ */
       max-width: 100% !important;
       margin: 0 !important;
-      
-      /* ความสูงและความโค้ง */
-      max-height: 85vh;
-      border-radius: 24px 24px 0 0 !important;
-      
-      /* Animation ของมือถือ (ทับของคอม) */
+      max-height: 85vh;         /* สูงไม่เกิน 85% ของจอ */
+      border-radius: 24px 24px 0 0 !important; /* มนแค่ข้างบน */
       animation: slideUp 0.3s ease-out !important;
     }
   }
 
-  /* Keyframes: คอม (เลื่อนจากขวา) */
-  @keyframes slideInRight {
-    from { opacity: 0; transform: translateX(20px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
+  @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: translateY(0); } }
 
-  /* Keyframes: มือถือ (เลื่อนจากล่าง) */
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(100%); }
-    to { opacity: 1; transform: translateY(0); }
+  /* --- Grid & Elements --- */
+  .grid-wrapper {
+    overflow: hidden; padding: 10px; border-radius: 16px;
+    background: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    display: flex; justify-content: center;
   }
+  .grid-container { position: relative; background: white; margin-top: 0; flex-shrink: 0; }
+  .vertical-line, .horizontal-line { position: absolute; background: #e2e8f0; }
+  .vertical-line { width: 1px; top: 0; bottom: 0; }
+  .horizontal-line { height: 1px; left: 0; right: 0; }
 
-  /* --- Custom Scrollbar --- */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  /* Seed Styles */
+  .point-container { position: absolute; }
+  .seed {
+    cursor: pointer; user-select: none;
+    transform: translate(-50%, -50%);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
+    /* ✅ เพิ่ม: ให้กดง่ายขึ้น */
+    display: flex; align-items: center; justify-content: center;
+  }
+  .seed:hover { transform: translate(-50%, -50%) scale(1.4); }
 
-  /* --- Buttons & Switches --- */
-  .mode-btn {
-    padding: 10px 20px;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: 1px solid transparent;
-    width: 100%;
-  }
-  .mode-btn.active {
-    background: #2563eb;
-    color: white;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-  }
-  .mode-btn.inactive {
-    background: white;
-    color: #64748b;
-    border-color: #e2e8f0;
-  }
-  .mode-btn.inactive:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-  }
-
-  /* Toggle Switch */
-  .switch {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 28px;
-  }
+  /* UI Components */
+  .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
   .switch input { opacity: 0; width: 0; height: 0; }
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: #e2e8f0;
-    transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 34px;
-  }
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: 22px;
-    width: 22px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e2e8f0; transition: .3s; border-radius: 34px; }
+  .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
   input:checked + .slider { background-color: #10b981; }
   input:checked + .slider:before { transform: translateX(22px); }
 
-  /* Action Buttons */
-  .action-btn {
-    width: 100%;
-    padding: 12px;
-    border-radius: 12px;
-    font-weight: 600;
-    color: white;
-    transition: transform 0.1s, box-shadow 0.2s;
-    margin-bottom: 8px;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  .action-btn:active { transform: scale(0.98); }
+  .mode-btn { padding: 14px 20px; border-radius: 12px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; width: 100%; }
+  .mode-btn.active { background: #2563eb; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+  .mode-btn.inactive { background: white; color: #64748b; border-color: #e2e8f0; }
+  
+  .action-btn { width: 100%; padding: 14px; border-radius: 12px; font-weight: 600; color: white; transition: transform 0.1s; margin-bottom: 8px; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; }
   .btn-green { background: linear-gradient(135deg, #10b981, #059669); }
   .btn-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
   .btn-purple { background: linear-gradient(135deg, #a855f7, #9333ea); }
   .btn-red { background: linear-gradient(135deg, #ef4444, #dc2626); }
   .btn-gray { background: #64748b; }
-  .btn-gray:hover { background: #475569; }
 
-  /* Upload Button Style (Fixed Display Block) */
-  .upload-area {
-    display: block;
-    width: 100%;
-    border: 2px dashed #cbd5e1;
-    border-radius: 12px;
-    padding: 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    color: #64748b;
-    margin-bottom: 10px;
-    background-color: #f8fafc;
-  }
-  .upload-area:hover {
-    border-color: #3b82f6;
-    background: #eff6ff;
-    color: #3b82f6;
-  }
+  .upload-area { display: block; width: 100%; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; color: #64748b; margin-bottom: 10px; background-color: #f8fafc; }
 
-  /* Hamburger */
-  .hamburger-btn {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    z-index: 50;
-    background: white;
-    border-radius: 50%;
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    cursor: pointer;
-    transition: transform 0.2s;
-  }
-  .hamburger-btn:hover { transform: scale(1.05); }
-
-  /* Overlay Background */
-  #overlayBg {
-    position: fixed;
-    top:0; left:0; width:100%; height:100%;
-    background: rgba(0,0,0,0.3);
-    backdrop-filter: blur(2px);
-    display:none;
-    z-index:55;
-  }
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
   
-  /* Tooltip */
-  .point-tooltip {
-    background: #1e293b;
-    color: white;
-    padding: 6px 10px;
-    border-radius: 8px;
-    font-size: 12px;
-    white-space: nowrap;
-    opacity: 0;
-    transition: opacity 0.2s;
-    z-index: 20;
-    pointer-events: none;
-    position: absolute;
-    bottom: 120%;
-    left: 50%;
-    transform: translateX(-50%);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  }
+  #overlayBg { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(2px); display:none; z-index:55; }
+  .hamburger-btn { position: fixed; top: 20px; left: 20px; z-index: 50; background: white; border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.08); cursor: pointer; transition: transform 0.2s; }
+  .point-tooltip { background: #1e293b; color: white; padding: 6px 10px; border-radius: 8px; font-size: 12px; white-space: nowrap; opacity: 0; transition: opacity 0.2s; z-index: 20; pointer-events: none; position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
   .point-container:hover .point-tooltip { opacity: 1; }
 
 
-  /* ปรับ Base Font สำหรับมือถือ */
-@media (max-width: 768px) {
+  /* --- Global Mobile Fix (วางไว้ล่างสุดของ style) --- */
+@media (max-width: 1024px) {
+    /* บังคับ Base Font ให้ใหญ่ขึ้น */
     html, body {
-        font-size: 16px; /* บังคับ Base Size */
+        font-size: 16px !important;
     }
-    h1 { font-size: 2rem !important; } /* หัวข้อใหญ่ */
-    h2 { font-size: 1.5rem !important; }
-    h3 { font-size: 1.25rem !important; }
+
+    /* ขยายหัวข้อต่างๆ */
+    h1 { font-size: 2.2rem !important; line-height: 1.3 !important; }
+    h2 { font-size: 1.8rem !important; }
+    h3 { font-size: 1.5rem !important; }
     
-    /* ขยาย Container หลักให้เต็มจอมากขึ้น */
-    #app, .w-full.max-w-5xl, .w-full.max-w-6xl, .w-full.max-w-7xl {
+    /* ขยาย Container หลักให้เต็มจอ ไม่ให้มีขอบเหลือเยอะเกินไป */
+    #app, 
+    .w-full.max-w-5xl, 
+    .w-full.max-w-6xl, 
+    .w-full.max-w-7xl,
+    .max-w-6xl {
         padding-left: 16px !important;
         padding-right: 16px !important;
         width: 100% !important;
         max-width: 100% !important;
     }
 
-    /* ปุ่ม Hamburger ใหญ่ขึ้น */
+    /* ปุ่ม Hamburger (เมนู) ใหญ่ขึ้น */
     .hamburger-btn {
-        width: 56px;
-        height: 56px;
-        top: 16px;
-        left: 16px;
+        width: 50px !important;
+        height: 50px !important;
+        top: 15px !important;
+        left: 15px !important;
+    }
+    
+    /* ขยาย Input และ ปุ่มกด ทั่วไป */
+    input, select, textarea, button {
+        font-size: 16px !important; /* ป้องกัน iOS ซูม */
     }
 }
 </style>
@@ -580,45 +437,45 @@
       if(error) console.error(error.message); else window.location.href="login.html";
     });
 
-    function initGrid(){
+    function initGrid() {
       const grid = document.getElementById("grid");
       grid.innerHTML = "";
 
       const cols = 6;
       const rows = 11;
 
-      // ✅ สูตรคำนวณ Responsive (เหมือน Camera 1)
-      let cellSize = 60; 
+      // --- 📱 ส่วนคำนวณขนาดจอ (Responsive Fix) ---
+      let cellSize = 60;
 
-
-      if (window.innerWidth < 768) {
-        // ลดตัวลบลงจาก 60 เหลือ 32 เพื่อให้ Grid ชิดขอบมากขึ้น (เต็มจอขึ้น)
-        const availableWidth = window.innerWidth - 32; 
+      if (window.innerWidth < 1024) {
+        const availableWidth = window.innerWidth - 32;
         cellSize = Math.floor(availableWidth / (cols + 1));
       }
 
-      grid.style.width  = `${cellSize * (cols + 1)}px`;
+      if (cellSize < 35) cellSize = 35;
+
+      grid.style.width = `${cellSize * (cols + 1)}px`;
       grid.style.height = `${cellSize * (rows + 1)}px`;
 
-      /* เส้นตั้ง */
-      for(let i = 1; i <= cols; i++){
+      /* วาดเส้นตั้ง */
+      for (let i = 1; i <= cols; i++) {
         const v = document.createElement("div");
         v.className = "vertical-line";
         v.style.left = `${i * cellSize}px`;
         grid.appendChild(v);
       }
 
-      /* เส้นนอน */
-      for(let j = 1; j <= rows; j++){
+      /* วาดเส้นนอน */
+      for (let j = 1; j <= rows; j++) {
         const h = document.createElement("div");
         h.className = "horizontal-line";
         h.style.top = `${j * cellSize}px`;
         grid.appendChild(h);
       }
 
-      /* จุด 🌱 */
-      for(let x = 1; x <= cols; x++){
-        for(let y = 1; y <= rows; y++){
+      /* วาดจุดต้นไม้ 🌱 */
+      for (let x = 1; x <= cols; x++) {
+        for (let y = 1; y <= rows; y++) {
           const px = x * cellSize;
           const py = y * cellSize;
 
@@ -630,11 +487,8 @@
           const seed = document.createElement("div");
           seed.className = "seed";
           seed.textContent = "🌱";
+          seed.style.fontSize = `${cellSize * 0.55}px`;
 
-          // ✅ เพิ่มบรรทัดนี้: ปรับขนาดไอคอนตามช่อง
-          seed.style.fontSize = `${cellSize * 0.5}px`; 
-
-          // Tooltip
           const tooltip = document.createElement("div");
           tooltip.className = "point-tooltip";
           tooltip.textContent = `(${x}, ${y})`;
@@ -650,10 +504,12 @@
             tooltip.innerHTML = `ตำแหน่ง: (${x},${y})<br>ชื่อ: ${data?.name || "-"}`;
           });
 
-          // ✅ แก้ไขเงื่อนไข: ห้ามกดแถว 4-6 (x >= 4)
-          if (x >= 4 && x <= 6) {
+          // 🔒 LOGIC: แขนกล 2 (Zone B)
+          // ใช้งานได้แค่คอลัมน์ 4-6 | ปิดคอลัมน์ 1-3
+          if (x <= 3) { 
             seed.style.opacity = "0.3";
             seed.style.cursor = "not-allowed";
+            // ไม่ใส่ click listener
           } else {
             seed.addEventListener("click", () => openGridOverlay(x, y));
           }
