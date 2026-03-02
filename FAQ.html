@@ -42,6 +42,8 @@
     width: 100%; padding: 20px; text-align: left; font-weight: 600;
     display: flex; justify-content: space-between; align-items: center; cursor: pointer;
     color: #1e293b;
+    padding: 24px 20px; 
+    font-size: 16px; /* ตัวหนังสือใหญ่ขึ้น */
   }
   .accordion-content {
     max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;
@@ -63,6 +65,32 @@
   }
   .accordion-content.info p {
     text-indent: 2em;   /* ระยะย่อหน้า */
+}
+
+/* ปรับ Base Font สำหรับมือถือ */
+@media (max-width: 768px) {
+    html, body {
+        font-size: 16px; /* บังคับ Base Size */
+    }
+    h1 { font-size: 2rem !important; } /* หัวข้อใหญ่ */
+    h2 { font-size: 1.5rem !important; }
+    h3 { font-size: 1.25rem !important; }
+    
+    /* ขยาย Container หลักให้เต็มจอมากขึ้น */
+    #app, .w-full.max-w-5xl, .w-full.max-w-6xl, .w-full.max-w-7xl {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* ปุ่ม Hamburger ใหญ่ขึ้น */
+    .hamburger-btn {
+        width: 56px;
+        height: 56px;
+        top: 16px;
+        left: 16px;
+    }
 }
 </style>
 </head>

@@ -44,6 +44,32 @@
   #previewOverlay {
     backdrop-filter: blur(5px);
   }
+
+  /* ปรับ Base Font สำหรับมือถือ */
+@media (max-width: 768px) {
+    html, body {
+        font-size: 16px; /* บังคับ Base Size */
+    }
+    h1 { font-size: 2rem !important; } /* หัวข้อใหญ่ */
+    h2 { font-size: 1.5rem !important; }
+    h3 { font-size: 1.25rem !important; }
+    
+    /* ขยาย Container หลักให้เต็มจอมากขึ้น */
+    #app, .w-full.max-w-5xl, .w-full.max-w-6xl, .w-full.max-w-7xl {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* ปุ่ม Hamburger ใหญ่ขึ้น */
+    .hamburger-btn {
+        width: 56px;
+        height: 56px;
+        top: 16px;
+        left: 16px;
+    }
+}
 </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
@@ -86,7 +112,7 @@
         </header>
 
         <!-- Image Grid -->
-        <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             <!-- JS will populate images here -->
         </div>
         

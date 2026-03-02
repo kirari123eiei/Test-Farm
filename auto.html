@@ -123,6 +123,28 @@
     transition: all 0.2s;
     width: 100%;
     text-align: center;
+
+    font-size: 16px; /* ป้องกัน iOS zoom */
+    padding: 10px 12px; /* เพิ่ม padding */
+    height: 44px; /* ความสูงมาตรฐานปุ่มมือถือ */
+  }
+
+    /* ปรับ Layout แถวฟังก์ชันในมือถือ */
+  @media (max-width: 640px) {
+      .function-row {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
+      }
+      .function-row > div:first-child {
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+      }
+      /* ขยายปุ่ม Switch ในมือถือให้กดง่าย */
+      .switch { transform: scale(1.2); origin: left; }
   }
   .time-input:focus {
     border-color: #3b82f6;
@@ -187,6 +209,32 @@
     cursor: not-allowed;
     transform: none;
   }
+
+  /* ปรับ Base Font สำหรับมือถือ */
+@media (max-width: 768px) {
+    html, body {
+        font-size: 16px; /* บังคับ Base Size */
+    }
+    h1 { font-size: 2rem !important; } /* หัวข้อใหญ่ */
+    h2 { font-size: 1.5rem !important; }
+    h3 { font-size: 1.25rem !important; }
+    
+    /* ขยาย Container หลักให้เต็มจอมากขึ้น */
+    #app, .w-full.max-w-5xl, .w-full.max-w-6xl, .w-full.max-w-7xl {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* ปุ่ม Hamburger ใหญ่ขึ้น */
+    .hamburger-btn {
+        width: 56px;
+        height: 56px;
+        top: 16px;
+        left: 16px;
+    }
+}
 
 </style>
 </head>

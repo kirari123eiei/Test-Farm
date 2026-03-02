@@ -112,6 +112,7 @@
   }
 
   /* --- Overlay (Card / Bottom Sheet) --- */
+  /* --- Overlay (Card / Bottom Sheet) --- */
   .grid-overlay {
     position: fixed;
     background: rgba(255, 255, 255, 0.98);
@@ -121,34 +122,49 @@
     box-shadow: 0 10px 40px rgba(0,0,0,0.2);
     display: none;
     flex-direction: column;
-    /* Desktop Default */
+    
+    /* Desktop Default (ค่าเริ่มต้นของคอม) */
     top: 20px;
     right: 20px;
     width: 360px;
     max-height: calc(100vh - 40px);
     border-radius: 20px;
     overflow-y: auto;
+    
+    /* Animation ของคอม */
     animation: slideInRight 0.3s ease-out;
   }
 
-  /* Mobile Overlay -> Bottom Sheet */
+  /* Mobile Overlay -> Bottom Sheet (ค่าของมือถือ) */
   @media (max-width: 768px) {
     .grid-overlay {
-      top: auto;
-      bottom: 0;
-      right: 0;
-      left: 0;
-      width: 100%;
+      /* บังคับตำแหน่งให้ติดขอบล่าง */
+      top: auto !important; 
+      bottom: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      
+      /* บังคับขนาดให้เต็มความกว้าง */
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 !important;
+      
+      /* ความสูงและความโค้ง */
       max-height: 85vh;
-      border-radius: 24px 24px 0 0;
-      animation: slideUp 0.3s ease-out;
+      border-radius: 24px 24px 0 0 !important;
+      
+      /* Animation ของมือถือ (ทับของคอม) */
+      animation: slideUp 0.3s ease-out !important;
     }
   }
 
+  /* Keyframes: คอม (เลื่อนจากขวา) */
   @keyframes slideInRight {
     from { opacity: 0; transform: translateX(20px); }
     to { opacity: 1; transform: translateX(0); }
   }
+
+  /* Keyframes: มือถือ (เลื่อนจากล่าง) */
   @keyframes slideUp {
     from { opacity: 0; transform: translateY(100%); }
     to { opacity: 1; transform: translateY(0); }
@@ -309,6 +325,32 @@
   }
   .point-container:hover .point-tooltip { opacity: 1; }
 
+  /* ปรับ Base Font สำหรับมือถือ */
+@media (max-width: 768px) {
+    html, body {
+        font-size: 16px; /* บังคับ Base Size */
+    }
+    h1 { font-size: 2rem !important; } /* หัวข้อใหญ่ */
+    h2 { font-size: 1.5rem !important; }
+    h3 { font-size: 1.25rem !important; }
+    
+    /* ขยาย Container หลักให้เต็มจอมากขึ้น */
+    #app, .w-full.max-w-5xl, .w-full.max-w-6xl, .w-full.max-w-7xl {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* ปุ่ม Hamburger ใหญ่ขึ้น */
+    .hamburger-btn {
+        width: 56px;
+        height: 56px;
+        top: 16px;
+        left: 16px;
+    }
+}
+
 </style>
 </head>
 <body class="bg-slate-50">
@@ -366,7 +408,7 @@
       <p class="text-slate-500 text-sm md:text-base">เครื่องดูแลการเพาะต้นกล้ากระถางแบบครบวงจร</p>
     </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 items-start">
       
       <!-- Left Column: Camera & Controls -->
       <div class="lg:col-span-6 flex flex-col gap-6">
@@ -376,11 +418,11 @@
         </div>
 
         <!-- Mode Select -->
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex gap-3">
-            <button id="detailModeBtn" class="mode-btn active" onclick="setOverlayMode('detail')">
+        <div class="bg-white p-3 md:p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-3">
+            <button id="detailModeBtn" class="mode-btn active py-4 text-base" onclick="setOverlayMode('detail')">
               🔍 ดูรายละเอียด
             </button>
-            <button id="handModeBtn" class="mode-btn inactive" onclick="setOverlayMode('hand')">
+            <button id="handModeBtn" class="mode-btn inactive py-4 text-base" onclick="setOverlayMode('hand')">
               🎮 สั่งงานแขนกล
             </button>
         </div>
@@ -555,8 +597,8 @@
       // ตรวจสอบความกว้างหน้าจอ (ถ้าเป็นมือถือ < 768px)
       /* ✅ แก้เป็น (ใช้ window.innerWidth - 60 เพื่อเผื่อขอบซ้ายขวาให้พอดีสวยงาม) */
       if (window.innerWidth < 768) {
-        // ใช้ความกว้างหน้าจอโดยตรง ลบ padding ซ้ายขวาของ Container (ประมาณ 48-60px)
-        const availableWidth = window.innerWidth - 60; 
+        // ลดตัวลบลงจาก 60 เหลือ 32 เพื่อให้ Grid ชิดขอบมากขึ้น (เต็มจอขึ้น)
+        const availableWidth = window.innerWidth - 32; 
         cellSize = Math.floor(availableWidth / (cols + 1));
       }
       
