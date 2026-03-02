@@ -237,95 +237,61 @@
 }
 
 /* --- Mobile Fix for Auto --- */
-  @media (max-width: 1024px) {
-      /* ขยาย Font พื้นฐาน */
-      html, body { font-size: 16px; }
-
-      /* ปรับ Container */
-      #app { padding: 20px 16px !important; width: 100% !important; max-width: 100% !important; }
-
-      /* การ์ดแต่ละใบ */
-      .control-card { padding: 20px !important; margin-bottom: 16px; }
-
-      /* จัดแถวฟังก์ชันใหม่: ชื่อฟังก์ชันอยู่บรรทัดบน, สวิตช์อยู่บรรทัดล่าง (หรือขวาสุดแบบใหญ่ๆ) */
-      .function-row {
-          flex-direction: column;
-          align-items: stretch !important;
-          gap: 15px;
-          padding: 15px 0 !important;
-      }
-      
-      /* ส่วนหัวของแต่ละแถว (ชื่อ + สวิตช์) */
-      .function-row > div:first-child {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          width: 100%;
-          margin-bottom: 10px;
-      }
-      
-      /* ขยายช่องเวลา (Time Input) */
-      .time-input {
-          height: 50px !important; /* สูงขึ้น */
-          font-size: 18px !important; /* ตัวเลขใหญ่ */
-          width: 100% !important;
-      }
-
-      /* ขยายสวิตช์ (Toggle) */
-      .switch { transform: scale(1.3); transform-origin: right center; }
-
-      /* ปุ่มบันทึก */
-      .save-btn {
-          width: 100% !important;
-          padding: 18px !important;
-          font-size: 1.2rem !important;
-          position: fixed; /* (Optional) ลอยอยู่ด้านล่างตลอด */
-          bottom: 20px; 
-          left: 50%; 
-          transform: translateX(-50%);
-          max-width: 90% !important;
-          z-index: 40;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      }
-      /* ดันเนื้อหาขึ้นหนีปุ่ม Save */
-      #app { padding-bottom: 100px !important; }
-  }
-
-  /* --- Global Mobile Fix (วางไว้ล่างสุดของ style) --- */
 @media (max-width: 1024px) {
-    /* บังคับ Base Font ให้ใหญ่ขึ้น */
-    html, body {
-        font-size: 16px !important;
+
+    html, body { 
+        font-size: 16px; 
     }
 
-    /* ขยายหัวข้อต่างๆ */
-    h1 { font-size: 2.2rem !important; line-height: 1.3 !important; }
-    h2 { font-size: 1.8rem !important; }
-    h3 { font-size: 1.5rem !important; }
-    
-    /* ขยาย Container หลักให้เต็มจอ ไม่ให้มีขอบเหลือเยอะเกินไป */
-    #app, 
-    .w-full.max-w-5xl, 
-    .w-full.max-w-6xl, 
-    .w-full.max-w-7xl,
-    .max-w-6xl {
-        padding-left: 16px !important;
-        padding-right: 16px !important;
-        width: 100% !important;
-        max-width: 100% !important;
+    #app { 
+        padding: 20px 16px !important; 
+        width: 100% !important; 
+        max-width: 100% !important; 
     }
 
-    /* ปุ่ม Hamburger (เมนู) ใหญ่ขึ้น */
-    .hamburger-btn {
-        width: 50px !important;
+    .control-card { 
+        padding: 20px !important; 
+        margin-bottom: 16px; 
+    }
+
+    .function-row {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 15px;
+        padding: 15px 0 !important;
+    }
+
+    .function-row > div:first-child {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .time-input {
         height: 50px !important;
-        top: 15px !important;
-        left: 15px !important;
+        font-size: 18px !important;
+        width: 100% !important;
     }
-    
-    /* ขยาย Input และ ปุ่มกด ทั่วไป */
-    input, select, textarea, button {
-        font-size: 16px !important; /* ป้องกัน iOS ซูม */
+
+    .switch { 
+        transform: scale(1.3); 
+        transform-origin: right center; 
+    }
+
+    /* ✅ ปุ่มกลับเป็นปกติ ไม่ลอย */
+    .save-btn {
+        position: static !important;
+        width: 100%;
+        max-width: 300px;
+        margin: 40px auto 60px auto;  /* เว้นระยะบน-ล่าง */
+        border-radius: 16px;
+        box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+    }
+
+    .save-btn:hover {
+        transform: translateY(-2px);
     }
 }
 
